@@ -134,7 +134,17 @@ function ClassCell({ data, isOutsideTable = false, interactive = false, onPick, 
         }}
         onMouseEnter={() => setCellHovering(data)}
         onMouseLeave={() => setCellHovering(null)}
-        onClick={interactive ? onPick : undefined}
+        onClick={
+          interactive
+            ? (e) => {
+                if (isHoveringOnRemoveIcon || (e.target as HTMLElement).closest('.remove-class-btn')) {
+                  e.stopPropagation();
+                  return;
+                }
+                onPick?.();
+              }
+            : undefined
+        }
         onKeyDown={
           interactive
             ? (event) => {
@@ -165,16 +175,19 @@ function ClassCell({ data, isOutsideTable = false, interactive = false, onPick, 
             <IconButton
               onMouseEnter={() => setIsHoveringOnRemoveIcon(true)}
               onMouseLeave={() => setIsHoveringOnRemoveIcon(false)}
-              style={{ position: 'absolute', top: 0, right: 0 }}
+              onMouseDown={(e) => e.stopPropagation()}
+              onMouseUp={(e) => e.stopPropagation()}
+              style={{ position: 'absolute', top: 0, right: 0, zIndex: 10 }}
               color="inherit"
               size="small"
               onClick={(e) => {
+                e.preventDefault();
                 e.stopPropagation();
                 setIsConfirmOpen(true);
               }}
               className="remove-class-btn"
             >
-              <DeleteOutlineIcon />
+              <DeleteOutlineIcon style={{ pointerEvents: 'none' }} />
             </IconButton>
           </Tooltip>
         )}

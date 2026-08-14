@@ -38,12 +38,6 @@ function Index() {
 
       {classes.length ? (
         <Paper className="surface-card timetable-card">
-          <div className="timetable-card-header">
-            <div className="timetable-card-title">
-              <strong>Bảng thời khóa biểu tuần</strong>
-              <span>Hiển thị tất cả các tiết học trong tuần</span>
-            </div>
-          </div>
           <ThoiKhoaBieuTable />
         </Paper>
       ) : (
