@@ -363,14 +363,13 @@ body {
   gap: 12px;
 }
 .class-code-editor .MuiOutlinedInput-root {
-  align-items: center !important;
   padding-top: 10px !important;
   padding-bottom: 10px !important;
 }
 .class-code-editor textarea.MuiInputBase-inputMultiline {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
   line-height: 1.4 !important;
-  margin-top: auto !important;
-  margin-bottom: auto !important;
 }
 .class-source-header {
   display: flex;

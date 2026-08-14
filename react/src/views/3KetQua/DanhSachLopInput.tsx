@@ -139,8 +139,9 @@ export default function DanhSachLopInput({ header }: { header?: React.ReactNode 
         fullWidth
         size="small"
         multiline
+        minRows={1}
+        maxRows={4}
         inputProps={{ readOnly: !isEditing, style: { resize: 'vertical' } }}
-        rows={2}
         variant="outlined"
         placeholder="Dán danh sách mã lớp, ví dụ: IT001.M11, CS112.L21"
         onChange={(event) => setDraft(event.target.value.toUpperCase())}
