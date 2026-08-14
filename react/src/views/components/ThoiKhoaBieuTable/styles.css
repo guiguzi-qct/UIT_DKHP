@@ -154,14 +154,15 @@
   min-height: 96px;
 }
 #thoi-khoa-bieu .cell-class-wrapper .remove-class-btn {
-  opacity: 0.45;
-  color: #59899D;
-  transition: all 120ms ease;
+  opacity: 0;
+  pointer-events: none;
+  color: #ef4444;
+  transition: opacity 140ms ease;
 }
 #thoi-khoa-bieu .cell-class-hovering .remove-class-btn,
 #thoi-khoa-bieu .cell-class-wrapper:hover .remove-class-btn {
   opacity: 1;
-  color: #ef4444;
+  pointer-events: auto;
 }
 #thoi-khoa-bieu .empty-schedule-slot {
   position: relative;
