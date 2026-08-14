@@ -99,24 +99,78 @@ export const [PhanLoaiHocTrenTruongContext, usePhanLoaiHocTrenTruongContext] = c
 export const useProcessImageTkb = () => {
   const tkbTableRef = React.useRef<HTMLTableElement>(null);
 
-  const saveTkbImageToComputer = React.useCallback(async () => {
-    if (!tkbTableRef.current) return;
-    const canvas = await html2canvas(tkbTableRef.current);
-    downloadFromCanvas(canvas, 'thoikhoabieu.png');
-  }, []);
+  const renderTimetableCanvas = React.useCallback(async () => {
+    if (!tkbTableRef.current) throw new Error('Không tìm thấy bảng thời khóa biểu');
 
-  const copyTkbImageToClipboard = React.useCallback(async () => {
-    if (!tkbTableRef.current) return;
-    const canvas = await html2canvas(tkbTableRef.current);
-    canvas.toBlob((blob) => {
-      if (blob === null) {
-        enqueueSnackbar('Sao chép vào clipboard thất bại, vui lòng thử lại.', { variant: 'error' });
-        return;
-      }
-      navigator.clipboard.write([new window.ClipboardItem({ [blob.type]: blob })]);
-      enqueueSnackbar('Sao chép vào clipboard thành công.', { variant: 'success' });
+    return html2canvas(tkbTableRef.current, {
+      backgroundColor: '#ffffff',
+      logging: false,
+      scale: Math.min(window.devicePixelRatio || 1, 2),
+      useCORS: true,
+      onclone: (clonedDocument) => {
+        const clonedTable = clonedDocument.querySelector<HTMLTableElement>('#thoi-khoa-bieu table');
+        clonedTable?.querySelectorAll<HTMLElement>('thead th, .cell-tiet').forEach((element) => {
+          element.style.position = 'static';
+          element.style.left = 'auto';
+          element.style.top = 'auto';
+        });
+        clonedTable
+          ?.querySelectorAll<HTMLElement>(
+            '.remove-class-btn, .cell-picker-hint, .empty-slot-action, .outside-class-action',
+          )
+          .forEach((element) => {
+            element.style.display = 'none';
+          });
+      },
     });
   }, []);
+
+  const canvasToPngBlob = React.useCallback(
+    (canvas: HTMLCanvasElement) =>
+      new Promise<Blob>((resolve, reject) => {
+        canvas.toBlob((blob) => {
+          if (blob) resolve(blob);
+          else reject(new Error('Không thể tạo ảnh PNG'));
+        }, 'image/png');
+      }),
+    [],
+  );
+
+  const saveTkbImageToComputer = React.useCallback(async () => {
+    try {
+      const canvas = await renderTimetableCanvas();
+      downloadFromCanvas(canvas, 'thoikhoabieu.png');
+      enqueueSnackbar('Đã tải ảnh thời khóa biểu.', { variant: 'success' });
+    } catch (error) {
+      console.error(error);
+      enqueueSnackbar('Không thể tạo ảnh thời khóa biểu, vui lòng thử lại.', { variant: 'error' });
+    }
+  }, [renderTimetableCanvas]);
+
+  const copyTkbImageToClipboard = React.useCallback(async () => {
+    let canvas: HTMLCanvasElement | null = null;
+
+    try {
+      canvas = await renderTimetableCanvas();
+      const blob = await canvasToPngBlob(canvas);
+      if (!navigator.clipboard?.write || typeof window.ClipboardItem !== 'function') {
+        downloadFromCanvas(canvas, 'thoikhoabieu.png');
+        enqueueSnackbar('Trình duyệt không hỗ trợ sao chép ảnh; ảnh đã được tải xuống.', { variant: 'info' });
+        return;
+      }
+
+      await navigator.clipboard.write([new window.ClipboardItem({ 'image/png': blob })]);
+      enqueueSnackbar('Sao chép vào clipboard thành công.', { variant: 'success' });
+    } catch (error) {
+      console.error(error);
+      if (canvas) {
+        downloadFromCanvas(canvas, 'thoikhoabieu.png');
+        enqueueSnackbar('Không thể ghi ảnh vào clipboard; ảnh đã được tải xuống.', { variant: 'warning' });
+        return;
+      }
+      enqueueSnackbar('Không thể tạo ảnh thời khóa biểu, vui lòng thử lại.', { variant: 'error' });
+    }
+  }, [canvasToPngBlob, renderTimetableCanvas]);
 
   return {
     tkbTableRef,

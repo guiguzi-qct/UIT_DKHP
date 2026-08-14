@@ -1,7 +1,3 @@
-import AddIcon from '@mui/icons-material/Add';
-import CloseIcon from '@mui/icons-material/Close';
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import SearchIcon from '@mui/icons-material/Search';
 import Button from '@mui/material/Button';
 import ButtonBase from '@mui/material/ButtonBase';
 import Chip from '@mui/material/Chip';
@@ -9,12 +5,10 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import IconButton from '@mui/material/IconButton';
-import InputAdornment from '@mui/material/InputAdornment';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { enqueueSnackbar } from 'notistack';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ClassModel } from '../../types';
 import { getDanhSachTiet, hasOverlapSchedule, hasTimetableSlot, isSameAgGridRowId } from '../../utils';
 import { selectFinalDataTkb, selectSelectedClasses, useTkbStore } from '../../zus';
@@ -22,13 +16,19 @@ import './CoursePickerDialog.css';
 
 export type PickerTarget =
   | { kind: 'all' }
-  | { kind: 'slot'; thu: number; tiet: string }
+  | { kind: 'slot'; thu: number; tiets: string[]; label: string }
   | { kind: 'replace'; existing: ClassModel };
 
 const isSameCoursePart = (a: ClassModel, b: ClassModel) => a.MaMH === b.MaMH && a.ThucHanh === b.ThucHanh;
 
 const getSelectionWithoutCoursePart = (selectedClasses: ClassModel[], candidate: ClassModel) =>
   selectedClasses.filter((selectedClass) => !isSameCoursePart(selectedClass, candidate));
+
+export const applyCandidateBatch = (selectedClasses: ClassModel[], candidates: ClassModel[]) =>
+  candidates.reduce(
+    (result, candidate) => [...getSelectionWithoutCoursePart(result, candidate), candidate],
+    selectedClasses,
+  );
 
 export function getCompatibleCandidates(
   data: ClassModel[],
@@ -40,10 +40,12 @@ export function getCompatibleCandidates(
       if (selectedClasses.some((selectedClass) => isSameAgGridRowId(selectedClass, candidate))) return false;
 
       if (target.kind === 'slot') {
+        const candidatePeriods = getDanhSachTiet(candidate.Tiet);
         const matchesSlot =
           hasTimetableSlot(candidate) &&
           candidate.Thu === String(target.thu) &&
-          getDanhSachTiet(candidate.Tiet).includes(target.tiet);
+          candidatePeriods.length > 0 &&
+          candidatePeriods.every((tiet) => target.tiets.includes(tiet));
         if (!matchesSlot) return false;
       }
 
@@ -52,12 +54,62 @@ export function getCompatibleCandidates(
       const classesKeptWhileTryingCandidate = getSelectionWithoutCoursePart(selectedClasses, candidate);
       return !hasOverlapSchedule(classesKeptWhileTryingCandidate, candidate);
     })
-    .sort((a, b) =>
-      `${a.TenMH}-${a.MaLop}`.localeCompare(`${b.TenMH}-${b.MaLop}`, 'vi', { sensitivity: 'base' }),
-    );
+    .sort((a, b) => `${a.TenMH}-${a.MaLop}`.localeCompare(`${b.TenMH}-${b.MaLop}`, 'vi', { sensitivity: 'base' }));
 }
 
-const formatTiet = (tiet: string) => getDanhSachTiet(tiet).map((value) => (value === '0' ? '10' : value)).join(', ');
+export function getCompatibleCandidatesWithDraft(
+  data: ClassModel[],
+  selectedClasses: ClassModel[],
+  target: PickerTarget,
+  draftCandidates: ClassModel[],
+): ClassModel[] {
+  const selectionWithDraft = applyCandidateBatch(selectedClasses, draftCandidates);
+
+  return getCompatibleCandidates(data, selectedClasses, target).filter((candidate) => {
+    if (draftCandidates.some((draft) => isSameAgGridRowId(draft, candidate))) return false;
+    if (draftCandidates.some((draft) => isSameCoursePart(draft, candidate))) return false;
+
+    const classesKeptWhileTryingCandidate = getSelectionWithoutCoursePart(selectionWithDraft, candidate);
+    return !hasOverlapSchedule(classesKeptWhileTryingCandidate, candidate);
+  });
+}
+
+export type CandidateCourseGroup = {
+  key: string;
+  name: string;
+  courseCodes: string[];
+  candidates: ClassModel[];
+};
+
+export function groupCandidatesByCourseName(candidates: ClassModel[]): CandidateCourseGroup[] {
+  const groups = new Map<string, CandidateCourseGroup>();
+
+  candidates.forEach((candidate) => {
+    const name = candidate.TenMH?.trim() || candidate.MaMH || 'Môn chưa có tên';
+    const key = name.toLocaleLowerCase('vi');
+    const existing = groups.get(key);
+
+    if (existing) {
+      existing.candidates.push(candidate);
+      if (candidate.MaMH && !existing.courseCodes.includes(candidate.MaMH)) existing.courseCodes.push(candidate.MaMH);
+      return;
+    }
+
+    groups.set(key, {
+      key,
+      name,
+      courseCodes: candidate.MaMH ? [candidate.MaMH] : [],
+      candidates: [candidate],
+    });
+  });
+
+  return [...groups.values()].sort((a, b) => a.name.localeCompare(b.name, 'vi', { sensitivity: 'base' }));
+}
+
+const formatTiet = (tiet: string) =>
+  getDanhSachTiet(tiet)
+    .map((value) => (value === '0' ? '10' : value))
+    .join(', ');
 
 const formatSchedule = (candidate: ClassModel) => {
   if (!hasTimetableSlot(candidate)) return 'Chưa có lịch cố định';
@@ -66,17 +118,20 @@ const formatSchedule = (candidate: ClassModel) => {
 
 const getDialogCopy = (target: PickerTarget) => {
   if (target.kind === 'all') {
-    return { title: 'Chọn môn học', description: 'Chỉ hiện các lớp không trùng với thời khóa biểu hiện tại.' };
+    return {
+      title: 'Chọn môn học',
+      description: 'Có thể chọn nhiều lớp rồi bấm Thêm. Các phương án trùng với phần đã chọn sẽ tự ẩn.',
+    };
   }
   if (target.kind === 'replace') {
     return {
       title: `Đổi lớp: ${target.existing.TenMH}`,
-      description: `Đang chọn ${target.existing.MaLop}. Các lớp bên dưới có thể thay thế mà không trùng lịch.`,
+      description: `Đang chọn ${target.existing.MaLop}. Chọn phương án thay thế rồi bấm Đổi lớp.`,
     };
   }
   return {
-    title: `Chọn lớp cho Thứ ${target.thu}, tiết ${target.tiet === '0' ? '10' : target.tiet}`,
-    description: 'Các lớp bên dưới đi qua ô này và vẫn vừa với phần lịch đã xếp.',
+    title: `Chọn lớp cho Thứ ${target.thu} · ${target.label}`,
+    description: 'Có thể chọn nhiều lớp nằm trọn trong vùng này. Phương án trùng giờ sẽ tự ẩn.',
   };
 };
 
@@ -87,35 +142,57 @@ type Props = {
 
 export default function CoursePickerDialog({ target, onClose }: Props) {
   const [search, setSearch] = useState('');
+  const [draftCandidates, setDraftCandidates] = useState<ClassModel[]>([]);
+  const [expandedCourseKey, setExpandedCourseKey] = useState<string | null>(null);
   const data = useTkbStore(selectFinalDataTkb);
   const selectedClasses = useTkbStore(selectSelectedClasses);
   const setSelectedClasses = useTkbStore((state) => state.setSelectedClasses);
 
+  useEffect(() => {
+    setSearch('');
+    setDraftCandidates([]);
+    setExpandedCourseKey(null);
+  }, [target]);
+
   const candidates = useMemo(() => {
     if (!target) return [];
     const normalizedSearch = search.trim().toLocaleLowerCase('vi');
-    return getCompatibleCandidates(data, selectedClasses, target).filter((candidate) => {
+    return getCompatibleCandidatesWithDraft(data, selectedClasses, target, draftCandidates).filter((candidate) => {
       if (!normalizedSearch) return true;
       return [candidate.TenMH, candidate.MaMH, candidate.MaLop, candidate.TenGV, candidate.PhongHoc]
         .filter(Boolean)
         .some((value) => String(value).toLocaleLowerCase('vi').includes(normalizedSearch));
     });
-  }, [data, search, selectedClasses, target]);
+  }, [data, draftCandidates, search, selectedClasses, target]);
+
+  const candidateGroups = useMemo(() => groupCandidatesByCourseName(candidates), [candidates]);
+
+  useEffect(() => {
+    if (search.trim() && candidateGroups.length === 1) setExpandedCourseKey(candidateGroups[0].key);
+  }, [candidateGroups, search]);
 
   if (!target) return null;
   const copy = getDialogCopy(target);
-  const displayedCandidates = candidates.slice(0, 100);
 
   const closeDialog = () => {
     setSearch('');
+    setDraftCandidates([]);
+    setExpandedCourseKey(null);
     onClose();
   };
 
   const chooseCandidate = (candidate: ClassModel) => {
-    const classesKept = getSelectionWithoutCoursePart(selectedClasses, candidate);
-    setSelectedClasses([...classesKept, candidate]);
-    enqueueSnackbar(`Đã chọn ${candidate.MaLop} · ${candidate.TenMH}`, { variant: 'success' });
-    setSearch('');
+    setDraftCandidates((current) => [...current, candidate]);
+  };
+
+  const removeDraftCandidate = (candidate: ClassModel) => {
+    setDraftCandidates((current) => current.filter((item) => !isSameAgGridRowId(item, candidate)));
+  };
+
+  const commitDraftCandidates = () => {
+    if (!draftCandidates.length) return;
+    setSelectedClasses(applyCandidateBatch(selectedClasses, draftCandidates));
+    enqueueSnackbar(`Đã thêm ${draftCandidates.length} lớp vào thời khóa biểu`, { variant: 'success' });
     closeDialog();
   };
 
@@ -130,7 +207,7 @@ export default function CoursePickerDialog({ target, onClose }: Props) {
     <Dialog
       open
       fullWidth
-      maxWidth="md"
+      maxWidth="lg"
       className="course-picker-dialog"
       onClose={(_event, reason) => {
         if (reason === 'escapeKeyDown') closeDialog();
@@ -138,12 +215,42 @@ export default function CoursePickerDialog({ target, onClose }: Props) {
     >
       <DialogTitle className="course-picker-title">
         <span>{copy.title}</span>
-        <IconButton className="course-picker-close" onClick={closeDialog} aria-label="Đóng popup chọn môn">
-          <CloseIcon />
-        </IconButton>
+        <button className="course-picker-close" type="button" onClick={closeDialog} aria-label="Đóng popup chọn môn">
+          ×
+        </button>
       </DialogTitle>
       <DialogContent dividers className="course-picker-content">
-        <Typography color="text.secondary" className="course-picker-description">{copy.description}</Typography>
+        <Typography color="text.secondary" className="course-picker-description">
+          {copy.description}
+        </Typography>
+
+        {!!draftCandidates.length && (
+          <section className="course-picker-draft" aria-label="Các lớp đang chọn">
+            <div className="course-picker-draft-head">
+              <strong>Đang chọn {draftCandidates.length} lớp</strong>
+              <button type="button" onClick={() => setDraftCandidates([])}>
+                Bỏ chọn hết
+              </button>
+            </div>
+            <div className="course-picker-draft-list">
+              {draftCandidates.map((candidate) => (
+                <button
+                  type="button"
+                  key={`${candidate.MaLop}-${candidate.Thu}-${candidate.Tiet}`}
+                  onClick={() => removeDraftCandidate(candidate)}
+                  aria-label={`Bỏ chọn ${candidate.MaLop}`}
+                >
+                  <strong>{candidate.TenMH}</strong>
+                  <span>
+                    {candidate.MaLop} · {formatSchedule(candidate)}
+                  </span>
+                  <small>Bấm để bỏ chọn</small>
+                </button>
+              ))}
+            </div>
+          </section>
+        )}
+
         <TextField
           autoFocus
           fullWidth
@@ -151,43 +258,84 @@ export default function CoursePickerDialog({ target, onClose }: Props) {
           value={search}
           onChange={(event) => setSearch(event.target.value)}
           placeholder="Tìm tên môn, mã môn, mã lớp hoặc giảng viên..."
-          InputProps={{ startAdornment: <InputAdornment position="start"><SearchIcon /></InputAdornment> }}
         />
 
         <div className="course-picker-count">
-          <strong>{candidates.length}</strong> lớp phù hợp
-          {candidates.length > displayedCandidates.length && <span> · đang hiển thị 100 kết quả đầu</span>}
+          <strong>{candidateGroups.length}</strong> môn · <strong>{candidates.length}</strong> lớp còn phù hợp
         </div>
 
-        <div className="course-option-list">
-          {displayedCandidates.map((candidate) => (
-            <ButtonBase className="course-option" key={`${candidate.MaLop}-${candidate.Thu}-${candidate.Tiet}`} onClick={() => chooseCandidate(candidate)}>
-              <div className="course-option-main">
-                <strong>{candidate.TenMH}</strong>
-                <span>{candidate.MaLop} · {candidate.TenGV || 'Chưa có giảng viên'}</span>
-                <div className="course-option-chips">
-                  <Chip size="small" label={formatSchedule(candidate)} />
-                  <Chip size="small" variant="outlined" label={`${candidate.SoTc} tín chỉ`} />
-                  {candidate.PhongHoc && <Chip size="small" variant="outlined" label={candidate.PhongHoc} />}
-                  {!!candidate.ThucHanh && <Chip size="small" variant="outlined" label="Thực hành" />}
-                </div>
-              </div>
-              <span className="course-option-action"><AddIcon /> Chọn</span>
-            </ButtonBase>
-          ))}
-          {!displayedCandidates.length && (
+        <div className="course-group-list">
+          {candidateGroups.map((group) => {
+            const isExpanded = expandedCourseKey === group.key;
+            return (
+              <section className="course-group" key={group.key}>
+                <button
+                  className="course-group-trigger"
+                  type="button"
+                  aria-expanded={isExpanded}
+                  onClick={() => setExpandedCourseKey(isExpanded ? null : group.key)}
+                >
+                  <span className="course-group-copy">
+                    <strong>{group.name}</strong>
+                    <small>
+                      {group.courseCodes.join(', ') || 'Chưa có mã môn'} · {group.candidates.length} lớp
+                    </small>
+                  </span>
+                  <span className="course-group-action">{isExpanded ? 'Thu gọn' : 'Xem lớp'}</span>
+                </button>
+
+                {isExpanded && (
+                  <div className="course-option-list">
+                    {group.candidates.map((candidate) => (
+                      <ButtonBase
+                        className="course-option"
+                        key={`${candidate.MaLop}-${candidate.Thu}-${candidate.Tiet}`}
+                        onClick={() => chooseCandidate(candidate)}
+                      >
+                        <div className="course-option-main">
+                          <strong>{candidate.MaLop}</strong>
+                          <span>{candidate.TenGV || 'Chưa có giảng viên'}</span>
+                          <div className="course-option-chips">
+                            <Chip size="small" label={formatSchedule(candidate)} />
+                            <Chip size="small" variant="outlined" label={`${candidate.SoTc} tín chỉ`} />
+                            {candidate.PhongHoc && <Chip size="small" variant="outlined" label={candidate.PhongHoc} />}
+                            {!!candidate.ThucHanh && <Chip size="small" variant="outlined" label="Thực hành" />}
+                          </div>
+                        </div>
+                        <span className="course-option-action">Chọn</span>
+                      </ButtonBase>
+                    ))}
+                  </div>
+                )}
+              </section>
+            );
+          })}
+          {!candidateGroups.length && (
             <div className="course-picker-empty">
               <Typography fontWeight={800}>Không tìm thấy lớp phù hợp</Typography>
-              <Typography variant="body2" color="text.secondary">Thử từ khóa khác hoặc chọn một ô thời gian khác.</Typography>
+              <Typography variant="body2" color="text.secondary">
+                Thử bỏ bớt lớp đang chọn, đổi từ khóa hoặc chọn một vùng thời gian khác.
+              </Typography>
             </div>
           )}
         </div>
       </DialogContent>
       <DialogActions className="course-picker-actions">
         {target.kind === 'replace' && (
-          <Button color="error" startIcon={<DeleteOutlineIcon />} onClick={removeCurrentClass}>Bỏ môn này</Button>
+          <Button color="error" onClick={removeCurrentClass}>
+            Bỏ môn này
+          </Button>
         )}
-        <Button color="inherit" onClick={closeDialog}>Đóng</Button>
+        <Button color="inherit" onClick={closeDialog}>
+          Đóng
+        </Button>
+        <Button variant="contained" disabled={!draftCandidates.length} onClick={commitDraftCandidates}>
+          {target.kind === 'replace'
+            ? 'Đổi lớp'
+            : draftCandidates.length
+            ? `Thêm ${draftCandidates.length} lớp`
+            : 'Thêm lớp'}
+        </Button>
       </DialogActions>
     </Dialog>
   );

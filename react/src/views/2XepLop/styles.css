@@ -1,24 +1,80 @@
 .builder-toolbar {
-  padding: 13px 16px; display: grid; grid-template-columns: minmax(300px, 1fr) auto auto;
-  align-items: center; gap: 14px;
+  padding: 13px 16px;
+  display: grid;
+  grid-template-columns: minmax(300px, 1fr) auto;
+  align-items: center;
+  gap: 14px;
 }
-.builder-title h1 { margin: 0; font-size: clamp(20px, 2.8vw, 28px); letter-spacing: -0.03em; }
-.builder-title p { margin: 4px 0 0; color: #666; font-size: 13px; }
-.builder-stats, .builder-actions { display: flex; align-items: center; gap: 8px; }
-.builder-tip { margin: 12px 4px 8px; display: flex; align-items: center; gap: 7px; color: #666; font-size: 13px; }
-.builder-tip svg { font-size: 19px; }
-.builder-timetable { padding: 10px; }
-.builder-timetable .timetable-scroll { max-height: calc(100vh - 190px); }
+.builder-title h1 {
+  margin: 0;
+  font-size: clamp(20px, 2.8vw, 28px);
+  letter-spacing: -0.03em;
+}
+.builder-title p {
+  margin: 4px 0 0;
+  color: #666;
+  font-size: 13px;
+}
+.builder-stats {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.builder-tip {
+  margin: 12px 4px 8px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #666;
+  font-size: 13px;
+}
+.builder-timetable {
+  padding: 10px;
+}
+.builder-page {
+  padding-bottom: 86px;
+}
+.builder-action-dock {
+  position: fixed;
+  z-index: 1250;
+  right: 50%;
+  bottom: 14px;
+  width: min(440px, calc(100% - 24px));
+  padding: 7px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px;
+  border: 1px solid #d4d4d8;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(14px);
+  transform: translateX(50%);
+}
+.builder-action-dock .MuiButton-root {
+  min-height: 50px;
+}
+.builder-timetable .timetable-scroll {
+  max-height: calc(100vh - 190px);
+}
 
 @media (max-width: 980px) {
-  .builder-toolbar { grid-template-columns: 1fr auto; }
-  .builder-actions { grid-column: 1 / -1; justify-content: flex-end; }
+  .builder-toolbar {
+    grid-template-columns: 1fr auto;
+  }
 }
 
 @media (max-width: 620px) {
-  .builder-toolbar { grid-template-columns: 1fr; }
-  .builder-stats { flex-wrap: wrap; }
-  .builder-actions { grid-column: auto; display: grid; grid-template-columns: 1fr 1fr; }
-  .builder-tip { padding-inline: 4px; }
-  .builder-timetable .timetable-scroll { max-height: 66vh; }
+  .builder-toolbar {
+    grid-template-columns: 1fr;
+  }
+  .builder-stats {
+    flex-wrap: wrap;
+  }
+  .builder-tip {
+    padding-inline: 4px;
+  }
+  .builder-timetable .timetable-scroll {
+    max-height: 66vh;
+  }
 }

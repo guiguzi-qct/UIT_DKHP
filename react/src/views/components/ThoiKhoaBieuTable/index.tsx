@@ -1,10 +1,6 @@
-import FileDownloadIcon from '@mui/icons-material/FileDownload';
-import AddIcon from '@mui/icons-material/Add';
 import Button from '@mui/material/Button';
 import clsx from 'clsx';
 import { useLocation } from 'react-router-dom';
-import ImageIcon from '@mui/icons-material/Image';
-import { useMemo } from 'react';
 import { ROUTES } from '../../../constants';
 import { ClassModel } from '../../../types';
 import { getDanhSachTiet } from '../../../utils';
@@ -22,66 +18,275 @@ import {
 import './styles.css';
 import { timeLookup, tietOnline } from './utils';
 
-export type TimetablePickTarget = { thu: number; tiet: string; existing?: ClassModel };
+export type TimetablePickTarget = {
+  thu: number;
+  tiets: string[];
+  label: string;
+  existing?: ClassModel;
+};
 
 type InteractiveProps = {
   interactive?: boolean;
   onPickSlot?: (target: TimetablePickTarget) => void;
 };
 
+type TietGroup = {
+  start: number;
+  end: number;
+  label: string;
+};
+
+const DAY_NUMBERS = [2, 3, 4, 5, 6, 7] as const;
+const MAIN_GROUPS: TietGroup[] = [
+  { start: 0, end: 4, label: 'Buổi sáng' },
+  { start: 5, end: 9, label: 'Buổi chiều' },
+];
+const OUTSIDE_HOURS = { start: 10, end: 12, label: 'Ngoài giờ' } as const;
+
+const getDayKey = (thu: number) => `Thu${thu}` as keyof RowData;
+const getTietValue = (index: number) => (index === 9 ? '0' : String(index + 1));
+const getTietLabel = (index: number) => String(index + 1);
+
+const getRangeLabel = (start: number, end: number, group: TietGroup) => {
+  if (start === group.start && end === group.end) {
+    return `${group.label} · Tiết ${getTietLabel(start)}–${getTietLabel(end)}`;
+  }
+  if (start === end) return `Tiết ${getTietLabel(start)}`;
+  return `Tiết ${getTietLabel(start)}–${getTietLabel(end)}`;
+};
+
+const getEmptyRun = (rows: RowData[], thu: number, index: number, group: TietGroup) => {
+  const dayKey = getDayKey(thu);
+  let start = index;
+  let end = index;
+
+  while (start > group.start && rows[start - 1][dayKey] === CELL.NO_CLASS) start -= 1;
+  while (end < group.end && rows[end + 1][dayKey] === CELL.NO_CLASS) end += 1;
+
+  return { start, end };
+};
+
 const GetCell = ({
   data,
   thu,
-  tiet,
+  tiets,
+  label,
+  rowSpan,
   interactive,
   onPickSlot,
 }: {
   data: RowData[keyof RowData];
   thu: number;
-  tiet: string;
+  tiets: string[];
+  label: string;
+  rowSpan?: number;
 } & InteractiveProps) => {
   if (data === CELL.NO_CLASS) {
     return (
-      <td className={clsx({ 'empty-pickable-slot': interactive })}>
-        {interactive && (
-          <button className="empty-slot-button" type="button" onClick={() => onPickSlot?.({ thu, tiet })}>
-            <AddIcon />
-            <span>Click để chọn</span>
+      <td rowSpan={rowSpan} className={clsx('empty-schedule-slot', { 'empty-pickable-slot': interactive })}>
+        {interactive ? (
+          <button
+            className="empty-slot-button"
+            type="button"
+            onClick={() => onPickSlot?.({ thu, tiets, label })}
+            aria-label={`Chọn lớp cho Thứ ${thu}, ${label}`}
+          >
+            <span className="empty-slot-label">{label}</span>
+            <span className="empty-slot-action">Click để chọn</span>
           </button>
+        ) : (
+          <span className="empty-slot-label static">{label}</span>
         )}
       </td>
     );
   }
+
   if (data === CELL.OCCUPIED) return null;
+
   return (
     <ClassCell
       data={data}
       rowSpan={getDanhSachTiet(data.Tiet).length}
       interactive={interactive}
-      onPick={() => onPickSlot?.({ thu, tiet, existing: data })}
+      onPick={() => onPickSlot?.({ thu, tiets, label, existing: data })}
     />
   );
 };
 
-function RowHocTrenTruong({ row, index, interactive, onPickSlot }: { row: RowData; index: number } & InteractiveProps) {
-  const shouldBeHidden = useMemo(() => {
-    if (interactive) {
-      return index === tietOnline.index && Object.values(row).every((cell) => cell === CELL.NO_CLASS);
-    }
-    if (index < 10) return false; // Tiết 1-10 luôn luôn hiện,
-    return Object.values(row).every((cell) => cell === CELL.NO_CLASS); // Tiết buổi tối + Online nếu không có lớp thì ẩn đi
-  }, [interactive, row, index]);
-
-  const tietValue = index === tietOnline.index ? tietOnline.stringValue : index === 9 ? '0' : String(index + 1);
+function MainPeriodRow({
+  rows,
+  index,
+  group,
+  interactive,
+  onPickSlot,
+}: {
+  rows: RowData[];
+  index: number;
+  group: TietGroup;
+} & InteractiveProps) {
+  const row = rows[index];
 
   return (
-    <tr style={{ visibility: shouldBeHidden ? 'collapse' : undefined }}>
+    <tr className="main-period-row">
       <td className="cell-tiet">
-        Tiết {index === tietOnline.index ? tietOnline.stringValue : index + 1} <br />
-        {timeLookup[index]}
+        <strong>Tiết {index + 1}</strong>
+        <span>{timeLookup[index]}</span>
       </td>
-      {[2, 3, 4, 5, 6, 7].map((t) => (
-        <GetCell key={t} data={row['Thu' + t]} thu={t} tiet={tietValue} interactive={interactive} onPickSlot={onPickSlot} />
+      {DAY_NUMBERS.map((thu) => {
+        const data = row[getDayKey(thu)];
+
+        if (data === CELL.NO_CLASS) {
+          const run = getEmptyRun(rows, thu, index, group);
+          if (index !== run.start) return null;
+
+          const tiets = Array.from({ length: run.end - run.start + 1 }, (_, offset) =>
+            getTietValue(run.start + offset),
+          );
+          const label = getRangeLabel(run.start, run.end, group);
+
+          return (
+            <GetCell
+              key={thu}
+              data={data}
+              thu={thu}
+              tiets={tiets}
+              label={label}
+              rowSpan={run.end - run.start + 1}
+              interactive={interactive}
+              onPickSlot={onPickSlot}
+            />
+          );
+        }
+
+        return (
+          <GetCell
+            key={thu}
+            data={data}
+            thu={thu}
+            tiets={[getTietValue(index)]}
+            label={`Tiết ${index + 1}`}
+            interactive={interactive}
+            onPickSlot={onPickSlot}
+          />
+        );
+      })}
+    </tr>
+  );
+}
+
+const getOutsideClasses = (rows: RowData[], thu: number) => {
+  const dayKey = getDayKey(thu);
+  const unique = new Map<string, ClassModel>();
+
+  for (let index = OUTSIDE_HOURS.start; index <= OUTSIDE_HOURS.end; index += 1) {
+    const cell = rows[index][dayKey];
+    if (cell !== CELL.NO_CLASS && cell !== CELL.OCCUPIED) {
+      unique.set(`${cell.MaLop}-${cell.Thu}-${cell.Tiet}`, cell);
+    }
+  }
+
+  return [...unique.values()];
+};
+
+function OutsideHoursCell({
+  rows,
+  thu,
+  interactive,
+  onPickSlot,
+}: {
+  rows: RowData[];
+  thu: number;
+} & InteractiveProps) {
+  const classes = getOutsideClasses(rows, thu);
+  const tiets = ['11', '12', '13'];
+
+  if (!classes.length) {
+    return (
+      <GetCell
+        data={CELL.NO_CLASS}
+        thu={thu}
+        tiets={tiets}
+        label="Ngoài giờ · Tiết 11–13"
+        interactive={interactive}
+        onPickSlot={onPickSlot}
+      />
+    );
+  }
+
+  return (
+    <td className="outside-hours-cell">
+      {classes.map((lop) => {
+        const content = (
+          <>
+            <strong>{lop.TenMH}</strong>
+            <span>
+              {lop.MaLop} · Tiết {getDanhSachTiet(lop.Tiet).join(', ')}
+            </span>
+            <small>
+              {lop.TenGV || 'Chưa có giảng viên'}
+              {lop.PhongHoc ? ` · ${lop.PhongHoc}` : ''}
+            </small>
+          </>
+        );
+
+        if (!interactive) {
+          return (
+            <div className="outside-class-card" key={`${lop.MaLop}-${lop.Tiet}`}>
+              {content}
+            </div>
+          );
+        }
+
+        return (
+          <button
+            className="outside-class-card pickable"
+            type="button"
+            key={`${lop.MaLop}-${lop.Tiet}`}
+            onClick={() => onPickSlot?.({ thu, tiets, label: 'Ngoài giờ · Tiết 11–13', existing: lop })}
+          >
+            {content}
+            <span className="outside-class-action">Click để đổi lớp</span>
+          </button>
+        );
+      })}
+    </td>
+  );
+}
+
+function OutsideHoursRow({ rows, interactive, onPickSlot }: { rows: RowData[] } & InteractiveProps) {
+  return (
+    <tr className="outside-hours-row">
+      <td className="cell-tiet outside-hours-label">
+        <strong>Ngoài giờ</strong>
+        <span>Tiết 11–13</span>
+      </td>
+      {DAY_NUMBERS.map((thu) => (
+        <OutsideHoursCell key={thu} rows={rows} thu={thu} interactive={interactive} onPickSlot={onPickSlot} />
+      ))}
+    </tr>
+  );
+}
+
+function OnlineRow({ rows, interactive, onPickSlot }: { rows: RowData[] } & InteractiveProps) {
+  const row = rows[tietOnline.index];
+  const isEmpty = Object.values(row).every((cell) => cell === CELL.NO_CLASS);
+  if (isEmpty) return null;
+
+  return (
+    <tr className="online-row">
+      <td className="cell-tiet">
+        <strong>Online</strong>
+      </td>
+      {DAY_NUMBERS.map((thu) => (
+        <GetCell
+          key={thu}
+          data={row[getDayKey(thu)]}
+          thu={thu}
+          tiets={[tietOnline.stringValue]}
+          label="Online"
+          interactive={interactive}
+          onPickSlot={onPickSlot}
+        />
       ))}
     </tr>
   );
@@ -89,14 +294,11 @@ function RowHocTrenTruong({ row, index, interactive, onPickSlot }: { row: RowDat
 
 function Render({ interactive = false, onPickSlot }: InteractiveProps) {
   const { rowDataHocTrenTruong, khongHocTrenTruong, redundant } = usePhanLoaiHocTrenTruongContext();
-
   const location = useLocation();
   const isChiVeTkb = useTkbStore(selectIsChiVeTkb);
   const { tkbTableRef, saveTkbImageToComputer, copyTkbImageToClipboard } = useProcessImageTkb();
-
   const isInStep2 = location.pathname === ROUTES._2XepLop.path;
 
-  // TODO: refactor the messy flow after writing tests
   if (isInStep2 && isChiVeTkb) {
     return (
       <h3 style={{ textAlign: 'center', padding: 20 }}>
@@ -114,10 +316,7 @@ function Render({ interactive = false, onPickSlot }: InteractiveProps) {
 
   return (
     <ClassCellContext>
-      <div
-        id="thoi-khoa-bieu"
-        className={clsx({ compact: isInStep2, 'interactive-timetable': interactive })}
-      >
+      <div id="thoi-khoa-bieu" className={clsx({ compact: isInStep2, 'interactive-timetable': interactive })}>
         {!isInStep2 && (
           <div className="timetable-toolbar">
             <div>
@@ -125,37 +324,60 @@ function Render({ interactive = false, onPickSlot }: InteractiveProps) {
               <small>Cuộn ngang để xem đầy đủ trên màn hình nhỏ</small>
             </div>
             <div className="timetable-actions">
-              <Button variant="outlined" startIcon={<ImageIcon />} onClick={copyTkbImageToClipboard}>Sao chép ảnh</Button>
-              <Button variant="contained" startIcon={<FileDownloadIcon />} onClick={saveTkbImageToComputer}>Tải ảnh</Button>
+              <Button variant="outlined" onClick={copyTkbImageToClipboard}>
+                Sao chép ảnh
+              </Button>
+              <Button variant="contained" onClick={saveTkbImageToComputer}>
+                Tải ảnh
+              </Button>
             </div>
           </div>
         )}
 
-        <div style={{ display: 'flex' }}>
+        <div className="redundant-class-list">
           {redundant
             .flatMap((it) => it.new)
-            .map((lop, index) => (
-              <tr key={index}>
-                <ClassCell data={lop} isOutsideTable />
-              </tr>
+            .map((lop) => (
+              <ClassCell key={`${lop.MaLop}-${lop.Thu}-${lop.Tiet}`} data={lop} isOutsideTable />
             ))}
         </div>
         <div className="timetable-scroll">
           <table ref={tkbTableRef}>
             <TableHead />
             <tbody>
-              {rowDataHocTrenTruong.map((row, index) => (
-              <RowHocTrenTruong key={index} row={row} index={index} interactive={interactive} onPickSlot={onPickSlot} />
-            ))}
-            {khongHocTrenTruong.map((lop, index) => (
-              <tr key={index}>
-                <ClassCell
-                  colSpan={7}
-                  data={lop}
-                  interactive={interactive}
-                  onPick={() => onPickSlot?.({ thu: 2, tiet: '*', existing: lop })}
-                />
-              </tr>
+              {MAIN_GROUPS.flatMap((group) =>
+                Array.from({ length: group.end - group.start + 1 }, (_, offset) => {
+                  const index = group.start + offset;
+                  return (
+                    <MainPeriodRow
+                      key={index}
+                      rows={rowDataHocTrenTruong}
+                      index={index}
+                      group={group}
+                      interactive={interactive}
+                      onPickSlot={onPickSlot}
+                    />
+                  );
+                }),
+              )}
+              <OutsideHoursRow rows={rowDataHocTrenTruong} interactive={interactive} onPickSlot={onPickSlot} />
+              <OnlineRow rows={rowDataHocTrenTruong} interactive={interactive} onPickSlot={onPickSlot} />
+              {khongHocTrenTruong.map((lop) => (
+                <tr key={`${lop.MaLop}-${lop.Thu}-${lop.Tiet}`}>
+                  <ClassCell
+                    colSpan={7}
+                    data={lop}
+                    interactive={interactive}
+                    onPick={() =>
+                      onPickSlot?.({
+                        thu: Number(lop.Thu) || 2,
+                        tiets: getDanhSachTiet(lop.Tiet),
+                        label: 'Lịch chưa cố định',
+                        existing: lop,
+                      })
+                    }
+                  />
+                </tr>
               ))}
             </tbody>
           </table>

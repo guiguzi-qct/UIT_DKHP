@@ -7,12 +7,16 @@
 - Tải file Excel gồm danh sách lớp lý thuyết và thực hành.
 - Luồng 3 bước rõ ràng, thích ứng cho cả desktop và điện thoại.
 - Click trực tiếp vào ô trống để tìm lớp vừa lịch, hoặc click lớp đã xếp để đổi lớp.
-- Popup tìm kiếm chỉ hiển thị các phương án không trùng với phần lịch còn lại.
+- Ô trống được gom theo buổi sáng (tiết 1–5), buổi chiều (tiết 6–10); tiết 11–13 nằm trong một hàng Ngoài giờ.
+- Popup cho phép chọn nháp nhiều lớp rồi xác nhận một lần; các phương án trùng với lịch và phần đang chọn tự ẩn.
+- Danh sách chọn môn hiển thị đầy đủ và gom toàn bộ lớp cùng tên vào dropdown riêng.
 - Cảnh báo các lớp trùng thời gian.
 - Tính tổng số tín chỉ đã chọn.
 - Xem, tải ảnh, sao chép ảnh và chia sẻ thời khóa biểu.
+- Nút Chọn môn và Hoàn tất nằm trong thanh hành động cố định phía dưới; điều hướng 3 bước vẫn ở header.
 - Bảng lịch cuộn ngang, có cột tiết cố định trên màn hình nhỏ.
 - Lớp chưa có `THỨ` hoặc `TIẾT` vẫn được giữ trong danh sách nhưng không bị ép xếp vào lưới.
+- Giao diện dùng font Be Vietnam Pro và hạn chế icon trang trí không cần thiết.
 
 Ứng dụng chỉ xử lý dữ liệu ngay trên trình duyệt và không thu thập dữ liệu sử dụng.
 

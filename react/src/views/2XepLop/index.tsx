@@ -1,6 +1,3 @@
-import AddIcon from '@mui/icons-material/Add';
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import TouchAppOutlinedIcon from '@mui/icons-material/TouchAppOutlined';
 import Button from '@mui/material/Button';
 import Chip from '@mui/material/Chip';
 import Paper from '@mui/material/Paper';
@@ -20,7 +17,7 @@ function Index() {
 
   const openPickerFromTimetable = (target: TimetablePickTarget) => {
     if (target.existing) setPickerTarget({ kind: 'replace', existing: target.existing });
-    else setPickerTarget({ kind: 'slot', thu: target.thu, tiet: target.tiet });
+    else setPickerTarget({ kind: 'slot', thu: target.thu, tiets: target.tiets, label: target.label });
   };
 
   return (
@@ -34,26 +31,26 @@ function Index() {
           <Chip label={`${selectedClasses.length} lớp`} color={selectedClasses.length ? 'primary' : 'default'} />
           <Chip label={`${credits} tín chỉ`} variant="outlined" />
         </div>
-        <div className="builder-actions">
-          <Button variant="outlined" startIcon={<AddIcon />} onClick={() => setPickerTarget({ kind: 'all' })}>
-            Chọn môn
-          </Button>
-          <Button
-            variant="contained"
-            endIcon={<ArrowForwardIcon />}
-            disabled={!selectedClasses.length}
-            onClick={() => history.push(ROUTES._3KetQua.path)}
-          >
-            Hoàn tất
-          </Button>
-        </div>
       </Paper>
 
-      <div className="builder-tip"><TouchAppOutlinedIcon /> Di chuột qua ô lịch để thấy vùng có thể click.</div>
+      <div className="builder-tip">Di chuột qua vùng trống để chọn lớp phù hợp với buổi học.</div>
 
       <Paper className="surface-card timetable-card builder-timetable">
         <ThoiKhoaBieuTable interactive onPickSlot={openPickerFromTimetable} />
       </Paper>
+
+      <div className="builder-action-dock" role="region" aria-label="Hành động xếp lớp">
+        <Button variant="outlined" onClick={() => setPickerTarget({ kind: 'all' })}>
+          Chọn môn
+        </Button>
+        <Button
+          variant="contained"
+          disabled={!selectedClasses.length}
+          onClick={() => history.push(ROUTES._3KetQua.path)}
+        >
+          Hoàn tất
+        </Button>
+      </div>
 
       <CoursePickerDialog target={pickerTarget} onClose={() => setPickerTarget(null)} />
     </section>
