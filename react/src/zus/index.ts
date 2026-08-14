@@ -49,7 +49,7 @@ type TkbStore = {
 const getDefaultPlans = (state: Partial<TkbStore>): TimetablePlan[] => [
   {
     id: 'plan_1',
-    name: '1',
+    name: 'Plan 1',
     selectedClasses: state.selectedClasses || [],
     isChiVeTkb: state.isChiVeTkb || false,
     textareaChiVeTkb: state.textareaChiVeTkb || '',
@@ -64,7 +64,7 @@ export const useTkbStore = create<TkbStore>()(
       plans: [
         {
           id: 'plan_1',
-          name: '1',
+          name: 'Plan 1',
           selectedClasses: [],
           isChiVeTkb: false,
           textareaChiVeTkb: '',
@@ -158,7 +158,7 @@ export const useTkbStore = create<TkbStore>()(
         const state = get();
         const plans = state.plans && state.plans.length > 0 ? state.plans : getDefaultPlans(state);
         const nextNum = plans.length + 1;
-        const name = customName || String(nextNum);
+        const name = customName || `Plan ${nextNum}`;
         const newPlan: TimetablePlan = {
           id: `plan_${Date.now()}`,
           name,
@@ -185,7 +185,7 @@ export const useTkbStore = create<TkbStore>()(
         const nextNum = plans.length + 1;
         const newPlan: TimetablePlan = {
           id: `plan_${Date.now()}`,
-          name: String(nextNum),
+          name: `Plan ${nextNum}`,
           selectedClasses: [...sourcePlan.selectedClasses],
           isChiVeTkb: sourcePlan.isChiVeTkb,
           textareaChiVeTkb: sourcePlan.textareaChiVeTkb,

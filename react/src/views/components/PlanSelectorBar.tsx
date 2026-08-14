@@ -44,9 +44,8 @@ export default function PlanSelectorBar() {
   const activePlanIndex = plans.findIndex((p) => p.id === activePlanId);
   const displayPlanNumber = activePlanIndex >= 0 ? activePlanIndex + 1 : 1;
 
-  const rawName = activePlan?.name || String(displayPlanNumber);
-  const isDefaultNumber = !isNaN(Number(rawName)) || rawName.toLowerCase() === `plan ${displayPlanNumber}`;
-  const pillLabel = isDefaultNumber ? `PLAN ${displayPlanNumber}` : `PLAN ${displayPlanNumber}: ${rawName.toUpperCase()}`;
+  const rawName = (activePlan?.name || `Plan ${displayPlanNumber}`).trim();
+  const pillLabel = rawName.toUpperCase();
 
   const [fabAnchorEl, setFabAnchorEl] = useState<HTMLElement | null>(null);
   const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement | null>(null);
