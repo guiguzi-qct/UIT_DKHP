@@ -1,6 +1,6 @@
 {
   "name": "guiguzi",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "engines": {
     "node": "20.x"
@@ -15,8 +15,6 @@
     "@testing-library/react": "^12.0.0",
     "@testing-library/user-event": "^13.2.1",
     "@types/lodash": "^4.14.171",
-    "ag-grid-community": "^30.2.1",
-    "ag-grid-react": "^30.2.1",
     "clsx": "^2.0.0",
     "constate": "^3.3.2",
     "eslint": "^8.55.0",
@@ -29,7 +27,6 @@
     "react-dom": "^17.0.2",
     "react-router-dom": "^5.2.0",
     "react-scripts": "^5.0.1",
-    "use-debounce": "^7.0.0",
     "xlsx": "^0.17.0",
     "zustand": "^4.4.6"
   },

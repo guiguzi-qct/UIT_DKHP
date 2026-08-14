@@ -34,12 +34,45 @@
 #thoi-khoa-bieu .cell-class strong:first-of-type { color: #111; }
 #thoi-khoa-bieu .cell-class .remove-class-btn { opacity: 0.15; transition: opacity 120ms ease; }
 #thoi-khoa-bieu .cell-class-hovering .remove-class-btn, #thoi-khoa-bieu .cell-class .remove-class-btn:focus { opacity: 1; }
+#thoi-khoa-bieu .empty-pickable-slot { padding: 0 !important; background: #fff !important; }
+#thoi-khoa-bieu .empty-slot-button {
+  width: 100%; min-height: 68px; padding: 8px; display: flex; align-items: center; justify-content: center; gap: 5px;
+  border: 0; color: #111; background: transparent; cursor: pointer;
+}
+#thoi-khoa-bieu .empty-slot-button svg, #thoi-khoa-bieu .empty-slot-button span {
+  opacity: 0; transform: translateY(3px); transition: 130ms ease;
+}
+#thoi-khoa-bieu .empty-slot-button:hover, #thoi-khoa-bieu .empty-slot-button:focus-visible {
+  outline: none; background: #f4f4f5; box-shadow: inset 0 0 0 1px #a1a1aa;
+}
+#thoi-khoa-bieu .empty-slot-button:hover svg, #thoi-khoa-bieu .empty-slot-button:hover span,
+#thoi-khoa-bieu .empty-slot-button:focus-visible svg, #thoi-khoa-bieu .empty-slot-button:focus-visible span {
+  opacity: 1; transform: translateY(0);
+}
+#thoi-khoa-bieu .empty-slot-button svg { font-size: 17px; }
+#thoi-khoa-bieu .empty-slot-button span { font-size: 11px; font-weight: 800; white-space: nowrap; }
+#thoi-khoa-bieu .cell-class-pickable { cursor: pointer; transition: 130ms ease; }
+#thoi-khoa-bieu .cell-class-pickable:hover, #thoi-khoa-bieu .cell-class-pickable:focus-visible {
+  outline: none; background: #f4f4f5 !important; box-shadow: inset 0 0 0 2px #111 !important;
+}
+#thoi-khoa-bieu .cell-picker-hint {
+  position: absolute; right: 8px; bottom: 7px; left: 8px; z-index: 2; padding: 4px 7px;
+  border-radius: 7px; color: #fff; background: rgba(17, 17, 17, 0.92); font-size: 10px; font-weight: 800;
+  opacity: 0; transform: translateY(4px); pointer-events: none; transition: 130ms ease;
+}
+#thoi-khoa-bieu .cell-class-pickable:hover .cell-picker-hint,
+#thoi-khoa-bieu .cell-class-pickable:focus-visible .cell-picker-hint { opacity: 1; transform: translateY(0); }
 #thoi-khoa-bieu.compact .timetable-toolbar { display: none; }
-#thoi-khoa-bieu.compact table { min-width: 780px; font-size: 12px; }
+#thoi-khoa-bieu.compact table { min-width: 1000px; font-size: 12px; }
 .MuiTooltip-tooltipPlacementBottom { margin-top: 0 !important; }
 
 @media (max-width: 720px) {
   .timetable-toolbar { align-items: stretch; flex-direction: column; }
   .timetable-actions { display: grid; grid-template-columns: 1fr 1fr; }
   #thoi-khoa-bieu .cell-class .remove-class-btn { opacity: 0.7; }
+}
+
+@media (hover: none) {
+  #thoi-khoa-bieu .empty-slot-button svg, #thoi-khoa-bieu .empty-slot-button span { opacity: 0.48; transform: none; }
+  #thoi-khoa-bieu .cell-picker-hint { position: static; display: inline-block; margin-top: 6px; opacity: 0.55; transform: none; }
 }

@@ -6,7 +6,8 @@
 
 - Tải file Excel gồm danh sách lớp lý thuyết và thực hành.
 - Luồng 3 bước rõ ràng, thích ứng cho cả desktop và điện thoại.
-- Tìm kiếm nhanh toàn bộ bảng, lọc theo cột và chọn lớp.
+- Click trực tiếp vào ô trống để tìm lớp vừa lịch, hoặc click lớp đã xếp để đổi lớp.
+- Popup tìm kiếm chỉ hiển thị các phương án không trùng với phần lịch còn lại.
 - Cảnh báo các lớp trùng thời gian.
 - Tính tổng số tín chỉ đã chọn.
 - Xem, tải ảnh, sao chép ảnh và chia sẻ thời khóa biểu.

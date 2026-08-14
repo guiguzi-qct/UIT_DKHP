@@ -1,10 +1,12 @@
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import AddIcon from '@mui/icons-material/Add';
 import Button from '@mui/material/Button';
 import clsx from 'clsx';
 import { useLocation } from 'react-router-dom';
 import ImageIcon from '@mui/icons-material/Image';
 import { useMemo } from 'react';
 import { ROUTES } from '../../../constants';
+import { ClassModel } from '../../../types';
 import { getDanhSachTiet } from '../../../utils';
 import { selectIsChiVeTkb, useTkbStore } from '../../../zus';
 import ErrorBoundary from '../ErrorBoundary';
@@ -20,17 +22,57 @@ import {
 import './styles.css';
 import { timeLookup, tietOnline } from './utils';
 
-const GetCell = ({ data }) => {
-  if (data === CELL.NO_CLASS) return <td />;
-  if (data === CELL.OCCUPIED) return null;
-  return <ClassCell data={data} rowSpan={getDanhSachTiet(data.Tiet).length} />;
+export type TimetablePickTarget = { thu: number; tiet: string; existing?: ClassModel };
+
+type InteractiveProps = {
+  interactive?: boolean;
+  onPickSlot?: (target: TimetablePickTarget) => void;
 };
 
-function RowHocTrenTruong({ row, index }: { row: RowData; index: number }) {
+const GetCell = ({
+  data,
+  thu,
+  tiet,
+  interactive,
+  onPickSlot,
+}: {
+  data: RowData[keyof RowData];
+  thu: number;
+  tiet: string;
+} & InteractiveProps) => {
+  if (data === CELL.NO_CLASS) {
+    return (
+      <td className={clsx({ 'empty-pickable-slot': interactive })}>
+        {interactive && (
+          <button className="empty-slot-button" type="button" onClick={() => onPickSlot?.({ thu, tiet })}>
+            <AddIcon />
+            <span>Click để chọn</span>
+          </button>
+        )}
+      </td>
+    );
+  }
+  if (data === CELL.OCCUPIED) return null;
+  return (
+    <ClassCell
+      data={data}
+      rowSpan={getDanhSachTiet(data.Tiet).length}
+      interactive={interactive}
+      onPick={() => onPickSlot?.({ thu, tiet, existing: data })}
+    />
+  );
+};
+
+function RowHocTrenTruong({ row, index, interactive, onPickSlot }: { row: RowData; index: number } & InteractiveProps) {
   const shouldBeHidden = useMemo(() => {
+    if (interactive) {
+      return index === tietOnline.index && Object.values(row).every((cell) => cell === CELL.NO_CLASS);
+    }
     if (index < 10) return false; // Tiết 1-10 luôn luôn hiện,
     return Object.values(row).every((cell) => cell === CELL.NO_CLASS); // Tiết buổi tối + Online nếu không có lớp thì ẩn đi
-  }, [row, index]);
+  }, [interactive, row, index]);
+
+  const tietValue = index === tietOnline.index ? tietOnline.stringValue : index === 9 ? '0' : String(index + 1);
 
   return (
     <tr style={{ visibility: shouldBeHidden ? 'collapse' : undefined }}>
@@ -39,13 +81,13 @@ function RowHocTrenTruong({ row, index }: { row: RowData; index: number }) {
         {timeLookup[index]}
       </td>
       {[2, 3, 4, 5, 6, 7].map((t) => (
-        <GetCell key={t} data={row['Thu' + t]} />
+        <GetCell key={t} data={row['Thu' + t]} thu={t} tiet={tietValue} interactive={interactive} onPickSlot={onPickSlot} />
       ))}
     </tr>
   );
 }
 
-function Render() {
+function Render({ interactive = false, onPickSlot }: InteractiveProps) {
   const { rowDataHocTrenTruong, khongHocTrenTruong, redundant } = usePhanLoaiHocTrenTruongContext();
 
   const location = useLocation();
@@ -74,7 +116,7 @@ function Render() {
     <ClassCellContext>
       <div
         id="thoi-khoa-bieu"
-        className={clsx({ compact: isInStep2 })}
+        className={clsx({ compact: isInStep2, 'interactive-timetable': interactive })}
       >
         {!isInStep2 && (
           <div className="timetable-toolbar">
@@ -103,12 +145,17 @@ function Render() {
             <TableHead />
             <tbody>
               {rowDataHocTrenTruong.map((row, index) => (
-                <RowHocTrenTruong key={index} row={row} index={index} />
-              ))}
-              {khongHocTrenTruong.map((lop, index) => (
-                <tr key={index}>
-                  <ClassCell colSpan={7} data={lop} />
-                </tr>
+              <RowHocTrenTruong key={index} row={row} index={index} interactive={interactive} onPickSlot={onPickSlot} />
+            ))}
+            {khongHocTrenTruong.map((lop, index) => (
+              <tr key={index}>
+                <ClassCell
+                  colSpan={7}
+                  data={lop}
+                  interactive={interactive}
+                  onPick={() => onPickSlot?.({ thu: 2, tiet: '*', existing: lop })}
+                />
+              </tr>
               ))}
             </tbody>
           </table>
@@ -118,12 +165,12 @@ function Render() {
   );
 }
 
-function Index() {
+function Index(props: InteractiveProps) {
   return (
     <ErrorBoundary>
       <ClassCellContext>
         <PhanLoaiHocTrenTruongContext>
-          <Render />
+          <Render {...props} />
         </PhanLoaiHocTrenTruongContext>
       </ClassCellContext>
     </ErrorBoundary>

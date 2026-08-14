@@ -1,4 +1,3 @@
-import { GridApi } from 'ag-grid-community';
 import { partition } from 'lodash';
 import { memoize } from 'proxy-memoize';
 import { Mutate, StoreApi, create } from 'zustand';
@@ -16,8 +15,6 @@ type TkbStore = {
   } | null;
 
   selectedClasses: ClassModel[];
-  agGridFilterModel: ReturnType<GridApi['getFilterModel']> | null;
-
   // in case Buoc 3 chi ve TKB chu khong dung Buoc 2 Xep Lop
   isChiVeTkb: boolean;
   textareaChiVeTkb: string;
@@ -25,7 +22,6 @@ type TkbStore = {
   setDataExcel: (data: TkbStore['dataExcel']) => void;
   setSelectedClasses: (data: TkbStore['selectedClasses']) => void;
   removeClasses: (data: ClassModel[]) => void;
-  setAgGridFilterModel: (data: TkbStore['agGridFilterModel']) => void;
   setIsChiVeTkb: (data: TkbStore['isChiVeTkb']) => void;
   setTextareChiVeTkb: (data: TkbStore['textareaChiVeTkb']) => void;
 };
@@ -36,8 +32,6 @@ export const useTkbStore = create<TkbStore>()(
       dataExcel: null,
 
       selectedClasses: [], // [{}, {}]
-      agGridFilterModel: null,
-
       isChiVeTkb: false,
       textareaChiVeTkb: '',
 
@@ -46,13 +40,11 @@ export const useTkbStore = create<TkbStore>()(
         const newDataExcel = data?.data ?? [];
         const currentSelectedClasses = get().selectedClasses;
         // When the user uploads a new excel file:
-        // - when it's a new semester, the AgGridRowId will be different => selectedClasses will be cleared
-        // - when it's an updated excel file of the same semester, the AgGridRowId will be the same => keep selectedClasses
+        // Giữ lại các lớp vẫn còn tồn tại khi người dùng tải bản Excel cập nhật.
         const newSelectedClasses = newDataExcel.filter((newClass) =>
           currentSelectedClasses.some((selectedClass) => isSameAgGridRowId(selectedClass, newClass)),
         );
-        // Clear filters when uploading a new excel file (but keep selections)
-        set({ dataExcel: data, selectedClasses: newSelectedClasses, agGridFilterModel: null });
+        set({ dataExcel: data, selectedClasses: newSelectedClasses });
       },
       setSelectedClasses: (data) => {
         set({ selectedClasses: data });
@@ -63,9 +55,6 @@ export const useTkbStore = create<TkbStore>()(
             classesToRemove.every((classToRemove) => !isSameAgGridRowId(selectedClass, classToRemove)),
           ),
         }));
-      },
-      setAgGridFilterModel: (data) => {
-        set({ agGridFilterModel: data });
       },
       setIsChiVeTkb: (data) => {
         set({ isChiVeTkb: data });
@@ -99,7 +88,6 @@ if (process.env.NODE_ENV !== 'test') withStorageDOMEvents(useTkbStore);
 
 export const selectDataExcel = (state: TkbStore) => state.dataExcel;
 export const selectSelectedClasses = (state: TkbStore) => state.selectedClasses;
-export const selectAgGridFilterModel = (state: TkbStore) => state.agGridFilterModel;
 export const selectIsChiVeTkb = (state: TkbStore) =>
   state.isChiVeTkb || window.location.search.includes('self_selected'); // TODO: constant for self_selected
 export const selectTextareaChiVeTkb = (state: TkbStore) => {

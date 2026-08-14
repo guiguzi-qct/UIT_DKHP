@@ -5,8 +5,6 @@ import ReactDOM from 'react-dom';
 
 import App from './views/App';
 
-import 'ag-grid-community/styles/ag-grid.css';
-import 'ag-grid-community/styles/ag-theme-alpine.css';
 
 const theme = createTheme({
   palette: {

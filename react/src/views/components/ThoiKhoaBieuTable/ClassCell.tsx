@@ -63,6 +63,8 @@ const randomColors = [
 type Props = {
   data: ClassModel;
   isOutsideTable?: boolean;
+  interactive?: boolean;
+  onPick?: () => void;
 } & React.TdHTMLAttributes<HTMLTableCellElement>;
 
 const getMonChonRoiKey = (data: ClassModel) => `${data.MaMH}-${data.ThucHanh}`;
@@ -112,7 +114,7 @@ export const [ClassCellContext, useClassCellContext] = constate(() => {
   };
 });
 
-function ClassCell({ data, isOutsideTable = false, ...restProps }: Props) {
+function ClassCell({ data, isOutsideTable = false, interactive = false, onPick, ...restProps }: Props) {
   const { MaLop, NgonNgu, TenMH, TenGV, PhongHoc, NBD, NKT, Thu, Tiet } = data;
   const removeClasses = useTkbStore((s) => s.removeClasses);
   const selectedClasses = useTkbStore(selectSelectedClasses);
@@ -148,15 +150,30 @@ function ClassCell({ data, isOutsideTable = false, ...restProps }: Props) {
     <Tooltip title={isRedundantRelated ? 'Bị trùng TKB' : null}>
       <td
         {...restProps}
-        className={clsx('cell-class', {
+        className={clsx('cell-class', { 'cell-class-pickable': interactive,
           'cell-class-hovering': isHoveringOnThisCell(data, 'MaMH'),
         })}
+        role={interactive ? 'button' : undefined}
+        tabIndex={interactive ? 0 : undefined}
+        aria-label={interactive ? `Đổi lớp ${TenMH}` : undefined}
         style={{
           boxShadow: isRedundantRelated ? `inset 0 0 0 3px ${randomColors[redundantIndex]}` : undefined,
         }}
         onMouseEnter={() => setCellHovering(data)}
         onMouseLeave={() => setCellHovering(null)}
+        onClick={interactive ? onPick : undefined}
+        onKeyDown={
+          interactive
+            ? (event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault();
+                  onPick?.();
+                }
+              }
+            : undefined
+        }
       >
+        {interactive && <span className="cell-picker-hint">Click để đổi lớp</span>}
         {!isChiVeTkb && (
           <Tooltip
             title={
@@ -179,6 +196,7 @@ function ClassCell({ data, isOutsideTable = false, ...restProps }: Props) {
               color="inherit"
               size="small"
               onClick={(e) => {
+                e.stopPropagation();
                 const classesToRemove = (() => {
                   if (isWarning(data) && e.shiftKey) {
                     return [data];

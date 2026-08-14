@@ -62,11 +62,11 @@ function App() {
                   <Typography className="brand-tagline">Xếp thời khóa biểu dễ hơn</Typography>
                 </Box>
               </Box>
+              <WorkflowNav />
               <Chip className="privacy-chip" icon={<LockOutlinedIcon />} label="Dữ liệu chỉ lưu trên thiết bị" variant="outlined" />
             </Toolbar>
           </AppBar>
           <Container className="app-container" maxWidth={false}>
-            <WorkflowNav />
             <main className="app-content">
               <Suspense fallback={<LinearProgress className="route-loader" />}>
               <PersistedRoute path={ROUTES._1ChonFileExcel.path} component={ChonFileExcel} />
