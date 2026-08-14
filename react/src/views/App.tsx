@@ -1,6 +1,4 @@
-import NightsStayOutlinedIcon from '@mui/icons-material/NightsStayOutlined';
 import RotateLeftIcon from '@mui/icons-material/RotateLeft';
-import WbSunnyOutlinedIcon from '@mui/icons-material/WbSunnyOutlined';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -10,14 +8,13 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import IconButton from '@mui/material/IconButton';
 import LinearProgress from '@mui/material/LinearProgress';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Toolbar from '@mui/material/Toolbar';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import { useSnackbar } from 'notistack';
-import React, { Suspense, useEffect, useState } from 'react';
+import React, { Suspense, useState } from 'react';
 import { BrowserRouter, Redirect, Route, useHistory, useLocation } from 'react-router-dom';
 import { ROUTES } from '../constants';
 import { selectFinalDataTkb, selectIsChiVeTkb, selectTextareaChiVeTkb, useTkbStore } from '../zus';
@@ -98,19 +95,6 @@ function HeaderActions() {
   const { enqueueSnackbar } = useSnackbar();
   const resetAllData = useTkbStore((s) => s.resetAllData);
   const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
-  const [darkMode, setDarkMode] = useState<boolean>(() => {
-    return localStorage.getItem('theme_mode') === 'dark';
-  });
-
-  useEffect(() => {
-    if (darkMode) {
-      document.body.classList.add('dark-mode');
-      localStorage.setItem('theme_mode', 'dark');
-    } else {
-      document.body.classList.remove('dark-mode');
-      localStorage.setItem('theme_mode', 'light');
-    }
-  }, [darkMode]);
 
   const handleConfirmReset = () => {
     resetAllData();
@@ -121,25 +105,16 @@ function HeaderActions() {
 
   return (
     <Box className="header-actions">
-      <Tooltip title="Đặt lại toàn bộ dữ liệu">
+      <Tooltip title="Xóa toàn bộ dữ liệu & làm lại từ đầu">
         <Button
           variant="outlined"
-          size="small"
+          size="medium"
           className="header-action-btn reset-btn"
           startIcon={<RotateLeftIcon />}
           onClick={() => setIsResetConfirmOpen(true)}
         >
           Đặt lại
         </Button>
-      </Tooltip>
-
-      <Tooltip title={darkMode ? 'Chuyển sang giao diện Sáng' : 'Chuyển sang giao diện Tối'}>
-        <IconButton
-          className="header-action-btn theme-toggle-btn"
-          onClick={() => setDarkMode((prev) => !prev)}
-        >
-          {darkMode ? <WbSunnyOutlinedIcon style={{ color: '#fbbf24' }} /> : <NightsStayOutlinedIcon />}
-        </IconButton>
       </Tooltip>
 
       <Dialog open={isResetConfirmOpen} onClose={() => setIsResetConfirmOpen(false)}>

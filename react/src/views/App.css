@@ -78,113 +78,24 @@ body {
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 10px;
 }
 .header-action-btn.reset-btn {
   border-color: #D5E0E8 !important;
   color: #0E2128 !important;
+  font-size: 14px !important;
   font-weight: 700 !important;
-  border-radius: 10px !important;
-  padding: 5px 14px !important;
+  border-radius: 12px !important;
+  padding: 7px 18px !important;
   text-transform: none !important;
   background: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(14, 33, 40, 0.04) !important;
   transition: all 160ms ease !important;
 }
 .header-action-btn.reset-btn:hover {
   border-color: #ef4444 !important;
   color: #ef4444 !important;
   background: #fef2f2 !important;
-}
-.header-action-btn.theme-toggle-btn {
-  color: #0E2128 !important;
-  background: #EBF1F5 !important;
-  border: 1px solid #D5E0E8 !important;
-  border-radius: 10px !important;
-  padding: 6px !important;
-  transition: all 160ms ease !important;
-}
-.header-action-btn.theme-toggle-btn:hover {
-  background: #ffffff !important;
-  border-color: #0E2128 !important;
-}
-
-/* Dark Mode Palette Styles */
-body.dark-mode {
-  background: #090D10 !important;
-  color: #F8FAFC !important;
-}
-body.dark-mode .app-header {
-  background: rgba(14, 33, 40, 0.92) !important;
-  border-bottom: 1px solid #1E3A47 !important;
-}
-body.dark-mode .brand-name {
-  color: #F8FAFC !important;
-}
-body.dark-mode .workflow-nav {
-  background: #142730 !important;
-  border-color: #1E3A47 !important;
-}
-body.dark-mode .workflow-step {
-  color: #ADBECC !important;
-}
-body.dark-mode .workflow-step.active {
-  background: #0E2128 !important;
-  color: #ffffff !important;
-}
-body.dark-mode .surface-card {
-  background: #142730 !important;
-  border-color: #1E3A47 !important;
-  color: #F8FAFC !important;
-}
-body.dark-mode .header-action-btn.reset-btn {
-  background: #142730 !important;
-  border-color: #1E3A47 !important;
-  color: #F8FAFC !important;
-}
-body.dark-mode .header-action-btn.theme-toggle-btn {
-  background: #142730 !important;
-  border-color: #1E3A47 !important;
-  color: #fbbf24 !important;
-}
-body.dark-mode #thoi-khoa-bieu table {
-  background: #142730 !important;
-  color: #F8FAFC !important;
-}
-body.dark-mode #thoi-khoa-bieu th,
-body.dark-mode #thoi-khoa-bieu td {
-  border-color: #1E3A47 !important;
-}
-body.dark-mode #thoi-khoa-bieu table thead th {
-  background: #0E2128 !important;
-  color: #F8FAFC !important;
-}
-body.dark-mode #thoi-khoa-bieu table tr td {
-  background: #142730 !important;
-}
-body.dark-mode #thoi-khoa-bieu table tr td.cell-tiet {
-  background: #0E2128 !important;
-  color: #F8FAFC !important;
-}
-body.dark-mode #thoi-khoa-bieu .empty-schedule-slot {
-  background: #142730 !important;
-}
-body.dark-mode #thoi-khoa-bieu .empty-slot-button {
-  background: #0E2128 !important;
-  border-color: #234250 !important;
-}
-body.dark-mode #thoi-khoa-bieu .empty-slot-label {
-  color: #ADBECC !important;
-}
-body.dark-mode #thoi-khoa-bieu .class-cell-card {
-  background: #0E2128 !important;
-  border-color: #234250 !important;
-  color: #F8FAFC !important;
-}
-body.dark-mode #thoi-khoa-bieu .class-cell-code {
-  color: #F8FAFC !important;
-}
-body.dark-mode #thoi-khoa-bieu .class-cell-name {
-  color: #ADBECC !important;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15) !important;
 }
 
 .workflow-nav {
