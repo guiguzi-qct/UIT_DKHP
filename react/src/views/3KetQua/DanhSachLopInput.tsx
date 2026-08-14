@@ -60,16 +60,6 @@ export default function DanhSachLopInput() {
   const storedValue = isChiVeTkb ? textareaChiVeTkb : listMaLop.join(',');
   const value = isEditing ? draft : storedValue;
 
-  const handlePaste = (event: React.ClipboardEvent<HTMLDivElement>) => {
-    if (!isEditing) {
-      const pastedText = event.clipboardData.getData('text').toUpperCase();
-      if (pastedText.trim()) {
-        setDraft(pastedText);
-        setIsEditing(true);
-        event.preventDefault();
-      }
-    }
-  };
   const draftCodes = useMemo(() => parseListMaLop(draft), [draft]);
   const availableCodes = useMemo(
     () => new Set(finalDataTkb.map((item) => String(item.MaLop).toUpperCase())),
