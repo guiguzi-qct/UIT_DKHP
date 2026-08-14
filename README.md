@@ -5,10 +5,12 @@
 ## Chức năng
 
 - Tải file Excel gồm danh sách lớp lý thuyết và thực hành.
-- Tìm kiếm, lọc, nhóm và chọn lớp.
+- Luồng 3 bước rõ ràng, thích ứng cho cả desktop và điện thoại.
+- Tìm kiếm nhanh toàn bộ bảng, lọc theo cột và chọn lớp.
 - Cảnh báo các lớp trùng thời gian.
 - Tính tổng số tín chỉ đã chọn.
 - Xem, tải ảnh, sao chép ảnh và chia sẻ thời khóa biểu.
+- Bảng lịch cuộn ngang, có cột tiết cố định trên màn hình nhỏ.
 - Lớp chưa có `THỨ` hoặc `TIẾT` vẫn được giữ trong danh sách nhưng không bị ép xếp vào lưới.
 
 Ứng dụng chỉ xử lý dữ liệu ngay trên trình duyệt và không thu thập dữ liệu sử dụng.
@@ -42,9 +44,3 @@ Trong **Project Settings → Build and Deployment**, hãy xóa Install Command
 tùy chỉnh nếu đang đặt là `npm audit fix --force`. Dự án đã dùng `npm ci`
 qua `vercel.json`; chạy `audit fix --force` trong lúc deploy có thể tự đổi
 dependency so với lockfile và làm kết quả build không ổn định.
-
-Nếu sử dụng tính năng AG Grid Enterprise, cấu hình khóa riêng trong `react/.env`:
-
-```env
-REACT_APP_AG_GRID_LICENSE_KEY=
-```

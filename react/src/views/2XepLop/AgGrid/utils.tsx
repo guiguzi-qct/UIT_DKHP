@@ -1,13 +1,10 @@
-import { Button, useMediaQuery, useTheme } from '@mui/material';
+import { Button } from '@mui/material';
 import {
-  AgGridEvent,
   CellStyle,
   FilterChangedEvent,
-  GetContextMenuItemsParams,
   GridOptions,
   GridReadyEvent,
   IRowNode,
-  MenuItemDef,
   RowClickedEvent,
   SelectionChangedEvent,
   ValueGetterParams,
@@ -18,8 +15,6 @@ import { closeSnackbar, enqueueSnackbar } from 'notistack';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { Buoi, ClassModel } from 'types';
 import { useDebouncedCallback } from 'use-debounce';
-import SoTinChi from '../../components/SoTinChi';
-import ThoiKhoaBieuTable from '../../components/ThoiKhoaBieuTable';
 import {
   findOverlapedClasses,
   getAgGridRowId,
@@ -29,7 +24,6 @@ import {
   log,
 } from '../../../utils';
 import {
-  selectAgGridColumnState,
   selectAgGridFilterModel,
   selectDataExcel,
   selectFinalDataTkb,
@@ -100,23 +94,21 @@ const columnDefs: GridOptions['columnDefs'] = [
     field: 'TenMH',
     initialWidth: 280,
     cellStyle: BOLD_CELL_STYLE,
-    enableRowGroup: true,
     hide: true,
   },
   {
-    headerName: 'MÔN HỌC',
+    headerName: 'Môn học',
     field: 'MonHoc',
-    initialWidth: 350,
+    initialWidth: 360,
     cellStyle: BOLD_CELL_STYLE,
-    enableRowGroup: true,
     valueGetter: ({ data }: ValueGetterParams<ClassModel, string>): string => {
       return data?.MaMH || data?.TenMH ? `${data.MaMH} - ${data.TenMH}` : '';
     },
   },
   {
-    headerName: 'MÃ LỚP',
+    headerName: 'Mã lớp',
     field: 'MaLop',
-    initialWidth: 200,
+    initialWidth: 170,
     filter: 'agTextColumnFilter',
     checkboxSelection: true,
   },
@@ -128,16 +120,15 @@ const columnDefs: GridOptions['columnDefs'] = [
     hide: true,
   },
   {
-    headerName: 'TÊN GIẢNG VIÊN',
+    headerName: 'Giảng viên',
     field: 'TenGV',
-    initialWidth: 250,
+    initialWidth: 210,
     filter: 'agTextColumnFilter',
   },
   {
     headerName: 'THỨ+BUỔI',
     colId: 'ThuBuoi',
     initialWidth: 150,
-    enableRowGroup: true,
     hide: true,
     // originally had valueGetter as a raw number, then used valueFormatter to format it, but it turned out to be troublesome so I changed to this
     valueGetter: ({ data }: ValueGetterParams<ClassModel, number>): FormattedThuBuoi => {
@@ -150,17 +141,16 @@ const columnDefs: GridOptions['columnDefs'] = [
     },
   },
   {
-    headerName: 'THỨ',
+    headerName: 'Thứ',
     field: 'Thu',
     initialWidth: 85,
     cellStyle: BOLD_CELL_STYLE,
-    enableRowGroup: true,
     comparator: (a: ClassModel['Thu'], b: ClassModel['Thu']) => {
       return a.localeCompare(b);
     },
   },
   {
-    headerName: 'TIẾT',
+    headerName: 'Tiết',
     field: 'Tiet',
     initialWidth: 80,
     cellStyle: BOLD_CELL_STYLE,
@@ -174,27 +164,29 @@ const columnDefs: GridOptions['columnDefs'] = [
     },
   },
   {
-    headerName: 'SỐ TC',
+    headerName: 'Số TC',
     field: 'SoTc',
     initialWidth: 90,
     filter: false,
   },
   {
-    headerName: 'HỆ ĐT',
+    headerName: 'Hệ ĐT',
     field: 'HeDT',
     initialWidth: 90,
+    hide: true,
     // TODO: check isMonChung
   },
   {
-    headerName: 'KHOA QL',
+    headerName: 'Khoa QL',
     field: 'KhoaQL',
     initialWidth: 120,
-    enableRowGroup: true,
+    hide: true,
   },
   {
     headerName: 'HTGD',
     field: 'HTGD',
     initialWidth: 85,
+    hide: true,
     comparator: (a: ClassModel['HTGD'], b: ClassModel['HTGD']) => {
       return HTGD_ORDER_PRIORITY[a] - HTGD_ORDER_PRIORITY[b];
     },
@@ -206,91 +198,76 @@ const columnDefs: GridOptions['columnDefs'] = [
     hide: true,
   },
   {
-    headerName: 'CÁCH TUẦN',
+    headerName: 'Cách tuần',
     field: 'CachTuan',
     initialWidth: 125,
     filter: false,
+    hide: true,
   },
   {
-    headerName: 'SỈ SỐ',
+    headerName: 'Sĩ số',
     field: 'SiSo',
     initialWidth: 80,
     filter: false,
   },
   {
-    headerName: 'PHÒNG HỌC',
+    headerName: 'Phòng học',
     field: 'PhongHoc',
     initialWidth: 130,
     filter: false,
   },
   {
-    headerName: 'KHÓA HỌC',
+    headerName: 'Khóa học',
     field: 'KhoaHoc',
     initialWidth: 120,
+    hide: true,
   },
   {
-    headerName: 'HỌC KỲ',
+    headerName: 'Học kỳ',
     field: 'HocKy',
     initialWidth: 100,
     filter: false,
+    hide: true,
   },
   {
-    headerName: 'NĂM HỌC',
+    headerName: 'Năm học',
     field: 'NamHoc',
     initialWidth: 110,
     filter: false,
+    hide: true,
   },
   {
     headerName: 'NBD',
     field: 'NBD',
     initialWidth: 110,
     filter: false,
+    hide: true,
   },
   {
     headerName: 'NKT',
     field: 'NKT',
     initialWidth: 110,
     filter: false,
+    hide: true,
   },
   {
-    headerName: 'GHI CHÚ',
+    headerName: 'Ghi chú',
     field: 'GhiChu',
   },
   {
-    headerName: 'NGÔN NGỮ',
+    headerName: 'Ngôn ngữ',
     field: 'NgonNgu',
     initialWidth: 120,
+    hide: true,
   },
 ];
 
 const defaultColDef: GridOptions['defaultColDef'] = {
   resizable: true,
   filter: true,
-  floatingFilter: true,
+  floatingFilter: false,
   filterParams: { buttons: ['reset'], defaultToNothingSelected: true },
-  menuTabs: ['generalMenuTab'],
-};
-
-// Sort after grouping: https://www.ag-grid.com/javascript-data-grid/row-sorting/#custom-sorting-groups-example
-const autoGroupColumnDef: GridOptions['autoGroupColumnDef'] = {
-  sort: 'asc',
-  comparator: (a, b) => {
-    const isGroupingByThuBuoi = a?.includes('Thứ') && b?.includes('Thứ');
-    if (isGroupingByThuBuoi) {
-      return THUBUOI_ORDER_PRIORITY[a] - THUBUOI_ORDER_PRIORITY[b];
-    }
-    const bothAreNumeral = /\d+/.test(a) && /\d+/.test(b);
-    if (bothAreNumeral) return a - b;
-    return 0;
-  },
-};
-
-const statusBar: GridOptions['statusBar'] = {
-  statusPanels: [
-    { statusPanel: 'agSelectedRowCountComponent', align: 'right' },
-    { statusPanel: 'agTotalAndFilteredRowCountComponent', align: 'right' },
-    { statusPanel: SoTinChi, align: 'left' },
-  ],
+  menuTabs: ['filterMenuTab', 'generalMenuTab'],
 };
 
 const getMainMenuItems: GridOptions['getMainMenuItems'] = () => {
@@ -301,76 +278,13 @@ const getRowId: GridOptions<ClassModel>['getRowId'] = ({ data }) => {
   return getAgGridRowId(data);
 };
 
-function getContextMenuItemsBuilder() {
-  type MenuItem = string | MenuItemDef;
-
-  const menuItems: MenuItem[] = [];
-  let numItemsInThisBlock = 0;
-
-  const addToBlock = (...items: MenuItem[]) => {
-    menuItems.push(...items);
-    numItemsInThisBlock += items.length;
-  };
-
-  const endOfBlock = () => {
-    if (numItemsInThisBlock) menuItems.push('separator');
-    numItemsInThisBlock = 0;
-  };
-
-  const constructFinal = () => {
-    while (menuItems.at(-1) === 'separator') menuItems.pop();
-    return menuItems;
-  };
-
-  return { addToBlock, endOfBlock, constructFinal };
-}
-
 const PROGRAMMATICALLY_CHANGE_SELECTION = 'api';
 export const useGridOptions = () => {
   const agGridRef = useRef<AgGridReact<ClassModel>>(null);
-  const theme = useTheme();
-  // Enable Preview panel by default on screens wider than 1400px
-  // This helps users discover the feature while avoiding clutter on smaller screens
-  const isLargeScreen = useMediaQuery(theme.breakpoints.up(1400));
 
   const { openTrungTkbDialog } = useTrungTkbDialogContext();
   const selectedClasses = useTkbStore(selectSelectedClasses);
   const setSelectedClasses = useTkbStore((s) => s.setSelectedClasses);
-
-  const sideBar: GridOptions['sideBar'] = useMemo(
-    () => ({
-      defaultToolPanel: isLargeScreen ? 'preview' : undefined,
-      toolPanels: [
-        {
-          id: 'preview',
-          labelDefault: 'Preview',
-          labelKey: 'preview',
-          iconKey: 'columnMoveMove',
-          toolPanel: ThoiKhoaBieuTable,
-          width: 700,
-        },
-        {
-          id: 'columns',
-          labelDefault: 'Columns',
-          labelKey: 'columns',
-          iconKey: 'columns',
-          toolPanel: 'agColumnsToolPanel',
-          toolPanelParams: {
-            suppressValues: true,
-            suppressPivotMode: true,
-          },
-        },
-        {
-          id: 'filters',
-          labelDefault: 'Filters',
-          labelKey: 'filters',
-          iconKey: 'filter',
-          toolPanel: 'agFiltersToolPanel',
-        },
-      ],
-    }),
-    [isLargeScreen],
-  );
 
   const updateNodesSelectionToAgGrid = useCallback((selectedClasses: ClassModel[]) => {
     if (!agGridRef.current?.api) return;
@@ -417,25 +331,14 @@ export const useGridOptions = () => {
 
   const DEBOUNCE_TIME = 500;
   const setAgGridFilterModel = useTkbStore((s) => s.setAgGridFilterModel);
-  const setAgGridColumnState = useTkbStore((s) => s.setAgGridColumnState);
   const onFilterChanged: GridOptions['onFilterChanged'] = useDebouncedCallback((e: FilterChangedEvent) => {
     log('>>onFilterChanged', e);
     setAgGridFilterModel(e.api.getFilterModel());
   }, DEBOUNCE_TIME);
 
-  // onColumnResized will be called too much without debounce
-  const onColumnChanged = useDebouncedCallback(({ columnApi }: AgGridEvent) => {
-    log('>>onColumnChanged');
-    setAgGridColumnState(columnApi.getColumnState());
-  }, DEBOUNCE_TIME);
-
   const agGridFilterModel = useTkbStore(selectAgGridFilterModel);
-  const agGridColumnState = useTkbStore(selectAgGridColumnState);
   const onGridReady = useCallback(
-    ({ api, columnApi }: GridReadyEvent<ClassModel, any>) => {
-      if (agGridColumnState?.length) {
-        columnApi.applyColumnState({ state: agGridColumnState });
-      }
+    ({ api }: GridReadyEvent<ClassModel, any>) => {
       if (agGridFilterModel && Object.keys(agGridFilterModel).length) {
         api.setFilterModel(agGridFilterModel);
       }
@@ -443,7 +346,7 @@ export const useGridOptions = () => {
         updateNodesSelectionToAgGrid(selectedClasses);
       }
     },
-    [agGridColumnState, agGridFilterModel, selectedClasses, updateNodesSelectionToAgGrid],
+    [agGridFilterModel, selectedClasses, updateNodesSelectionToAgGrid],
   );
 
   const onRowClicked = useCallback(({ node }: RowClickedEvent<ClassModel>) => {
@@ -469,89 +372,6 @@ export const useGridOptions = () => {
       });
     }
   }, []);
-
-  const getContextMenuItems = useCallback(
-    ({ value, column, api, columnApi }: GetContextMenuItemsParams<ClassModel>): (string | MenuItemDef)[] => {
-      const { addToBlock, endOfBlock, constructFinal } = getContextMenuItemsBuilder();
-      const headerName = column?.getColDef().headerName;
-
-      if (value) {
-        addToBlock({
-          name: `Copy text "${value}"`,
-          action: () => {
-            navigator.clipboard.writeText(value);
-          },
-        });
-      }
-      endOfBlock();
-
-      if (value && column?.isFilterAllowed()) {
-        const thisColumnCurrentFilterModel = api.getFilterModel()[column.getColId()];
-        const alreadyFilterByThisValue =
-          thisColumnCurrentFilterModel?.filter === value || thisColumnCurrentFilterModel?.values?.includes(value);
-        if (!alreadyFilterByThisValue) {
-          addToBlock({
-            name: `Add Filter "${headerName}"="${value}"`,
-            action: () => {
-              api.setFilterModel({
-                ...api.getFilterModel(),
-                [column.getColId()]: {
-                  type: 'contains',
-                  filter: value, // text filter
-                  values: [value], // set filter
-                },
-              });
-            },
-          });
-        }
-      }
-      if (column?.isFilterAllowed() && api.isColumnFilterPresent()) {
-        const { [column.getColId()]: thisColumnFilterModel, ...otherColumnsFilterModel } = api.getFilterModel();
-        if (thisColumnFilterModel) {
-          addToBlock({
-            name: `Reset Filter For "${headerName}"`,
-            action: () => {
-              api.setFilterModel({
-                ...api.getFilterModel(),
-                [column.getColId()]: null,
-              });
-            },
-          });
-        }
-        if (thisColumnFilterModel && Object.keys(otherColumnsFilterModel).length) {
-          addToBlock({
-            name: `Reset All Filters Except "${headerName}"`,
-            action: () => {
-              api.setFilterModel({
-                [column.getColId()]: api.getFilterModel()[column.getColId()],
-              });
-            },
-          });
-        }
-      }
-      if (api.isColumnFilterPresent()) {
-        addToBlock({
-          name: 'Reset All Filters',
-          action: () => {
-            api.setFilterModel(null);
-          },
-        });
-      }
-      endOfBlock();
-
-      addToBlock('resetColumns', 'autoSizeAll');
-      endOfBlock();
-
-      if (columnApi.getRowGroupColumns().length) {
-        addToBlock('expandAll', 'contractAll');
-      }
-      endOfBlock();
-
-      const final = constructFinal();
-      return final;
-    },
-    [],
-  );
 
   const dataTkb = useTkbStore(selectFinalDataTkb);
   const rowData: GridOptions['rowData'] = useMemo(() => {
@@ -613,14 +433,9 @@ export const useGridOptions = () => {
     isRowSelectable,
     columnDefs,
     defaultColDef,
-    autoGroupColumnDef,
     getMainMenuItems,
-    getContextMenuItems,
-    statusBar,
-    sideBar,
     onSelectionChanged,
     onFilterChanged,
-    onColumnChanged,
     onGridReady,
     onRowClicked,
     rowData,

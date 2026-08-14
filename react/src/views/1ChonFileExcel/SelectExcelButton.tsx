@@ -1,100 +1,90 @@
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import CloudUploadOutlinedIcon from '@mui/icons-material/CloudUploadOutlined';
+import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutlined';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import Tooltip from '@mui/material/Tooltip';
-import { closeSnackbar, enqueueSnackbar } from 'notistack';
+import Paper from '@mui/material/Paper';
+import Typography from '@mui/material/Typography';
+import { enqueueSnackbar } from 'notistack';
 import React, { ChangeEventHandler } from 'react';
 import XLSX from 'xlsx';
 import { selectDataExcel, useTkbStore } from '../../zus';
-import { arrayToTkbObject, getLastUpdateString, sheetJSFT, toDateTimeString } from './utils';
-
-const Bold = ({ children }) => <b style={{ marginLeft: 5 }}>{children}</b>;
+import { arrayToTkbObject, sheetJSFT, toDateTimeString } from './utils';
 
 function SelectExcelButton() {
   const dataExcel = useTkbStore(selectDataExcel);
   const setDataExcel = useTkbStore((s) => s.setDataExcel);
-  const lastUpdateString = getLastUpdateString(dataExcel);
+  const inputRef = React.useRef<HTMLInputElement>(null);
+  const [isDragging, setIsDragging] = React.useState(false);
 
-  const handleUploadFileExcel = React.useCallback<ChangeEventHandler<HTMLInputElement>>(
-    (event) => {
-      const file = event.target.files?.[0];
-      if (!file) return;
+  const readFile = React.useCallback(
+    (file: File) => {
       const reader = new FileReader();
-      const rABS = !!reader.readAsBinaryString;
-      reader.onload = (e) => {
-        const bstr = e?.target?.result;
-        const wb = XLSX.read(bstr, { type: rABS ? 'binary' : 'array' });
-        const wsLyThuyet = wb.Sheets[wb.SheetNames[0]];
-        const wsThucHanh = wb.Sheets[wb.SheetNames[1]];
-        const dataLyThuyet = XLSX.utils.sheet_to_json<any[][]>(wsLyThuyet, { header: 1 });
-        const dataThucHanh = XLSX.utils.sheet_to_json<any[][]>(wsThucHanh, { header: 1 });
-        const dataInArray = [...dataLyThuyet, ...dataThucHanh].filter(
-          (row) => typeof row[0] === 'number', // những row có cột 0 là STT (STT là number) thì mới là data ta cần
-        );
-        if (dataInArray.length) {
+      const readAsBinary = !!reader.readAsBinaryString;
+
+      reader.onerror = () => enqueueSnackbar('Không thể đọc file. Vui lòng thử lại.', { variant: 'error' });
+      reader.onload = (event) => {
+        try {
+          const workbook = XLSX.read(event?.target?.result, { type: readAsBinary ? 'binary' : 'array' });
+          const dataInArray = workbook.SheetNames.slice(0, 2)
+            .flatMap((sheetName) => XLSX.utils.sheet_to_json<any[][]>(workbook.Sheets[sheetName], { header: 1 }))
+            .filter((row) => typeof row[0] === 'number');
+
+          if (!dataInArray.length) throw new Error('invalid-format');
+
           const now = new Date();
           setDataExcel({
-            data: dataInArray.map((array) => arrayToTkbObject(array)),
+            data: dataInArray.map((row) => arrayToTkbObject(row)),
             fileName: file.name,
-            lastUpdateTimestamp: now.getTime(), // Epoch timestamp for precise comparison
-            lastUpdate: toDateTimeString(now), // Keep for backward compatibility
+            lastUpdateTimestamp: now.getTime(),
+            lastUpdate: toDateTimeString(now),
           });
-          enqueueSnackbar(
-            <>
-              Upload file thành công <Bold>{file.name}</Bold>
-            </>,
-            {
-              variant: 'success',
-              action: (key) => (
-                <Button
-                  size="small"
-                  color="inherit"
-                  onClick={() => {
-                    closeSnackbar(key);
-                  }}
-                >
-                  Đã hiểu
-                </Button>
-              ),
-            },
-          );
-        } else {
-          enqueueSnackbar('Không đúng định dạng file của trường', {
-            variant: 'error',
-          });
+          enqueueSnackbar(`Đã đọc ${dataInArray.length} lớp từ ${file.name}`, { variant: 'success' });
+        } catch {
+          enqueueSnackbar('File chưa đúng định dạng thời khóa biểu của trường.', { variant: 'error' });
         }
       };
-      if (rABS) reader.readAsBinaryString(file);
+
+      if (readAsBinary) reader.readAsBinaryString(file);
       else reader.readAsArrayBuffer(file);
     },
     [setDataExcel],
   );
 
+  const handleUpload: ChangeEventHandler<HTMLInputElement> = (event) => {
+    const file = event.target.files?.[0];
+    if (file) readFile(file);
+    event.target.value = '';
+  };
+
   return (
-    <Box mt={1} mb={2}>
-      {/* File uploader with material-ui: https://stackoverflow.com/a/54043619/9787887*/}
-      <Tooltip title={dataExcel?.fileName || 'Chưa upload file'}>
-        <Button
-          variant={'contained'}
-          color={lastUpdateString ? 'success' : 'primary'}
-          component="label"
-          style={lastUpdateString ? undefined : { fontWeight: 'bold' }}
-        >
-          {lastUpdateString ? (
-            <>
-              <span>Đã upload: </span> <Bold>{lastUpdateString}</Bold>
-            </>
-          ) : (
-            'Upload file excel'
-          )}
-          <input
-            type="file"
-            style={{ display: 'none' }}
-            accept={sheetJSFT}
-            onChange={handleUploadFileExcel}
-          />
-        </Button>
-      </Tooltip>
-    </Box>
+    <Paper
+      className={`surface-card upload-dropzone ${isDragging ? 'dragging' : ''}`}
+      onDragEnter={(event) => { event.preventDefault(); setIsDragging(true); }}
+      onDragOver={(event) => event.preventDefault()}
+      onDragLeave={(event) => { event.preventDefault(); setIsDragging(false); }}
+      onDrop={(event) => {
+        event.preventDefault();
+        setIsDragging(false);
+        const file = event.dataTransfer.files?.[0];
+        if (file) readFile(file);
+      }}
+    >
+      <Box className="upload-icon"><CloudUploadOutlinedIcon /></Box>
+      <Typography variant="h5">Kéo thả file vào đây</Typography>
+      <Typography color="text.secondary">Hoặc chọn file Excel thời khóa biểu từ máy của bạn</Typography>
+      <Button variant="contained" size="large" onClick={() => inputRef.current?.click()} startIcon={<InsertDriveFileOutlinedIcon />}>
+        {dataExcel ? 'Chọn file khác' : 'Chọn file Excel'}
+      </Button>
+      <input ref={inputRef} type="file" hidden accept={sheetJSFT} onChange={handleUpload} />
+      <Typography className="upload-format" variant="caption">Hỗ trợ .xlsx, .xls và .csv</Typography>
+      {dataExcel && (
+        <Box className="current-file">
+          <CheckCircleOutlineIcon color="success" />
+          <span><strong>{dataExcel.fileName}</strong><small>Đã tải thành công</small></span>
+        </Box>
+      )}
+    </Paper>
   );
 }
 

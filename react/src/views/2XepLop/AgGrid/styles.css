@@ -1,119 +1,55 @@
-.ag-theme-alpine {
-  --ag-header-background-color: #f4f9f2;
-  /* --ag-background-color: #fff9; */
-  /* TODO: customize better color theming */
-  /* --ag-alpine-active-color: rgba(244,238,239, 1);
-  --ag-selected-row-background-color: rgba(244,238,239, 0.3);
-  --ag-row-hover-color: rgba(244,238,239, 0.1);
-  --ag-column-hover-color: rgba(244,238,239, 0.1);
-  --ag-input-focus-border-color: rgba(244,238,239, 0.4);
-  --ag-range-selection-background-color: rgba(244,238,239, 0.2);
-  --ag-range-selection-background-color-2: rgba(244,238,239, 0.36);
-  --ag-range-selection-background-color-3: rgba(244,238,239, 0.49);
-  --ag-range-selection-background-color-4: rgba(244,238,239, 0.59); */
+.selection-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; }
+.selection-toolbar {
+  padding: 12px; display: grid; grid-template-columns: minmax(260px, 1fr) auto auto;
+  align-items: center; gap: 12px; border-radius: 16px !important;
 }
-.ag-theme-alpine .ag-body {
-  --ag-row-hover-color: #F4EEE5; 
+.quick-search { width: 100%; }
+.selection-stats, .selection-actions { display: flex; align-items: center; gap: 8px; }
+
+.course-grid {
+  height: calc(100vh - 300px);
+  min-height: 520px;
+  margin-top: 14px;
+  overflow: hidden;
+  border: 1px solid #dbe3ee;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 14px 40px rgba(15, 23, 42, 0.07);
+  --ag-font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --ag-font-size: 13px;
+  --ag-grid-size: 7px;
+  --ag-border-color: #e2e8f0;
+  --ag-row-border-color: #eef2f7;
+  --ag-header-background-color: #f8fafc;
+  --ag-header-foreground-color: #334155;
+  --ag-foreground-color: #0f172a;
+  --ag-background-color: #fff;
+  --ag-row-hover-color: #f4f4f5;
+  --ag-selected-row-background-color: #e5e7eb;
+  --ag-input-focus-border-color: #111111;
+  --ag-checkbox-checked-color: #111111;
+  --ag-alpine-active-color: #111111;
+}
+.course-grid .ag-root-wrapper { border: 0; border-radius: 18px; }
+.course-grid .ag-header { border-bottom: 1px solid #dbe3ee; }
+.course-grid .ag-header-cell-label { font-weight: 750; }
+.course-grid .ag-cell { padding-inline: 12px; line-height: 45px; }
+.course-grid .ag-row { cursor: pointer; }
+.course-grid .ag-row.ag-row-hover { box-shadow: inset 3px 0 #52525b; }
+.course-grid .ag-header-cell-filtered { color: #92400e; background: #fef3c7 !important; }
+.course-grid .ag-status-bar { min-height: 40px; color: #475569; background: #f8fafc; }
+.course-grid .ag-set-filter-list { height: auto; max-height: calc(100vh - 240px) !important; overflow: auto; }
+.course-grid .ag-cell-focus, .course-grid .ag-cell-no-focus { border-color: transparent !important; }
+.course-grid .ag-pinned-left-header .ag-header-cell-text { display: flex; }
+
+@media (max-width: 1000px) {
+  .selection-toolbar { grid-template-columns: 1fr auto; }
+  .selection-actions { grid-column: 1 / -1; justify-content: flex-end; }
 }
 
-/* show pin icon when column is pinned https://stackoverflow.com/a/43471358/9787887 */
-.ag-pinned-left-header .ag-header-cell-text {
-  display: flex;
-}
-.ag-pinned-left-header .ag-header-cell-text::before,
-.ag-pinned-right-header .ag-header-cell-text::before {
-  display: inline-block;
-  margin-right: 4px;
-  font-family: var(--ag-icon-font-family);
-  font-size: var(--ag-icon-size);
-  line-height: var(--ag-icon-size);
-  font-style: normal;
-  font-weight: normal;
-  font-feature-settings: normal;
-  font-variant: normal;
-  text-transform: none;
-  -webkit-font-smoothing: antialiased;
-  content: var(--ag-icon-font-code-pin, "\f124");
-}
-
-.ag-theme-alpine .ag-cell {
-  /*line-height: 25px; !* Kết hợp với rowHeight để điều chỉnh rowHeight mà text vẫn căn giữa vertically *!*/
-
-  padding-left: 10px;
-  padding-right: 10px;
-  line-height: 28px;
-  letter-spacing: 0.5px;
-}
-
-.ag-theme-alpine .ag-header-cell-resize::after {
-  content: none;
-}
-
-.ag-theme-alpine .ag-cell-normal,
-.ag-theme-alpine .ag-root-wrapper {
-  background-color: inherit;
-
-}
-.ag-theme-alpine .ag-header-cell-filtered,
-.ag-filter-toolpanel-group.ag-has-filter {
-  background-color: #f2d8b0 !important;
-}
-/* only display filter icon when the column is actively filtered */
-.ag-theme-alpine .ag-floating-filter-button {
-  /* cannot use display: none because it'll mess up with the interaction */
-  opacity: 0;
-  width: 0;
-  height: 0;
-  margin: 0
-}
-.ag-theme-alpine .ag-filter-list-panel .ag-has-filter .ag-group-title::after,
-.ag-theme-alpine .ag-header-cell-filtered .ag-icon-filter {
-  font-size: x-large;
-}
-.ag-theme-alpine .ag-group-title-bar {
-  background-color: inherit;
-}
-.ag-theme-alpine .ag-sticky-top, 
-.ag-theme-alpine .ag-dnd-ghost {
-  background-color: #F4EEE5;
-}
-
-.ag-theme-alpine .ag-header-cell,
-.ag-theme-alpine .ag-header-group-cell {
-  padding-left: 12px;
-  padding-right: 12px;
-
-  border-right: 1px solid #ddd;
-  border-left: 1px solid #ddd;
-  border-top: 1px solid #ddd;
-  /* background: #f4f9f2; */
-}
-
-
-/* .odd-row {
-  background: #d7e8f7 !important;
-}
-.even-row {
-  background: #f6e6c8 !important;
-} */
-
-
-.ag-theme-alpine .ag-set-filter-list {
-  height: auto;
-  max-height: calc(100vh - 200px) !important;
-  overflow: auto; /* thank you ChatGPT */
-}
-
-.ag-theme-alpine .ag-row-hover {
-  cursor: pointer;
-}
-
-.ag-theme-alpine .ag-status-name-value {
-  padding-top: 6px;
-  padding-bottom: 6px;
-}
-
-.ag-cell-focus,
-.ag-cell-no-focus {
-  border-color: transparent !important;
+@media (max-width: 720px) {
+  .selection-toolbar { grid-template-columns: 1fr; }
+  .selection-stats { flex-wrap: wrap; }
+  .selection-actions { grid-column: auto; display: grid; grid-template-columns: 1fr; }
+  .course-grid { height: 62vh; min-height: 470px; border-radius: 14px; }
 }

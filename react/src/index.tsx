@@ -1,35 +1,35 @@
 import CssBaseline from '@mui/material/CssBaseline';
-import { lightBlue } from '@mui/material/colors';
-import { StyledEngineProvider, Theme, ThemeProvider, adaptV4Theme, createTheme } from '@mui/material/styles';
-import { LicenseManager } from 'ag-grid-enterprise';
+import { StyledEngineProvider, ThemeProvider, createTheme } from '@mui/material/styles';
 import { SnackbarProvider } from 'notistack';
 import ReactDOM from 'react-dom';
 
 import App from './views/App';
 
-import 'ag-grid-enterprise/styles/ag-grid.css';
-import 'ag-grid-enterprise/styles/ag-theme-alpine.css';
-declare module '@mui/styles/defaultTheme' {
-  // eslint-disable-next-line @typescript-eslint/no-empty-interface
-  interface DefaultTheme extends Theme {}
-}
+import 'ag-grid-community/styles/ag-grid.css';
+import 'ag-grid-community/styles/ag-theme-alpine.css';
 
-const agGridLicenseKey = process.env.REACT_APP_AG_GRID_LICENSE_KEY;
-if (agGridLicenseKey) LicenseManager.setLicenseKey(agGridLicenseKey);
-
-const theme = createTheme(
-  adaptV4Theme({
-    typography: {
-      fontFamily: `"Montserrat", -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
-  'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
-  'Noto Color Emoji'`,
-    },
-    palette: {
-      primary: { main: lightBlue[800] },
-      secondary: { main: lightBlue[500] },
-    },
-  }),
-);
+const theme = createTheme({
+  palette: {
+    mode: 'light',
+    primary: { main: '#111111', dark: '#000000', light: '#e5e7eb' },
+    secondary: { main: '#404040' },
+    success: { main: '#15803d' },
+    background: { default: '#f5f5f5', paper: '#ffffff' },
+    text: { primary: '#111111', secondary: '#666666' },
+  },
+  shape: { borderRadius: 14 },
+  typography: {
+    fontFamily: `Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`,
+    h4: { fontWeight: 800, letterSpacing: '-0.03em' },
+    h5: { fontWeight: 800, letterSpacing: '-0.02em' },
+    button: { fontWeight: 700, textTransform: 'none' },
+  },
+  components: {
+    MuiButton: { styleOverrides: { root: { minHeight: 44, borderRadius: 10, boxShadow: 'none' } } },
+    MuiIconButton: { styleOverrides: { root: { minWidth: 44, minHeight: 44 } } },
+    MuiPaper: { styleOverrides: { root: { backgroundImage: 'none' } } },
+  },
+});
 
 ReactDOM.render(
   <SnackbarProvider>

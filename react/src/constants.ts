@@ -1,8 +1,3 @@
-export const COLORS = {
-  SUCCESS: 'green',
-  ERROR: 'red',
-} as const;
-
 export const ROUTES = {
   _1ChonFileExcel: {
     path: '/1',

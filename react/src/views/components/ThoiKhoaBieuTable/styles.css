@@ -1,102 +1,45 @@
-#thoi-khoa-bieu th, #thoi-khoa-bieu td {
-    padding: 0.5em 0.3em;
-    border: 1px solid #ddd;
+#thoi-khoa-bieu { position: relative; width: 100%; }
+.timetable-toolbar {
+  margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; gap: 16px;
 }
-
-#thoi-khoa-bieu table thead tr th {
-    background-color: #eee;
-    text-align: center;
-    width: 3%;
+.timetable-toolbar > div:first-child { display: flex; flex-direction: column; }
+.timetable-toolbar strong { font-size: 17px; }
+.timetable-toolbar small { margin-top: 3px; color: #64748b; }
+.timetable-actions { display: flex; gap: 8px; }
+.timetable-scroll {
+  width: 100%; overflow: auto; border: 1px solid #dbe3ee; border-radius: 14px;
+  background: #fff; overscroll-behavior-inline: contain;
 }
-
-/*#thoi-khoa-bieu {*/
-/*    width: 100%;*/
-/*    height: 100%;*/
-/*}*/
-
 #thoi-khoa-bieu table {
-    min-width: 1050px;
-    max-width: 1500px;
-    min-height: 75vh;
-    /* border: 2px dashed #52a4d3; */
-    /* https://stackoverflow.com/questions/628301/css3s-border-radius-property-and-border-collapsecollapse-dont-mix-how-can-i */
-    overflow: hidden;
-    border-radius: 5px;
-    border-spacing: 0;
+  width: 100%; min-width: 1060px; border-spacing: 0; border-collapse: separate;
+  table-layout: fixed; color: #0f172a; background: #fff;
 }
-
-#thoi-khoa-bieu table tr td {
-    background: #ccc !important;
-    border-bottom: 1px solid #ddd;
+#thoi-khoa-bieu th, #thoi-khoa-bieu td { padding: 10px 8px; border-right: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; }
+#thoi-khoa-bieu th:last-child, #thoi-khoa-bieu td:last-child { border-right: 0; }
+#thoi-khoa-bieu tbody tr:last-child td { border-bottom: 0; }
+#thoi-khoa-bieu table thead th {
+  position: sticky; top: 0; z-index: 3; width: 14%; text-align: center;
+  color: #334155; background: #f8fafc; font-size: 13px; font-weight: 800;
 }
-
+#thoi-khoa-bieu table thead th:first-child { left: 0; z-index: 4; width: 108px; }
+#thoi-khoa-bieu table tr td { background: #f8fafc !important; }
 #thoi-khoa-bieu table tr td.cell-tiet {
-    text-align: center;
-    font-weight: 500;
-    width: 10em;
+  position: sticky; left: 0; z-index: 2; width: 108px; text-align: center;
+  color: #475569; background: #fff !important; font-size: 12px; font-weight: 700;
 }
-
 #thoi-khoa-bieu .cell-class {
-    background-color: #fff !important;
-    text-align: center;
-    width: 230px;
-    position: relative;
+  position: relative; width: 230px; text-align: center; vertical-align: middle;
+  color: #1e293b; background: #fff !important; line-height: 1.45;
 }
+#thoi-khoa-bieu .cell-class strong:first-of-type { color: #111; }
+#thoi-khoa-bieu .cell-class .remove-class-btn { opacity: 0.15; transition: opacity 120ms ease; }
+#thoi-khoa-bieu .cell-class-hovering .remove-class-btn, #thoi-khoa-bieu .cell-class .remove-class-btn:focus { opacity: 1; }
+#thoi-khoa-bieu.compact .timetable-toolbar { display: none; }
+#thoi-khoa-bieu.compact table { min-width: 780px; font-size: 12px; }
+.MuiTooltip-tooltipPlacementBottom { margin-top: 0 !important; }
 
-#thoi-khoa-bieu .cell-class .remove-class-btn {
-    opacity: 0;
-    transition: opacity 0.1s ease-in-out;
-}
-#thoi-khoa-bieu .cell-class-hovering .remove-class-btn {
-    opacity: 1;
-}
-
-#thoi-khoa-bieu {
-    position: relative;
-}
-#thoi-khoa-bieu .extra-buttons {
-    position: absolute;
-    top: 0;
-    right: 0;
-    opacity: 0;
-    transform: translateX(100%);
-    display: flex;
-    flex-direction: column;
-    transition: 0.1s ease-in-out;
-    border-radius: 5px;
-    background: #fff;
-    box-shadow: 0 0 2px #0003;
-}
-#thoi-khoa-bieu .extra-buttons.extra-buttons-shown {
-    opacity: 1;
-}
-#thoi-khoa-bieu.compact .extra-buttons {
-    display: none;
-}
-
-/* the tooltip by default is too far away from the anchor, i.e: "Xoá môn này" tooltip */
-.MuiTooltip-tooltipPlacementBottom {
-    margin-top: 0 !important;
-}
-
-#thoi-khoa-bieu.compact table {
-    font-size: 0.9em;
-}
-#thoi-khoa-bieu.compact table thead tr th {
-    width: 10ch;
-}
-#thoi-khoa-bieu.compact table {
-    min-width: 700px;
-}
-
-@media screen and (max-width: 1100px) {
-    #thoi-khoa-bieu table {
-        font-size: 0.9em;
-    }
-    #thoi-khoa-bieu table thead tr th {
-        width: 10ch;
-    }
-    #thoi-khoa-bieu table {
-        min-width: 700px;
-    }
+@media (max-width: 720px) {
+  .timetable-toolbar { align-items: stretch; flex-direction: column; }
+  .timetable-actions { display: grid; grid-template-columns: 1fr 1fr; }
+  #thoi-khoa-bieu .cell-class .remove-class-btn { opacity: 0.7; }
 }

@@ -1,15 +1,19 @@
 import LinearProgress from '@mui/material/LinearProgress';
-import makeStyles from '@mui/styles/makeStyles';
-import clsx from 'clsx';
+import AppBar from '@mui/material/AppBar';
+import Box from '@mui/material/Box';
+import Chip from '@mui/material/Chip';
+import Container from '@mui/material/Container';
+import Toolbar from '@mui/material/Toolbar';
+import Typography from '@mui/material/Typography';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import React, { lazy, Suspense } from 'react';
 import { BrowserRouter, Redirect, Route, useLocation } from 'react-router-dom';
-import { Theme } from '@mui/material';
 import { ROUTES } from '../constants';
-import { selectFinalDataTkb, useDrawerStore, useTkbStore } from '../zus';
+import { selectFinalDataTkb, useTkbStore } from '../zus';
 import ErrorBoundary from './components/ErrorBoundary';
-import LeftDrawer from './components/LeftDrawer';
 import NeedStep1Warning from './components/NeedStep1';
 import ScrollToTop from './components/ScrollToTop';
+import WorkflowNav from './components/WorkflowNav';
 import './App.css';
 
 const ChonFileExcel = lazy(() => import('./1ChonFileExcel'));
@@ -42,67 +46,40 @@ function FallbackRoute() {
 }
 
 function App() {
-  const isDrawerOpen = useDrawerStore((s) => s.isDrawerOpen);
-  const classes = useStyles({ isDrawerOpen });
   const dataTkb = useTkbStore(selectFinalDataTkb);
 
   return (
-    <div className={classes.root}>
-      <ErrorBoundary>
-        <BrowserRouter basename={process.env.PUBLIC_URL}>
+    <ErrorBoundary>
+      <BrowserRouter basename={process.env.PUBLIC_URL}>
+        <Box className="app-shell">
           <Route component={ScrollToTop} />
-          <LeftDrawer />
-          <div
-            className={clsx(classes.content, {
-              [classes.contentShift]: isDrawerOpen,
-            })}
-          >
-            <Suspense fallback={<LinearProgress />}>
+          <AppBar className="app-header" position="sticky" elevation={0}>
+            <Toolbar className="app-toolbar">
+              <Box className="brand-lockup">
+                <span className="brand-mark">g</span>
+                <Box>
+                  <Typography className="brand-name">guiguzi</Typography>
+                  <Typography className="brand-tagline">Xếp thời khóa biểu dễ hơn</Typography>
+                </Box>
+              </Box>
+              <Chip className="privacy-chip" icon={<LockOutlinedIcon />} label="Dữ liệu chỉ lưu trên thiết bị" variant="outlined" />
+            </Toolbar>
+          </AppBar>
+          <Container className="app-container" maxWidth={false}>
+            <WorkflowNav />
+            <main className="app-content">
+              <Suspense fallback={<LinearProgress className="route-loader" />}>
               <PersistedRoute path={ROUTES._1ChonFileExcel.path} component={ChonFileExcel} />
               <PersistedRoute path={ROUTES._2XepLop.path} component={dataTkb.length ? XepLop : NeedStep1Warning} />
               <PersistedRoute path={ROUTES._3KetQua.path} component={dataTkb.length ? KetQua : NeedStep1Warning} />
               <FallbackRoute />
-            </Suspense>
-          </div>
-        </BrowserRouter>
-      </ErrorBoundary>
-    </div>
+              </Suspense>
+            </main>
+          </Container>
+        </Box>
+      </BrowserRouter>
+    </ErrorBoundary>
   );
 }
 
 export default App;
-
-// styles below:
-const drawerWidth = 190;
-
-type StyleProps = {
-  isDrawerOpen: boolean;
-};
-const useStyles = makeStyles<Theme, StyleProps>((theme) => ({
-  root: {
-    display: 'flex',
-    '& > canvas': {
-      position: 'fixed !important',
-    },
-  },
-  content: {
-    flexGrow: 1,
-    padding: (props) => theme.spacing(props.isDrawerOpen ? 3 : 1),
-    background: '#f4f9f2ee',
-    minHeight: '100vh',
-    display: 'flex',
-    justifyContent: 'center',
-    transition: theme.transitions.create('margin', {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-    marginLeft: -(drawerWidth - 50),
-  },
-  contentShift: {
-    transition: theme.transitions.create('margin', {
-      easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-    marginLeft: 0,
-  },
-}));

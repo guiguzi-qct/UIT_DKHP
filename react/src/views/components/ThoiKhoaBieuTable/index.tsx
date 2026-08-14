@@ -1,9 +1,9 @@
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
-import { IconButton, Tooltip } from '@mui/material';
+import Button from '@mui/material/Button';
 import clsx from 'clsx';
 import { useLocation } from 'react-router-dom';
 import ImageIcon from '@mui/icons-material/Image';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { ROUTES } from '../../../constants';
 import { getDanhSachTiet } from '../../../utils';
 import { selectIsChiVeTkb, useTkbStore } from '../../../zus';
@@ -54,8 +54,6 @@ function Render() {
 
   const isInStep2 = location.pathname === ROUTES._2XepLop.path;
 
-  const [areExtraButtonsShown, setAreExtraButtonsShown] = useState(false);
-
   // TODO: refactor the messy flow after writing tests
   if (isInStep2 && isChiVeTkb) {
     return (
@@ -77,21 +75,19 @@ function Render() {
       <div
         id="thoi-khoa-bieu"
         className={clsx({ compact: isInStep2 })}
-        onMouseEnter={() => setAreExtraButtonsShown(true)}
-        onMouseLeave={() => setAreExtraButtonsShown(false)}
       >
-        <div className={clsx('extra-buttons', { 'extra-buttons-shown': areExtraButtonsShown })}>
-          <Tooltip title="Tải hình ảnh TKB về máy" placement="left">
-            <IconButton onClick={saveTkbImageToComputer} color="primary">
-              <FileDownloadIcon />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Sao chép hình ảnh TKB vào clipboard" placement="left">
-            <IconButton onClick={copyTkbImageToClipboard} color="primary">
-              <ImageIcon />
-            </IconButton>
-          </Tooltip>
-        </div>
+        {!isInStep2 && (
+          <div className="timetable-toolbar">
+            <div>
+              <strong>Lịch học trong tuần</strong>
+              <small>Cuộn ngang để xem đầy đủ trên màn hình nhỏ</small>
+            </div>
+            <div className="timetable-actions">
+              <Button variant="outlined" startIcon={<ImageIcon />} onClick={copyTkbImageToClipboard}>Sao chép ảnh</Button>
+              <Button variant="contained" startIcon={<FileDownloadIcon />} onClick={saveTkbImageToComputer}>Tải ảnh</Button>
+            </div>
+          </div>
+        )}
 
         <div style={{ display: 'flex' }}>
           {redundant
@@ -102,19 +98,21 @@ function Render() {
               </tr>
             ))}
         </div>
-        <table ref={tkbTableRef}>
-          <TableHead />
-          <tbody>
-            {rowDataHocTrenTruong.map((row, index) => (
-              <RowHocTrenTruong key={index} row={row} index={index} />
-            ))}
-            {khongHocTrenTruong.map((lop, index) => (
-              <tr key={index}>
-                <ClassCell colSpan={7} data={lop} />
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="timetable-scroll">
+          <table ref={tkbTableRef}>
+            <TableHead />
+            <tbody>
+              {rowDataHocTrenTruong.map((row, index) => (
+                <RowHocTrenTruong key={index} row={row} index={index} />
+              ))}
+              {khongHocTrenTruong.map((lop, index) => (
+                <tr key={index}>
+                  <ClassCell colSpan={7} data={lop} />
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </ClassCellContext>
   );

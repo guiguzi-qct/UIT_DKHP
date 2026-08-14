@@ -1,31 +1,10 @@
-import { ColumnApi, GridApi } from 'ag-grid-community';
+import { GridApi } from 'ag-grid-community';
 import { partition } from 'lodash';
 import { memoize } from 'proxy-memoize';
 import { Mutate, StoreApi, create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { ClassModel, ClassModelOriginal } from '../types';
 import { calcTongSoTC, hasTimetableSlot, isSameAgGridRowId } from '../utils';
-
-type StoreState = {
-  isDrawerOpen: boolean;
-  toggleDrawer: () => void;
-};
-
-export const useDrawerStore = create<StoreState>()(
-  persist(
-    (set, get) => ({
-      isDrawerOpen: document.body.offsetWidth > 900,
-      toggleDrawer: () => {
-        const newState = !get().isDrawerOpen;
-        set({ isDrawerOpen: newState });
-      },
-    }),
-    {
-      name: 'drawer-state-storage',
-      storage: createJSONStorage(() => sessionStorage),
-    },
-  ),
-);
 
 type TkbStore = {
   dataExcel: {
@@ -37,7 +16,6 @@ type TkbStore = {
   } | null;
 
   selectedClasses: ClassModel[];
-  agGridColumnState: ReturnType<ColumnApi['getColumnState']> | null;
   agGridFilterModel: ReturnType<GridApi['getFilterModel']> | null;
 
   // in case Buoc 3 chi ve TKB chu khong dung Buoc 2 Xep Lop
@@ -47,7 +25,6 @@ type TkbStore = {
   setDataExcel: (data: TkbStore['dataExcel']) => void;
   setSelectedClasses: (data: TkbStore['selectedClasses']) => void;
   removeClasses: (data: ClassModel[]) => void;
-  setAgGridColumnState: (data: TkbStore['agGridColumnState']) => void;
   setAgGridFilterModel: (data: TkbStore['agGridFilterModel']) => void;
   setIsChiVeTkb: (data: TkbStore['isChiVeTkb']) => void;
   setTextareChiVeTkb: (data: TkbStore['textareaChiVeTkb']) => void;
@@ -59,7 +36,6 @@ export const useTkbStore = create<TkbStore>()(
       dataExcel: null,
 
       selectedClasses: [], // [{}, {}]
-      agGridColumnState: null,
       agGridFilterModel: null,
 
       isChiVeTkb: false,
@@ -87,9 +63,6 @@ export const useTkbStore = create<TkbStore>()(
             classesToRemove.every((classToRemove) => !isSameAgGridRowId(selectedClass, classToRemove)),
           ),
         }));
-      },
-      setAgGridColumnState: (data) => {
-        set({ agGridColumnState: data });
       },
       setAgGridFilterModel: (data) => {
         set({ agGridFilterModel: data });
@@ -122,17 +95,16 @@ export const withStorageDOMEvents = (store: StoreWithPersist) => {
 };
 // sync state between tabs: https://github.com/pmndrs/zustand/issues/714
 // TODO: more granular sync (only sync selectedClasses, not all state)
-withStorageDOMEvents(useTkbStore);
+if (process.env.NODE_ENV !== 'test') withStorageDOMEvents(useTkbStore);
 
 export const selectDataExcel = (state: TkbStore) => state.dataExcel;
 export const selectSelectedClasses = (state: TkbStore) => state.selectedClasses;
-export const selectAgGridColumnState = (state: TkbStore) => state.agGridColumnState;
 export const selectAgGridFilterModel = (state: TkbStore) => state.agGridFilterModel;
 export const selectIsChiVeTkb = (state: TkbStore) =>
   state.isChiVeTkb || window.location.search.includes('self_selected'); // TODO: constant for self_selected
 export const selectTextareaChiVeTkb = (state: TkbStore) => {
   const searchParams = new URLSearchParams(window.location.search);
-  return searchParams.get('self_selected') || state.textareaChiVeTkb; // TODO: won't get notified when URLSearchParams change, currently we have to add search params when route change in LeftDrawer as a hack
+  return searchParams.get('self_selected') || state.textareaChiVeTkb;
 };
 export const selectFinalDataTkb = (state: TkbStore): ClassModel[] => {
   const dataExcel = selectDataExcel(state);
