@@ -101,54 +101,58 @@ body {
 .workflow-nav {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 5px;
-  border-radius: 16px;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 14px;
   background: #EBF1F5;
   border: 1px solid #D5E0E8;
 }
 .workflow-step {
-  min-height: 44px;
-  padding: 8px 24px;
+  min-height: 40px;
+  padding: 6px 18px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 9px;
-  border-radius: 12px;
+  gap: 8px;
+  border-radius: 10px;
   color: #59899D;
   text-decoration: none;
-  font-size: 15px;
-  font-weight: 700;
+  font-size: 14px;
+  font-weight: 600;
   transition: all 160ms cubic-bezier(0.4, 0, 0.2, 1);
   white-space: nowrap;
 }
 .workflow-step:not(.disabled):hover {
   color: #0E2128;
-  background: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.5);
 }
 .workflow-step.active {
   color: #0E2128;
   background: #ffffff;
-  font-weight: 800;
-  box-shadow: 0 4px 14px rgba(14, 33, 40, 0.1), 0 1px 2px rgba(14, 33, 40, 0.04);
+  font-weight: 700;
+  box-shadow: 0 2px 10px rgba(14, 33, 40, 0.08);
 }
 .workflow-step.disabled {
   opacity: 0.45;
   cursor: not-allowed;
 }
 .workflow-step-num {
-  width: 26px;
-  height: 26px;
+  width: 24px;
+  height: 24px;
   display: grid;
   place-items: center;
-  border-radius: 8px;
-  background: #D5E0E8;
-  color: #0E2128;
-  font-size: 13px;
+  border-radius: 50%;
+  background: #0E2128;
+  color: #ffffff;
+  font-size: 12px;
   font-weight: 800;
 }
-.workflow-step.active .workflow-step-num {
-  background: #0E2128;
+.workflow-step.disabled .workflow-step-num {
+  background: #ADBECC;
+  color: #ffffff;
+}
+.workflow-step:not(.active):not(.disabled) .workflow-step-num {
+  background: #59899D;
   color: #ffffff;
 }
 .workflow-step-title {
@@ -313,7 +317,7 @@ body {
 
 .result-heading {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
   gap: 20px;
 }
@@ -323,7 +327,7 @@ body {
   gap: 10px;
 }
 .stat-pill-card {
-  padding: 10px 18px;
+  padding: 12px 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -331,17 +335,17 @@ body {
   border-radius: 14px;
   background: #EBF1F5;
   border: 1px solid #D5E0E8;
-  min-width: 104px;
+  min-width: 108px;
 }
 .stat-pill-value {
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 800;
   color: #0E2128;
-  line-height: 1.1;
+  line-height: 1;
 }
 .stat-pill-label {
-  margin-top: 2px;
-  font-size: 11px;
+  margin-top: 4px;
+  font-size: 12px;
   font-weight: 600;
   color: #59899D;
   white-space: nowrap;
