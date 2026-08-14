@@ -184,7 +184,7 @@ function OnlineRow({ rows, interactive, onPickSlot }: { rows: RowData[] } & Inte
   return (
     <tr className="online-row">
       <td className="cell-tiet">
-        <strong>Tiết 11</strong>
+        <strong>Ngoài giờ</strong>
       </td>
       <td colSpan={6} className="online-row-cell">
         {onlineClasses.length > 0 ? (
@@ -198,7 +198,7 @@ function OnlineRow({ rows, interactive, onPickSlot }: { rows: RowData[] } & Inte
                   onPickSlot?.({
                     thu: Number(lop.Thu) || 2,
                     tiets: [tietOnline.stringValue],
-                    label: 'Tiết 11',
+                    label: 'Ngoài giờ',
                     existing: lop,
                   })
                 }
@@ -206,7 +206,7 @@ function OnlineRow({ rows, interactive, onPickSlot }: { rows: RowData[] } & Inte
             ))}
           </div>
         ) : (
-          <span className="online-row-empty">Tiết 11</span>
+          <span className="online-row-empty">Ngoài giờ</span>
         )}
       </td>
     </tr>
