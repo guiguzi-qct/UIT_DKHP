@@ -1,7 +1,7 @@
 import Alert from '@mui/material/Alert';
-import Chip from '@mui/material/Chip';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
+import { useMemo } from 'react';
 import ThoiKhoaBieuTable from '../components/ThoiKhoaBieuTable';
 import PlanSelectorBar from '../components/PlanSelectorBar';
 import { selectIsChiVeTkb, selectSelectedClassesBuoc3, selectTongSoTcBuoc3, useTkbStore } from '../../zus';
@@ -12,6 +12,11 @@ function Index() {
   const classes = useTkbStore(selectSelectedClassesBuoc3);
   const credits = useTkbStore(selectTongSoTcBuoc3);
 
+  const uniqueDaysCount = useMemo(() => {
+    const days = new Set(classes.map((c) => c.Thu).filter(Boolean));
+    return days.size;
+  }, [classes]);
+
   return (
     <section className="page-wrap wide result-page">
       <header className="page-heading result-heading">
@@ -19,9 +24,19 @@ function Index() {
           <h1>Thời khóa biểu của bạn</h1>
           <p>Kiểm tra lần cuối, tải ảnh để lưu, hoặc chia sẻ mã lớp cho bạn bè.</p>
         </div>
-        <div className="result-stats">
-          <Chip label={`${classes.length} lớp`} color="primary" />
-          <Chip label={`${credits} tín chỉ`} variant="outlined" />
+        <div className="result-dashboard-summary">
+          <div className="stat-pill-card">
+            <span className="stat-pill-value">{classes.length}</span>
+            <span className="stat-pill-label">Lớp học phần</span>
+          </div>
+          <div className="stat-pill-card">
+            <span className="stat-pill-value">{credits}</span>
+            <span className="stat-pill-label">Tổng tín chỉ</span>
+          </div>
+          <div className="stat-pill-card">
+            <span className="stat-pill-value">{uniqueDaysCount}</span>
+            <span className="stat-pill-label">Ngày học / tuần</span>
+          </div>
         </div>
       </header>
 
@@ -41,6 +56,12 @@ function Index() {
 
       {classes.length ? (
         <Paper className="surface-card timetable-card">
+          <div className="timetable-card-header">
+            <div className="timetable-card-title">
+              <strong>Bảng thời khóa biểu tuần</strong>
+              <span>Hiển thị tất cả các tiết học trong tuần</span>
+            </div>
+          </div>
           <ThoiKhoaBieuTable />
         </Paper>
       ) : (
