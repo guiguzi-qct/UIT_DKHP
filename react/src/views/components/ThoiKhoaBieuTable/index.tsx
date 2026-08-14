@@ -41,7 +41,6 @@ const MAIN_GROUPS: TietGroup[] = [
   { start: 0, end: 4, label: 'Buổi sáng' },
   { start: 5, end: 9, label: 'Buổi chiều' },
 ];
-const OUTSIDE_HOURS = { start: 10, end: 12, label: 'Ngoài giờ' } as const;
 
 const getDayKey = (thu: number) => `Thu${thu}` as keyof RowData;
 const getTietValue = (index: number) => (index === 9 ? '0' : String(index + 1));
@@ -174,99 +173,6 @@ function MainPeriodRow({
   );
 }
 
-const getOutsideClasses = (rows: RowData[], thu: number) => {
-  const dayKey = getDayKey(thu);
-  const unique = new Map<string, ClassModel>();
-
-  for (let index = OUTSIDE_HOURS.start; index <= OUTSIDE_HOURS.end; index += 1) {
-    const cell = rows[index][dayKey];
-    if (cell !== CELL.NO_CLASS && cell !== CELL.OCCUPIED) {
-      unique.set(`${cell.MaLop}-${cell.Thu}-${cell.Tiet}`, cell);
-    }
-  }
-
-  return [...unique.values()];
-};
-
-function OutsideHoursCell({
-  rows,
-  thu,
-  interactive,
-  onPickSlot,
-}: {
-  rows: RowData[];
-  thu: number;
-} & InteractiveProps) {
-  const classes = getOutsideClasses(rows, thu);
-  const tiets = ['11', '12', '13'];
-
-  if (!classes.length) {
-    return (
-      <GetCell
-        data={CELL.NO_CLASS}
-        thu={thu}
-        tiets={tiets}
-        label="Ngoài giờ · Tiết 11–13"
-        interactive={interactive}
-        onPickSlot={onPickSlot}
-      />
-    );
-  }
-
-  return (
-    <td className="outside-hours-cell">
-      {classes.map((lop) => {
-        const content = (
-          <>
-            <strong>{lop.TenMH}</strong>
-            <span>
-              {lop.MaLop} · Tiết {getDanhSachTiet(lop.Tiet).join(', ')}
-            </span>
-            <small>
-              {lop.TenGV || 'Chưa có giảng viên'}
-              {lop.PhongHoc ? ` · ${lop.PhongHoc}` : ''}
-            </small>
-          </>
-        );
-
-        if (!interactive) {
-          return (
-            <div className="outside-class-card" key={`${lop.MaLop}-${lop.Tiet}`}>
-              {content}
-            </div>
-          );
-        }
-
-        return (
-          <button
-            className="outside-class-card pickable"
-            type="button"
-            key={`${lop.MaLop}-${lop.Tiet}`}
-            onClick={() => onPickSlot?.({ thu, tiets, label: 'Ngoài giờ · Tiết 11–13', existing: lop })}
-          >
-            {content}
-            <span className="outside-class-action">Click để đổi lớp</span>
-          </button>
-        );
-      })}
-    </td>
-  );
-}
-
-function OutsideHoursRow({ rows, interactive, onPickSlot }: { rows: RowData[] } & InteractiveProps) {
-  return (
-    <tr className="outside-hours-row">
-      <td className="cell-tiet outside-hours-label">
-        <strong>Ngoài giờ</strong>
-        <span>Tiết 11–13</span>
-      </td>
-      {DAY_NUMBERS.map((thu) => (
-        <OutsideHoursCell key={thu} rows={rows} thu={thu} interactive={interactive} onPickSlot={onPickSlot} />
-      ))}
-    </tr>
-  );
-}
-
 function OnlineRow({ rows, interactive, onPickSlot }: { rows: RowData[] } & InteractiveProps) {
   const row = rows[tietOnline.index];
   const isEmpty = Object.values(row).every((cell) => cell === CELL.NO_CLASS);
@@ -360,7 +266,6 @@ function Render({ interactive = false, onPickSlot }: InteractiveProps) {
                   );
                 }),
               )}
-              <OutsideHoursRow rows={rowDataHocTrenTruong} interactive={interactive} onPickSlot={onPickSlot} />
               <OnlineRow rows={rowDataHocTrenTruong} interactive={interactive} onPickSlot={onPickSlot} />
               {khongHocTrenTruong.map((lop) => (
                 <tr key={`${lop.MaLop}-${lop.Thu}-${lop.Tiet}`}>

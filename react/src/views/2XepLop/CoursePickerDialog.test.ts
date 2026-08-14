@@ -2,7 +2,7 @@ import { ClassModel } from '../../types';
 import {
   applyCandidateBatch,
   getCompatibleCandidates,
-  getCompatibleCandidatesWithDraft,
+  getDraftConflictReason,
   groupCandidatesByCourseName,
 } from './CoursePickerDialog';
 
@@ -50,6 +50,13 @@ describe('getCompatibleCandidates', () => {
     expect(result).toEqual([matching]);
   });
 
+  it('không đưa lớp tiết 11–13 vào bộ chọn môn', () => {
+    const regular = makeClass({ MaLop: 'REGULAR', Thu: '3', Tiet: '678' });
+    const outsideHours = makeClass({ MaLop: 'OUTSIDE', Thu: '3', Tiet: '11,12,13' });
+
+    expect(getCompatibleCandidates([regular, outsideHours], [], { kind: 'all' })).toEqual([regular]);
+  });
+
   it('cho phép đổi lớp cùng môn nhưng loại phương án trùng phần lịch còn lại', () => {
     const current = makeClass({ MaMH: 'AI001', MaLop: 'AI001.R1', Thu: '2', Tiet: '123' });
     const otherCourse = makeClass({ MaMH: 'IT001', MaLop: 'IT001.R1', Thu: '4', Tiet: '678' });
@@ -65,20 +72,15 @@ describe('getCompatibleCandidates', () => {
     expect(result).toEqual([fittingAlternative]);
   });
 
-  it('ẩn lớp trùng giờ và cùng phần môn sau khi chọn nháp', () => {
+  it('đánh dấu đúng lý do làm mờ sau khi chọn nháp', () => {
     const draft = makeClass({ MaMH: 'AI001', MaLop: 'AI001.R1', Thu: '2', Tiet: '123' });
     const sameCoursePart = makeClass({ MaMH: 'AI001', MaLop: 'AI001.R2', Thu: '3', Tiet: '123' });
     const timeConflict = makeClass({ MaMH: 'IT001', MaLop: 'IT001.R1', Thu: '2', Tiet: '345' });
     const stillFits = makeClass({ MaMH: 'MA001', MaLop: 'MA001.R1', Thu: '4', Tiet: '678' });
 
-    const result = getCompatibleCandidatesWithDraft(
-      [draft, sameCoursePart, timeConflict, stillFits],
-      [],
-      { kind: 'all' },
-      [draft],
-    );
-
-    expect(result).toEqual([stillFits]);
+    expect(getDraftConflictReason(sameCoursePart, [], [draft])).toBe('Đã chọn lớp khác cùng phần môn');
+    expect(getDraftConflictReason(timeConflict, [], [draft])).toBe('Trùng giờ với lớp đang chọn');
+    expect(getDraftConflictReason(stillFits, [], [draft])).toBeNull();
   });
 
   it('chỉ thay phần môn tương ứng khi xác nhận nhiều lớp', () => {

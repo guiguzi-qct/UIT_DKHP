@@ -115,9 +115,7 @@ export const useProcessImageTkb = () => {
           element.style.top = 'auto';
         });
         clonedTable
-          ?.querySelectorAll<HTMLElement>(
-            '.remove-class-btn, .cell-picker-hint, .empty-slot-action, .outside-class-action',
-          )
+          ?.querySelectorAll<HTMLElement>('.remove-class-btn, .cell-picker-hint, .empty-slot-action')
           .forEach((element) => {
             element.style.display = 'none';
           });

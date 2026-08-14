@@ -24,6 +24,8 @@ const isSameCoursePart = (a: ClassModel, b: ClassModel) => a.MaMH === b.MaMH && 
 const getSelectionWithoutCoursePart = (selectedClasses: ClassModel[], candidate: ClassModel) =>
   selectedClasses.filter((selectedClass) => !isSameCoursePart(selectedClass, candidate));
 
+const getCandidateKey = (candidate: ClassModel) => `${candidate.MaLop}-${candidate.Thu}-${candidate.Tiet}`;
+
 export const applyCandidateBatch = (selectedClasses: ClassModel[], candidates: ClassModel[]) =>
   candidates.reduce(
     (result, candidate) => [...getSelectionWithoutCoursePart(result, candidate), candidate],
@@ -39,8 +41,10 @@ export function getCompatibleCandidates(
     .filter((candidate) => {
       if (selectedClasses.some((selectedClass) => isSameAgGridRowId(selectedClass, candidate))) return false;
 
+      const candidatePeriods = getDanhSachTiet(candidate.Tiet);
+      if (candidatePeriods.some((tiet) => ['11', '12', '13'].includes(tiet))) return false;
+
       if (target.kind === 'slot') {
-        const candidatePeriods = getDanhSachTiet(candidate.Tiet);
         const matchesSlot =
           hasTimetableSlot(candidate) &&
           candidate.Thu === String(target.thu) &&
@@ -57,21 +61,20 @@ export function getCompatibleCandidates(
     .sort((a, b) => `${a.TenMH}-${a.MaLop}`.localeCompare(`${b.TenMH}-${b.MaLop}`, 'vi', { sensitivity: 'base' }));
 }
 
-export function getCompatibleCandidatesWithDraft(
-  data: ClassModel[],
+export function getDraftConflictReason(
+  candidate: ClassModel,
   selectedClasses: ClassModel[],
-  target: PickerTarget,
   draftCandidates: ClassModel[],
-): ClassModel[] {
+): string | null {
+  if (draftCandidates.some((draft) => isSameCoursePart(draft, candidate))) {
+    return 'Đã chọn lớp khác cùng phần môn';
+  }
+
   const selectionWithDraft = applyCandidateBatch(selectedClasses, draftCandidates);
+  const classesKeptWhileTryingCandidate = getSelectionWithoutCoursePart(selectionWithDraft, candidate);
+  if (hasOverlapSchedule(classesKeptWhileTryingCandidate, candidate)) return 'Trùng giờ với lớp đang chọn';
 
-  return getCompatibleCandidates(data, selectedClasses, target).filter((candidate) => {
-    if (draftCandidates.some((draft) => isSameAgGridRowId(draft, candidate))) return false;
-    if (draftCandidates.some((draft) => isSameCoursePart(draft, candidate))) return false;
-
-    const classesKeptWhileTryingCandidate = getSelectionWithoutCoursePart(selectionWithDraft, candidate);
-    return !hasOverlapSchedule(classesKeptWhileTryingCandidate, candidate);
-  });
+  return null;
 }
 
 export type CandidateCourseGroup = {
@@ -120,7 +123,7 @@ const getDialogCopy = (target: PickerTarget) => {
   if (target.kind === 'all') {
     return {
       title: 'Chọn môn học',
-      description: 'Có thể chọn nhiều lớp rồi bấm Thêm. Các phương án trùng với phần đã chọn sẽ tự ẩn.',
+      description: 'Có thể chọn nhiều lớp rồi bấm Thêm. Các phương án trùng sẽ được làm mờ và ghi rõ lý do.',
     };
   }
   if (target.kind === 'replace') {
@@ -131,7 +134,7 @@ const getDialogCopy = (target: PickerTarget) => {
   }
   return {
     title: `Chọn lớp cho Thứ ${target.thu} · ${target.label}`,
-    description: 'Có thể chọn nhiều lớp nằm trọn trong vùng này. Phương án trùng giờ sẽ tự ẩn.',
+    description: 'Có thể chọn nhiều lớp nằm trọn trong vùng này. Phương án trùng giờ sẽ được làm mờ.',
   };
 };
 
@@ -157,13 +160,27 @@ export default function CoursePickerDialog({ target, onClose }: Props) {
   const candidates = useMemo(() => {
     if (!target) return [];
     const normalizedSearch = search.trim().toLocaleLowerCase('vi');
-    return getCompatibleCandidatesWithDraft(data, selectedClasses, target, draftCandidates).filter((candidate) => {
-      if (!normalizedSearch) return true;
-      return [candidate.TenMH, candidate.MaMH, candidate.MaLop, candidate.TenGV, candidate.PhongHoc]
-        .filter(Boolean)
-        .some((value) => String(value).toLocaleLowerCase('vi').includes(normalizedSearch));
-    });
+    return getCompatibleCandidates(data, selectedClasses, target)
+      .filter((candidate) => !draftCandidates.some((draft) => isSameAgGridRowId(draft, candidate)))
+      .filter((candidate) => {
+        if (!normalizedSearch) return true;
+        return [candidate.TenMH, candidate.MaMH, candidate.MaLop, candidate.TenGV, candidate.PhongHoc]
+          .filter(Boolean)
+          .some((value) => String(value).toLocaleLowerCase('vi').includes(normalizedSearch));
+      });
   }, [data, draftCandidates, search, selectedClasses, target]);
+
+  const conflictReasons = useMemo(() => {
+    const reasons = new Map<string, string>();
+    candidates.forEach((candidate) => {
+      const reason = getDraftConflictReason(candidate, selectedClasses, draftCandidates);
+      if (reason) reasons.set(getCandidateKey(candidate), reason);
+    });
+    return reasons;
+  }, [candidates, draftCandidates, selectedClasses]);
+
+  const dimmedCount = conflictReasons.size;
+  const availableCount = candidates.length - dimmedCount;
 
   const candidateGroups = useMemo(() => groupCandidatesByCourseName(candidates), [candidates]);
 
@@ -261,7 +278,8 @@ export default function CoursePickerDialog({ target, onClose }: Props) {
         />
 
         <div className="course-picker-count">
-          <strong>{candidateGroups.length}</strong> môn · <strong>{candidates.length}</strong> lớp còn phù hợp
+          <strong>{candidateGroups.length}</strong> môn · <strong>{availableCount}</strong> lớp có thể chọn
+          {!!dimmedCount && <span> · {dimmedCount} lớp xung đột đang làm mờ</span>}
         </div>
 
         <div className="course-group-list">
@@ -286,25 +304,31 @@ export default function CoursePickerDialog({ target, onClose }: Props) {
 
                 {isExpanded && (
                   <div className="course-option-list">
-                    {group.candidates.map((candidate) => (
-                      <ButtonBase
-                        className="course-option"
-                        key={`${candidate.MaLop}-${candidate.Thu}-${candidate.Tiet}`}
-                        onClick={() => chooseCandidate(candidate)}
-                      >
-                        <div className="course-option-main">
-                          <strong>{candidate.MaLop}</strong>
-                          <span>{candidate.TenGV || 'Chưa có giảng viên'}</span>
-                          <div className="course-option-chips">
-                            <Chip size="small" label={formatSchedule(candidate)} />
-                            <Chip size="small" variant="outlined" label={`${candidate.SoTc} tín chỉ`} />
-                            {candidate.PhongHoc && <Chip size="small" variant="outlined" label={candidate.PhongHoc} />}
-                            {!!candidate.ThucHanh && <Chip size="small" variant="outlined" label="Thực hành" />}
+                    {group.candidates.map((candidate) => {
+                      const conflictReason = conflictReasons.get(getCandidateKey(candidate));
+                      return (
+                        <ButtonBase
+                          className={`course-option${conflictReason ? ' course-option-conflict' : ''}`}
+                          key={getCandidateKey(candidate)}
+                          disabled={!!conflictReason}
+                          onClick={() => chooseCandidate(candidate)}
+                        >
+                          <div className="course-option-main">
+                            <strong>{candidate.MaLop}</strong>
+                            <span>{candidate.TenGV || 'Chưa có giảng viên'}</span>
+                            <div className="course-option-chips">
+                              <Chip size="small" label={formatSchedule(candidate)} />
+                              <Chip size="small" variant="outlined" label={`${candidate.SoTc} tín chỉ`} />
+                              {candidate.PhongHoc && (
+                                <Chip size="small" variant="outlined" label={candidate.PhongHoc} />
+                              )}
+                              {!!candidate.ThucHanh && <Chip size="small" variant="outlined" label="Thực hành" />}
+                            </div>
                           </div>
-                        </div>
-                        <span className="course-option-action">Chọn</span>
-                      </ButtonBase>
-                    ))}
+                          <span className="course-option-action">{conflictReason || 'Chọn'}</span>
+                        </ButtonBase>
+                      );
+                    })}
                   </div>
                 )}
               </section>

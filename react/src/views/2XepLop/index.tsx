@@ -22,34 +22,31 @@ function Index() {
 
   return (
     <section className="page-wrap wide builder-page">
-      <Paper className="surface-card builder-toolbar">
-        <div className="builder-title">
-          <h1>Xếp lớp trực tiếp trên lịch</h1>
-          <p>Click ô trống để thêm môn, hoặc click lớp đã xếp để đổi sang lớp khác.</p>
-        </div>
-        <div className="builder-stats">
-          <Chip label={`${selectedClasses.length} lớp`} color={selectedClasses.length ? 'primary' : 'default'} />
-          <Chip label={`${credits} tín chỉ`} variant="outlined" />
-        </div>
-      </Paper>
-
-      <div className="builder-tip">Di chuột qua vùng trống để chọn lớp phù hợp với buổi học.</div>
-
       <Paper className="surface-card timetable-card builder-timetable">
         <ThoiKhoaBieuTable interactive onPickSlot={openPickerFromTimetable} />
       </Paper>
 
       <div className="builder-action-dock" role="region" aria-label="Hành động xếp lớp">
-        <Button variant="outlined" onClick={() => setPickerTarget({ kind: 'all' })}>
-          Chọn môn
-        </Button>
-        <Button
-          variant="contained"
-          disabled={!selectedClasses.length}
-          onClick={() => history.push(ROUTES._3KetQua.path)}
-        >
-          Hoàn tất
-        </Button>
+        <div className="builder-dock-copy">
+          <strong>Xếp lớp trực tiếp trên lịch</strong>
+          <span>Click vùng trống để thêm môn hoặc click lớp đã xếp để đổi lớp.</span>
+        </div>
+        <div className="builder-stats">
+          <Chip label={`${selectedClasses.length} lớp`} color={selectedClasses.length ? 'primary' : 'default'} />
+          <Chip label={`${credits} tín chỉ`} variant="outlined" />
+        </div>
+        <div className="builder-dock-actions">
+          <Button variant="outlined" onClick={() => setPickerTarget({ kind: 'all' })}>
+            Chọn môn
+          </Button>
+          <Button
+            variant="contained"
+            disabled={!selectedClasses.length}
+            onClick={() => history.push(ROUTES._3KetQua.path)}
+          >
+            Hoàn tất
+          </Button>
+        </div>
       </div>
 
       <CoursePickerDialog target={pickerTarget} onClose={() => setPickerTarget(null)} />
