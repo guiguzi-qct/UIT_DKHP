@@ -44,26 +44,6 @@ const MAIN_GROUPS: TietGroup[] = [
 
 const getDayKey = (thu: number) => `Thu${thu}` as keyof RowData;
 const getTietValue = (index: number) => (index === 9 ? '0' : String(index + 1));
-const getTietLabel = (index: number) => String(index + 1);
-
-const getRangeLabel = (start: number, end: number, group: TietGroup) => {
-  if (start === group.start && end === group.end) {
-    return group.label;
-  }
-  if (start === end) return `Tiết ${getTietLabel(start)}`;
-  return `Tiết ${getTietLabel(start)}–${getTietLabel(end)}`;
-};
-
-const getEmptyRun = (rows: RowData[], thu: number, index: number, group: TietGroup) => {
-  const dayKey = getDayKey(thu);
-  let start = index;
-  let end = index;
-
-  while (start > group.start && rows[start - 1][dayKey] === CELL.NO_CLASS) start -= 1;
-  while (end < group.end && rows[end + 1][dayKey] === CELL.NO_CLASS) end += 1;
-
-  return { start, end };
-};
 
 const GetCell = ({
   data,
