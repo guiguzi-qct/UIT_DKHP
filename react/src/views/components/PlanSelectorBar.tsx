@@ -1,10 +1,10 @@
 import AddIcon from '@mui/icons-material/Add';
+import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import CheckIcon from '@mui/icons-material/Check';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import EditIcon from '@mui/icons-material/Edit';
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
@@ -40,8 +40,13 @@ export default function PlanSelectorBar() {
   const deletePlan = useTkbStore((s) => s.deletePlan);
   const movePlan = useTkbStore((s) => s.movePlan);
 
+  const activePlan = plans.find((p) => p.id === activePlanId) || plans[0];
   const activePlanIndex = plans.findIndex((p) => p.id === activePlanId);
   const displayPlanNumber = activePlanIndex >= 0 ? activePlanIndex + 1 : 1;
+
+  const rawName = activePlan?.name || String(displayPlanNumber);
+  const isDefaultNumber = !isNaN(Number(rawName)) || rawName.toLowerCase() === `plan ${displayPlanNumber}`;
+  const pillLabel = isDefaultNumber ? `PLAN ${displayPlanNumber}` : `PLAN ${displayPlanNumber}: ${rawName.toUpperCase()}`;
 
   const [fabAnchorEl, setFabAnchorEl] = useState<HTMLElement | null>(null);
   const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement | null>(null);
@@ -167,8 +172,8 @@ export default function PlanSelectorBar() {
           onClick={handleOpenPopover}
           aria-label="Chọn Plan"
         >
-          <span className="fab-plan-title">PLAN {displayPlanNumber}</span>
-          <KeyboardArrowUpIcon className="fab-plan-arrow" />
+          <span className="fab-plan-title">{pillLabel}</span>
+          <ArrowDropUpIcon className="fab-plan-arrow-solid" />
         </Fab>
       </div>
 

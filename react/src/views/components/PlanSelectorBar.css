@@ -2,22 +2,22 @@
   position: fixed;
   z-index: 1300;
   right: 28px;
-  bottom: 84px;
+  bottom: 62px;
 }
 
 .floating-plan-fab {
-  min-height: 48px !important;
-  height: 48px !important;
-  padding: 0 20px !important;
+  min-height: 52px !important;
+  height: 52px !important;
+  padding: 0 24px !important;
   background: #0E2128 !important;
   color: #ffffff !important;
   border: 2px solid #59899D !important;
-  border-radius: 24px !important;
+  border-radius: 26px !important;
   box-shadow: 0 10px 30px rgba(14, 33, 40, 0.35) !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  gap: 6px !important;
+  gap: 4px !important;
   transition: all 180ms ease !important;
 }
 
@@ -29,7 +29,7 @@
 }
 
 .fab-plan-title {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 800;
   color: #ffffff !important;
   letter-spacing: 0.05em;
@@ -37,13 +37,14 @@
   white-space: nowrap;
 }
 
-.fab-plan-arrow {
-  font-size: 20px !important;
+.fab-plan-arrow-solid {
+  font-size: 28px !important;
   color: #ADBECC !important;
-  transition: transform 180ms ease !important;
+  margin-right: -4px;
+  transition: color 180ms ease !important;
 }
 
-.floating-plan-fab:hover .fab-plan-arrow {
+.floating-plan-fab:hover .fab-plan-arrow-solid {
   color: #ffffff !important;
 }
 
