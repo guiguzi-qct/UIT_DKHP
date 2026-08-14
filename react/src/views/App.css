@@ -80,22 +80,23 @@ body {
   align-items: center;
 }
 .header-action-btn.reset-btn {
-  border-color: #D5E0E8 !important;
-  color: #0E2128 !important;
+  border: 1.5px solid #0E2128 !important;
+  color: #ffffff !important;
   font-size: 14px !important;
-  font-weight: 700 !important;
+  font-weight: 800 !important;
   border-radius: 12px !important;
-  padding: 7px 18px !important;
+  padding: 8px 20px !important;
   text-transform: none !important;
-  background: #ffffff !important;
-  box-shadow: 0 2px 8px rgba(14, 33, 40, 0.04) !important;
-  transition: all 160ms ease !important;
+  background: #0E2128 !important;
+  box-shadow: 0 4px 14px rgba(14, 33, 40, 0.22) !important;
+  transition: all 180ms ease !important;
 }
 .header-action-btn.reset-btn:hover {
   border-color: #ef4444 !important;
-  color: #ef4444 !important;
-  background: #fef2f2 !important;
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15) !important;
+  color: #ffffff !important;
+  background: #ef4444 !important;
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.35) !important;
+  transform: translateY(-1px) !important;
 }
 
 .workflow-nav {

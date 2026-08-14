@@ -39,7 +39,7 @@ function Index() {
       <div className="builder-action-dock" role="region" aria-label="Hành động xếp lớp">
         <div className="builder-dock-copy">
           <strong>Xếp lớp trực tiếp trên lịch</strong>
-          <span>Click vùng trống để thêm môn hoặc click lớp đã xếp để đổi lớp.</span>
+          <span>Bấm vào ô lịch để chọn hoặc đổi môn.</span>
         </div>
         <div className="builder-stats">
           <Chip label={`${selectedClasses.length} lớp`} color={selectedClasses.length ? 'primary' : 'default'} />

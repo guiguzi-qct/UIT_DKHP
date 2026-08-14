@@ -37,15 +37,18 @@
 }
 .builder-dock-copy strong {
   overflow: hidden;
-  font-size: var(--text-md);
+  font-size: 15px;
+  font-weight: 800;
+  color: #0E2128;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .builder-dock-copy span {
-  margin-top: 2px;
+  margin-top: 3px;
   overflow: hidden;
-  color: #71717a;
-  font-size: var(--text-xs);
+  color: #17333F;
+  font-size: 13.5px;
+  font-weight: 600;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
