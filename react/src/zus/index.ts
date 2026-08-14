@@ -3,7 +3,7 @@ import { memoize } from 'proxy-memoize';
 import { Mutate, StoreApi, create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { ClassModel, ClassModelOriginal } from '../types';
-import { calcTongSoTC, hasTimetableSlot, isSameAgGridRowId, parseListMaLop } from '../utils';
+import { calcTongSoTC, extractListMaLop, hasTimetableSlot, isSameAgGridRowId, parseListMaLop } from '../utils';
 
 type TkbStore = {
   dataExcel: {
@@ -47,14 +47,21 @@ export const useTkbStore = create<TkbStore>()(
         set({ dataExcel: data, selectedClasses: newSelectedClasses });
       },
       setSelectedClasses: (data) => {
-        set({ selectedClasses: data });
+        const newMaLopList = extractListMaLop(data);
+        set({ selectedClasses: data, textareaChiVeTkb: newMaLopList.join(',') });
       },
       removeClasses: (classesToRemove) => {
-        set((state) => ({
-          selectedClasses: state.selectedClasses.filter((selectedClass) =>
+        set((state) => {
+          const currentClasses = selectSelectedClassesBuoc3(state);
+          const newSelectedClasses = currentClasses.filter((selectedClass) =>
             classesToRemove.every((classToRemove) => !isSameAgGridRowId(selectedClass, classToRemove)),
-          ),
-        }));
+          );
+          const newMaLopList = extractListMaLop(newSelectedClasses);
+          return {
+            selectedClasses: newSelectedClasses,
+            textareaChiVeTkb: newMaLopList.join(','),
+          };
+        });
       },
       setIsChiVeTkb: (data) => {
         set({ isChiVeTkb: data });

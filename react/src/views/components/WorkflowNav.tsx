@@ -1,6 +1,6 @@
 import { NavLink, useLocation } from 'react-router-dom';
 import { ROUTES } from '../../constants';
-import { selectFinalDataTkb, selectSelectedClasses, useTkbStore } from '../../zus';
+import { selectFinalDataTkb, selectSelectedClassesBuoc3, useTkbStore } from '../../zus';
 
 const steps = [
   { ...ROUTES._1ChonFileExcel, shortName: 'Nhập dữ liệu', description: 'Chọn file Excel' },
@@ -11,7 +11,7 @@ const steps = [
 export default function WorkflowNav() {
   const location = useLocation();
   const data = useTkbStore(selectFinalDataTkb);
-  const selectedClasses = useTkbStore(selectSelectedClasses);
+  const selectedClasses = useTkbStore(selectSelectedClassesBuoc3);
   const completion = [data.length > 0, selectedClasses.length > 0, false];
 
   return (

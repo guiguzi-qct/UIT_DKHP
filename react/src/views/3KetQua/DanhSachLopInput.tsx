@@ -39,6 +39,7 @@ export default function DanhSachLopInput() {
   const [draft, setDraft] = useState('');
   const setIsChiVeTkb = useTkbStore((state) => state.setIsChiVeTkb);
   const setTextareChiVeTkb = useTkbStore((s) => s.setTextareChiVeTkb);
+  const setSelectedClasses = useTkbStore((s) => s.setSelectedClasses);
   const cacLop = useTkbStore(selectPhanLoaiHocTrenTruong);
   const finalDataTkb = useTkbStore(selectFinalDataTkb);
   const listMaLop = useMemo(() => extractListMaLop(cacLop.flat()), [cacLop]);
@@ -78,6 +79,9 @@ export default function DanhSachLopInput() {
 
   const applyCodes = () => {
     const normalizedValue = draftCodes.join(',');
+    const draftSet = new Set(draftCodes);
+    const matchedClasses = finalDataTkb.filter((it) => draftSet.has(String(it.MaLop).toUpperCase()));
+    setSelectedClasses(matchedClasses);
     setTextareChiVeTkb(normalizedValue);
     setIsChiVeTkb(true);
     if (window.location.search.includes('self_selected')) history.replace(ROUTES._3KetQua.path);

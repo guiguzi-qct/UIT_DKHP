@@ -1,10 +1,11 @@
 import Button from '@mui/material/Button';
 import Chip from '@mui/material/Chip';
 import Paper from '@mui/material/Paper';
+import { enqueueSnackbar } from 'notistack';
 import { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { ROUTES } from '../../constants';
-import { selectSelectedClasses, selectTongSoTcSelected, useTkbStore } from '../../zus';
+import { selectSelectedClassesBuoc3, selectTongSoTcBuoc3, useTkbStore } from '../../zus';
 import ThoiKhoaBieuTable, { TimetablePickTarget } from '../components/ThoiKhoaBieuTable';
 import CoursePickerDialog, { PickerTarget } from './CoursePickerDialog';
 import './styles.css';
@@ -12,12 +13,18 @@ import './styles.css';
 function Index() {
   const history = useHistory();
   const [pickerTarget, setPickerTarget] = useState<PickerTarget | null>(null);
-  const selectedClasses = useTkbStore(selectSelectedClasses);
-  const credits = useTkbStore(selectTongSoTcSelected);
+  const selectedClasses = useTkbStore(selectSelectedClassesBuoc3);
+  const credits = useTkbStore(selectTongSoTcBuoc3);
+  const setSelectedClasses = useTkbStore((s) => s.setSelectedClasses);
 
   const openPickerFromTimetable = (target: TimetablePickTarget) => {
     if (target.existing) setPickerTarget({ kind: 'replace', existing: target.existing });
     else setPickerTarget({ kind: 'slot', thu: target.thu, tiets: target.tiets, label: target.label });
+  };
+
+  const handleClearAll = () => {
+    setSelectedClasses([]);
+    enqueueSnackbar('Đã xóa tất cả các môn khỏi thời khóa biểu', { variant: 'info' });
   };
 
   return (
@@ -36,6 +43,14 @@ function Index() {
           <Chip label={`${credits} tín chỉ`} variant="outlined" />
         </div>
         <div className="builder-dock-actions">
+          <Button
+            variant="outlined"
+            color="error"
+            disabled={!selectedClasses.length}
+            onClick={handleClearAll}
+          >
+            Xóa hết
+          </Button>
           <Button variant="outlined" onClick={() => setPickerTarget({ kind: 'all' })}>
             Chọn môn
           </Button>

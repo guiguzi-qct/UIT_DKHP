@@ -14,7 +14,7 @@ import { enqueueSnackbar } from 'notistack';
 import { useEffect, useMemo, useState } from 'react';
 import { ClassModel } from '../../types';
 import { getDanhSachTiet, hasOverlapSchedule, hasTimetableSlot, isSameAgGridRowId } from '../../utils';
-import { selectFinalDataTkb, selectSelectedClasses, useTkbStore } from '../../zus';
+import { selectFinalDataTkb, selectSelectedClassesBuoc3, useTkbStore } from '../../zus';
 import './CoursePickerDialog.css';
 
 export type PickerTarget =
@@ -151,7 +151,7 @@ export default function CoursePickerDialog({ target, onClose }: Props) {
   const [draftCandidates, setDraftCandidates] = useState<ClassModel[]>([]);
   const [expandedCourseKey, setExpandedCourseKey] = useState<string | null>(null);
   const data = useTkbStore(selectFinalDataTkb);
-  const selectedClasses = useTkbStore(selectSelectedClasses);
+  const selectedClasses = useTkbStore(selectSelectedClassesBuoc3);
   const setSelectedClasses = useTkbStore((state) => state.setSelectedClasses);
 
   useEffect(() => {

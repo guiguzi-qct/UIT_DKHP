@@ -117,8 +117,7 @@ export const [ClassCellContext, useClassCellContext] = constate(() => {
 function ClassCell({ data, isOutsideTable = false, interactive = false, onPick, ...restProps }: Props) {
   const { MaLop, NgonNgu, TenMH, TenGV, PhongHoc, NBD, NKT, Thu, Tiet } = data;
   const removeClasses = useTkbStore((s) => s.removeClasses);
-  const selectedClasses = useTkbStore(selectSelectedClasses);
-  const isChiVeTkb = useTkbStore(selectIsChiVeTkb);
+  const selectedClasses = useTkbStore(selectSelectedClassesBuoc3);
   const {
     isHoveringOnThisCell,
     isHoveringOnThisCellRemoveIcon,
@@ -176,48 +175,46 @@ function ClassCell({ data, isOutsideTable = false, interactive = false, onPick, 
         }
       >
         {interactive && <span className="cell-picker-hint">Click để đổi lớp</span>}
-        {!isChiVeTkb && (
-          <Tooltip
-            title={
-              <>
-                Xoá môn này
-                {isWarning(data) && isHoveringOnThisCell(data, 'MaLop') && (
-                  <>
-                    <br />
-                    hoặc Shift+Click để chỉ xoá slot thừa này
-                  </>
-                )}
-              </>
-            }
-            open={isHoveringOnThisCellRemoveIcon(data)}
+        <Tooltip
+          title={
+            <>
+              Xoá môn này
+              {isWarning(data) && isHoveringOnThisCell(data, 'MaLop') && (
+                <>
+                  <br />
+                  hoặc Shift+Click để chỉ xoá slot thừa này
+                </>
+              )}
+            </>
+          }
+          open={isHoveringOnThisCellRemoveIcon(data)}
+        >
+          <IconButton
+            onMouseEnter={() => setIsHoveringOnRemoveIcon(true)}
+            onMouseLeave={() => setIsHoveringOnRemoveIcon(false)}
+            style={{ position: 'absolute', top: 0, right: 0 }}
+            color="inherit"
+            size="small"
+            onClick={(e) => {
+              e.stopPropagation();
+              const classesToRemove = (() => {
+                if (isWarning(data) && e.shiftKey) {
+                  return [data];
+                }
+                if ((e.ctrlKey || e.metaKey) && e.shiftKey) {
+                  // easter eggs: Cmd + Shift + Click to remove all selected classes
+                  return selectedClasses;
+                }
+                return cacLopChungMonDangChon;
+              })();
+              removeClasses(classesToRemove);
+              onRemoveClass();
+            }}
+            className="remove-class-btn"
           >
-            <IconButton
-              onMouseEnter={() => setIsHoveringOnRemoveIcon(true)}
-              onMouseLeave={() => setIsHoveringOnRemoveIcon(false)}
-              style={{ position: 'absolute', top: 0, right: 0 }}
-              color="inherit"
-              size="small"
-              onClick={(e) => {
-                e.stopPropagation();
-                const classesToRemove = (() => {
-                  if (isWarning(data) && e.shiftKey) {
-                    return [data];
-                  }
-                  if ((e.ctrlKey || e.metaKey) && e.shiftKey) {
-                    // easter eggs: Cmd + Shift + Click to remove all selected classes
-                    return selectedClasses;
-                  }
-                  return cacLopChungMonDangChon;
-                })();
-                removeClasses(classesToRemove);
-                onRemoveClass();
-              }}
-              className="remove-class-btn"
-            >
-              <DeleteOutlineIcon />
-            </IconButton>
-          </Tooltip>
-        )}
+            <DeleteOutlineIcon />
+          </IconButton>
+        </Tooltip>
         <div className="class-cell-content">
           <strong className="class-cell-code">
             {MaLop}
