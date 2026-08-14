@@ -39,6 +39,9 @@ export default function PlanSelectorBar() {
 
   const activePlan = plans.find((p) => p.id === activePlanId) || plans[0];
 
+  const activePlanIndex = plans.findIndex((p) => p.id === activePlanId);
+  const displayPlanNumber = activePlanIndex >= 0 ? activePlanIndex + 1 : 1;
+
   const [fabAnchorEl, setFabAnchorEl] = useState<HTMLElement | null>(null);
   const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement | null>(null);
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
@@ -71,20 +74,20 @@ export default function PlanSelectorBar() {
     if (id !== activePlanId) {
       setActivePlanId(id);
       const target = plans.find((p) => p.id === id);
-      enqueueSnackbar(`Đã chuyển sang ${target?.name || 'Phương án'}`, { variant: 'info' });
+      enqueueSnackbar(`Đã chuyển sang ${target?.name || 'Plan'}`, { variant: 'info' });
     }
   };
 
   const handleCreate = () => {
     createPlan();
-    enqueueSnackbar('Đã tạo phương án mới', { variant: 'success' });
+    enqueueSnackbar('Đã tạo Plan mới', { variant: 'success' });
   };
 
   const handleDuplicate = () => {
     if (selectedPlanId) {
       duplicatePlan(selectedPlanId);
       const source = plans.find((p) => p.id === selectedPlanId);
-      enqueueSnackbar(`Đã nhân bản ${source?.name || 'phương án'}`, { variant: 'success' });
+      enqueueSnackbar(`Đã nhân bản ${source?.name || 'Plan'}`, { variant: 'success' });
     }
     handleCloseMenu();
   };
@@ -101,7 +104,7 @@ export default function PlanSelectorBar() {
   const handleSaveRename = () => {
     if (selectedPlanId && renameInput.trim()) {
       renamePlan(selectedPlanId, renameInput.trim());
-      enqueueSnackbar('Đã đổi tên phương án', { variant: 'success' });
+      enqueueSnackbar('Đã đổi tên Plan', { variant: 'success' });
     }
     setIsRenameDialogOpen(false);
   };
@@ -115,7 +118,7 @@ export default function PlanSelectorBar() {
     if (selectedPlanId) {
       const target = plans.find((p) => p.id === selectedPlanId);
       deletePlan(selectedPlanId);
-      enqueueSnackbar(`Đã xóa ${target?.name || 'phương án'}`, { variant: 'info' });
+      enqueueSnackbar(`Đã xóa ${target?.name || 'Plan'}`, { variant: 'info' });
     }
     setIsConfirmDeleteDialogOpen(false);
   };
@@ -126,13 +129,12 @@ export default function PlanSelectorBar() {
     <>
       <div className="floating-plan-fab-wrap">
         <Fab
-          variant="extended"
           size="medium"
           className="floating-plan-fab"
           onClick={handleOpenPopover}
-          aria-label="Chọn phương án thời khóa biểu"
+          aria-label="Chọn Plan"
         >
-          <span className="fab-plan-title">{activePlan?.name || 'Phương án'}</span>
+          <span className="fab-plan-number">{displayPlanNumber}</span>
         </Fab>
       </div>
 
@@ -154,7 +156,7 @@ export default function PlanSelectorBar() {
       >
         <div className="popover-plan-header">
           <Typography variant="subtitle2" fontWeight={700}>
-            Phương án thời khóa biểu ({plans.length})
+            Danh sách Plan ({plans.length})
           </Typography>
         </div>
 
@@ -196,7 +198,7 @@ export default function PlanSelectorBar() {
                   size="small"
                   className="plan-item-menu-btn"
                   onClick={(e) => handleOpenMenu(e, plan.id)}
-                  aria-label="Tùy chọn phương án"
+                  aria-label="Tùy chọn Plan"
                 >
                   <MoreVertIcon fontSize="small" />
                 </IconButton>
@@ -213,7 +215,7 @@ export default function PlanSelectorBar() {
             startIcon={<AddIcon />}
             onClick={handleCreate}
           >
-            Thêm phương án mới
+            Thêm Plan mới
           </Button>
         </div>
       </Popover>
@@ -236,19 +238,19 @@ export default function PlanSelectorBar() {
             <ListItemIcon sx={{ color: 'error.main' }}>
               <DeleteOutlineIcon fontSize="small" />
             </ListItemIcon>
-            <ListItemText>Xóa phương án</ListItemText>
+            <ListItemText>Xóa Plan</ListItemText>
           </MenuItem>
         )}
       </Menu>
 
       <Dialog open={isRenameDialogOpen} onClose={() => setIsRenameDialogOpen(false)} maxWidth="xs" fullWidth>
-        <DialogTitle>Đổi tên phương án</DialogTitle>
+        <DialogTitle>Đổi tên Plan</DialogTitle>
         <DialogContent dividers>
           <TextField
             autoFocus
             fullWidth
             size="small"
-            label="Tên phương án"
+            label="Tên Plan"
             value={renameInput}
             onChange={(e) => setRenameInput(e.target.value)}
             onKeyDown={(e) => {
@@ -268,16 +270,16 @@ export default function PlanSelectorBar() {
       </Dialog>
 
       <Dialog open={isConfirmDeleteDialogOpen} onClose={() => setIsConfirmDeleteDialogOpen(false)} maxWidth="xs" fullWidth>
-        <DialogTitle>Xác nhận xóa phương án</DialogTitle>
+        <DialogTitle>Xác nhận xóa Plan</DialogTitle>
         <DialogContent dividers>
           <Typography variant="body2">
-            Bạn có chắc chắn muốn xóa <strong>{targetPlanToDelete?.name || 'phương án này'}</strong> không? Thao tác này không thể hoàn tác.
+            Bạn có chắc chắn muốn xóa <strong>{targetPlanToDelete?.name || 'Plan này'}</strong> không? Thao tác này không thể hoàn tác.
           </Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setIsConfirmDeleteDialogOpen(false)}>Hủy</Button>
           <Button color="error" variant="contained" onClick={handleConfirmDelete}>
-            Xóa phương án
+            Xóa Plan
           </Button>
         </DialogActions>
       </Dialog>

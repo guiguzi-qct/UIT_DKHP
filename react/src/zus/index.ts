@@ -47,8 +47,8 @@ type TkbStore = {
 
 const getDefaultPlans = (state: Partial<TkbStore>): TimetablePlan[] => [
   {
-    id: 'plan_a',
-    name: 'Phương án A',
+    id: 'plan_1',
+    name: '1',
     selectedClasses: state.selectedClasses || [],
     isChiVeTkb: state.isChiVeTkb || false,
     textareaChiVeTkb: state.textareaChiVeTkb || '',
@@ -62,14 +62,14 @@ export const useTkbStore = create<TkbStore>()(
 
       plans: [
         {
-          id: 'plan_a',
-          name: 'Phương án A',
+          id: 'plan_1',
+          name: '1',
           selectedClasses: [],
           isChiVeTkb: false,
           textareaChiVeTkb: '',
         },
       ],
-      activePlanId: 'plan_a',
+      activePlanId: 'plan_1',
 
       selectedClasses: [], // [{}, {}]
       isChiVeTkb: false,
@@ -156,8 +156,8 @@ export const useTkbStore = create<TkbStore>()(
       createPlan: (customName) => {
         const state = get();
         const plans = state.plans && state.plans.length > 0 ? state.plans : getDefaultPlans(state);
-        const nextLetter = String.fromCharCode(65 + plans.length);
-        const name = customName || `Phương án ${nextLetter}`;
+        const nextNum = plans.length + 1;
+        const name = customName || String(nextNum);
         const newPlan: TimetablePlan = {
           id: `plan_${Date.now()}`,
           name,
@@ -181,9 +181,10 @@ export const useTkbStore = create<TkbStore>()(
         const sourcePlan = plans.find((p) => p.id === id);
         if (!sourcePlan) return;
 
+        const nextNum = plans.length + 1;
         const newPlan: TimetablePlan = {
           id: `plan_${Date.now()}`,
-          name: `${sourcePlan.name} (Sao chép)`,
+          name: String(nextNum),
           selectedClasses: [...sourcePlan.selectedClasses],
           isChiVeTkb: sourcePlan.isChiVeTkb,
           textareaChiVeTkb: sourcePlan.textareaChiVeTkb,
