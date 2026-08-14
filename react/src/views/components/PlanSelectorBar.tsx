@@ -37,8 +37,6 @@ export default function PlanSelectorBar() {
   const renamePlan = useTkbStore((s) => s.renamePlan);
   const deletePlan = useTkbStore((s) => s.deletePlan);
 
-  const activePlan = plans.find((p) => p.id === activePlanId) || plans[0];
-
   const activePlanIndex = plans.findIndex((p) => p.id === activePlanId);
   const displayPlanNumber = activePlanIndex >= 0 ? activePlanIndex + 1 : 1;
 
