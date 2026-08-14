@@ -1,7 +1,5 @@
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
-import Chip from '@mui/material/Chip';
 import Container from '@mui/material/Container';
 import LinearProgress from '@mui/material/LinearProgress';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
