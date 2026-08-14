@@ -9,6 +9,7 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import React, { Suspense } from 'react';
 import { BrowserRouter, Redirect, Route, useLocation } from 'react-router-dom';
 import { ROUTES } from '../constants';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { selectFinalDataTkb, selectIsChiVeTkb, selectTextareaChiVeTkb, useTkbStore } from '../zus';
 import ErrorBoundary from './components/ErrorBoundary';
 import NeedStep1Warning from './components/NeedStep1';
@@ -19,6 +20,40 @@ import './App.css';
 import ChonFileExcel from './1ChonFileExcel';
 import XepLop from './2XepLop';
 import KetQua from './3KetQua';
+
+const pastelTheme = createTheme({
+  palette: {
+    primary: {
+      main: '#4f46e5',
+      light: '#818cf8',
+      dark: '#3730a3',
+      contrastText: '#ffffff',
+    },
+    secondary: {
+      main: '#059669',
+      light: '#34d399',
+      dark: '#065f46',
+    },
+    error: {
+      main: '#e11d48',
+      light: '#f43f5e',
+    },
+    background: {
+      default: '#f8fafc',
+      paper: '#ffffff',
+    },
+    text: {
+      primary: '#0f172a',
+      secondary: '#475569',
+    },
+  },
+  typography: {
+    fontFamily: '"Be Vietnam Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+  },
+  shape: {
+    borderRadius: 14,
+  },
+});
 
 type PersistedRouteProps = {
   path: string;
@@ -56,7 +91,8 @@ function App() {
 
   return (
     <ErrorBoundary>
-      <BrowserRouter basename={process.env.PUBLIC_URL}>
+      <ThemeProvider theme={pastelTheme}>
+        <BrowserRouter basename={process.env.PUBLIC_URL}>
         <Box className="app-shell">
           <Route component={ScrollToTop} />
           <AppBar className="app-header" position="sticky" elevation={0}>
@@ -84,6 +120,7 @@ function App() {
           </Container>
         </Box>
       </BrowserRouter>
+      </ThemeProvider>
     </ErrorBoundary>
   );
 }
