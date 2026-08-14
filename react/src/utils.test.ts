@@ -1,5 +1,5 @@
 import { ClassModel } from './types';
-import { getDanhSachTiet, hasOverlapSchedule, hasTimetableSlot } from './utils';
+import { getDanhSachTiet, hasOverlapSchedule, hasTimetableSlot, parseListMaLop } from './utils';
 
 const makeClass = (overrides: Partial<ClassModel> = {}): ClassModel =>
   ({
@@ -44,5 +44,16 @@ describe('lớp chưa có lịch', () => {
   it('vẫn nhận diện lịch hợp lệ', () => {
     expect(hasTimetableSlot(makeClass({ Thu: '4', Tiet: '12345' }))).toBe(true);
     expect(hasTimetableSlot(makeClass({ Thu: '3', Tiet: '*' }))).toBe(true);
+  });
+});
+
+describe('danh sách mã lớp chia sẻ', () => {
+  it('nhận dấu phẩy, khoảng trắng, dấu cộng, dấu chấm phẩy và loại mã trùng', () => {
+    expect(parseListMaLop('ie105.r11, IE104.R11\nie105.r11 + ie221.r11; IE221.R11.2')).toEqual([
+      'IE105.R11',
+      'IE104.R11',
+      'IE221.R11',
+      'IE221.R11.2',
+    ]);
   });
 });

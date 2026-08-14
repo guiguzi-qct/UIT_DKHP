@@ -32,6 +32,17 @@ export function extractListMaLop(classes: ClassModel[]) {
   return unique.map((it) => it.MaLop);
 }
 
+/** Chuẩn hoá chuỗi mã lớp được nhập/dán hoặc nhận từ liên kết chia sẻ. */
+export function parseListMaLop(value: unknown): string[] {
+  const tokens = String(value ?? '')
+    .toUpperCase()
+    .split(/[\s,+;]+/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+
+  return [...new Set(tokens)];
+}
+
 export const getBuoiFromTiet = (tiet: ClassModel['Tiet']): Buoi => {
   const normalizedTiet = normalizeScheduleValue(tiet);
   if (normalizedTiet.includes('11')) return Buoi.Toi;
@@ -43,7 +54,11 @@ export const getBuoiFromTiet = (tiet: ClassModel['Tiet']): Buoi => {
 export const getDanhSachTiet = (tiet: ClassModel['Tiet']): string[] => {
   const normalizedTiet = normalizeScheduleValue(tiet);
   if (!normalizedTiet) return [];
-  if (normalizedTiet.includes(',')) return normalizedTiet.split(',').map((it) => it.trim()).filter(Boolean);
+  if (normalizedTiet.includes(','))
+    return normalizedTiet
+      .split(',')
+      .map((it) => it.trim())
+      .filter(Boolean);
   if (normalizedTiet === '*') return ['*'];
   return normalizedTiet.split('');
 };

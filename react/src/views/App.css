@@ -276,9 +276,20 @@ body {
   align-items: center;
   gap: 11px;
 }
-.class-source-card > .MuiGrid-root {
+.class-code-editor {
   grid-column: 1 / -1;
-  padding: 0 !important;
+}
+.class-code-actions {
+  margin-bottom: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.class-code-editor .MuiInputBase-input[readonly] {
+  color: #475569;
+  background: #f8fafc;
+  cursor: text;
 }
 .timetable-card {
   padding: 18px;
@@ -368,8 +379,15 @@ body {
   .class-source-card {
     grid-template-columns: 1fr;
   }
-  .class-source-card > .MuiGrid-root {
-    grid-column: auto;
+  .class-code-editor {
+    grid-column: 1;
+  }
+  .class-code-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .class-code-actions .MuiButton-root {
+    min-width: 0;
   }
   .timetable-card {
     padding: 10px;

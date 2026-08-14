@@ -1,20 +1,16 @@
 import AutoAwesomeOutlinedIcon from '@mui/icons-material/AutoAwesomeOutlined';
 import Alert from '@mui/material/Alert';
 import Chip from '@mui/material/Chip';
-import FormControlLabel from '@mui/material/FormControlLabel';
 import Paper from '@mui/material/Paper';
-import Switch from '@mui/material/Switch';
 import Typography from '@mui/material/Typography';
 import ThoiKhoaBieuTable from '../components/ThoiKhoaBieuTable';
 import { selectIsChiVeTkb, selectSelectedClassesBuoc3, selectTongSoTcBuoc3, useTkbStore } from '../../zus';
 import DanhSachLopInput from './DanhSachLopInput';
 
 function Index() {
-  const setIsChiVeTkb = useTkbStore((state) => state.setIsChiVeTkb);
   const isManualMode = useTkbStore(selectIsChiVeTkb);
   const classes = useTkbStore(selectSelectedClassesBuoc3);
   const credits = useTkbStore(selectTongSoTcBuoc3);
-  const isSharedView = window.location.search.includes('self_selected');
 
   return (
     <section className="page-wrap wide result-page">
@@ -39,12 +35,6 @@ function Index() {
             </Typography>
           </div>
         </div>
-        {!isSharedView && (
-          <FormControlLabel
-            control={<Switch checked={isManualMode} onChange={(event) => setIsChiVeTkb(event.target.checked)} />}
-            label="Nhập mã lớp thủ công"
-          />
-        )}
         <DanhSachLopInput />
       </Paper>
 

@@ -1,78 +1,139 @@
-import ShareIcon from '@mui/icons-material/Share';
-import { IconButton, Tooltip, useTheme } from '@mui/material';
-import type { InputBaseProps, Theme } from '@mui/material';
-import Grid from '@mui/material/Grid';
+import ContentCopyOutlinedIcon from '@mui/icons-material/ContentCopyOutlined';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
+import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
-import { forwardRef, useMemo } from 'react';
-import type { HTMLAttributes } from 'react';
-import { extractListMaLop } from '../../utils';
-import { selectIsChiVeTkb, selectPhanLoaiHocTrenTruong, selectTextareaChiVeTkb, useTkbStore } from '../../zus';
+import { enqueueSnackbar } from 'notistack';
+import { useMemo, useState } from 'react';
+import { useHistory } from 'react-router-dom';
+import { ROUTES } from '../../constants';
+import { extractListMaLop, parseListMaLop } from '../../utils';
+import {
+  selectFinalDataTkb,
+  selectIsChiVeTkb,
+  selectPhanLoaiHocTrenTruong,
+  selectTextareaChiVeTkb,
+  useTkbStore,
+} from '../../zus';
 
-const getReadonlySx = (theme: Theme) => ({
-  '& .MuiInputBase-input': {
-    color: theme.palette.text.secondary,
-    backgroundColor: theme.palette.action.hover,
-    cursor: 'default',
-  },
-});
+const copyText = async (value: string) => {
+  if (navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(value);
+    return;
+  }
 
-const ListInputComponent: InputBaseProps['inputComponent'] = forwardRef<
-  HTMLTextAreaElement,
-  HTMLAttributes<HTMLTextAreaElement>
->((props, ref) => {
-  const isChiVeTkb = useTkbStore(selectIsChiVeTkb);
-  return (
-    <Tooltip title={isChiVeTkb ? 'Mỗi mã lớp một hàng hoặc cách nhau bằng khoảng trắng hay dấu phẩy' : ''}>
-      <textarea ref={ref} style={{ resize: 'vertical' }} {...props} />
-    </Tooltip>
-  );
-});
+  const textarea = document.createElement('textarea');
+  textarea.value = value;
+  textarea.style.position = 'fixed';
+  textarea.style.opacity = '0';
+  document.body.appendChild(textarea);
+  textarea.select();
+  const copied = document.execCommand('copy');
+  textarea.remove();
+  if (!copied) throw new Error('Không thể sao chép mã lớp');
+};
 
 export default function DanhSachLopInput() {
-  const theme = useTheme();
+  const history = useHistory();
+  const [isEditing, setIsEditing] = useState(false);
+  const [draft, setDraft] = useState('');
+  const setIsChiVeTkb = useTkbStore((state) => state.setIsChiVeTkb);
   const setTextareChiVeTkb = useTkbStore((s) => s.setTextareChiVeTkb);
   const cacLop = useTkbStore(selectPhanLoaiHocTrenTruong);
+  const finalDataTkb = useTkbStore(selectFinalDataTkb);
   const listMaLop = useMemo(() => extractListMaLop(cacLop.flat()), [cacLop]);
-  const hasLop = listMaLop.length > 0;
   const isChiVeTkb = useTkbStore(selectIsChiVeTkb);
   const textareaChiVeTkb = useTkbStore(selectTextareaChiVeTkb);
-  const useToolXepLop = !isChiVeTkb;
-  const value = isChiVeTkb ? textareaChiVeTkb : hasLop ? listMaLop.join(',') : 'Chưa có lớp nào';
+  const storedValue = isChiVeTkb ? textareaChiVeTkb : listMaLop.join(',');
+  const value = isEditing ? draft : storedValue;
+  const draftCodes = useMemo(() => parseListMaLop(draft), [draft]);
+  const availableCodes = useMemo(
+    () => new Set(finalDataTkb.map((item) => String(item.MaLop).toUpperCase())),
+    [finalDataTkb],
+  );
+  const invalidCodes = isEditing ? draftCodes.filter((code) => !availableCodes.has(code)) : [];
+
+  const startEditing = () => {
+    setDraft(storedValue);
+    setIsEditing(true);
+  };
+
+  const cancelEditing = () => {
+    setDraft('');
+    setIsEditing(false);
+  };
+
+  const applyCodes = () => {
+    const normalizedValue = draftCodes.join(',');
+    setTextareChiVeTkb(normalizedValue);
+    setIsChiVeTkb(true);
+    if (window.location.search.includes('self_selected')) history.replace(ROUTES._3KetQua.path);
+    setIsEditing(false);
+
+    if (invalidCodes.length) {
+      enqueueSnackbar(`Đã áp dụng; không tìm thấy ${invalidCodes.length} mã lớp.`, { variant: 'warning' });
+    } else {
+      enqueueSnackbar(`Đã áp dụng ${draftCodes.length} mã lớp.`, { variant: 'success' });
+    }
+  };
+
+  const copyCodes = async () => {
+    const codes = parseListMaLop(isEditing ? draft : storedValue);
+    if (!codes.length) {
+      enqueueSnackbar('Chưa có mã lớp để sao chép.', { variant: 'warning' });
+      return;
+    }
+
+    try {
+      await copyText(codes.join(','));
+      enqueueSnackbar(`Đã sao chép ${codes.length} mã lớp.`, { variant: 'success' });
+    } catch (error) {
+      console.error(error);
+      enqueueSnackbar('Không thể sao chép tự động. Hãy chọn và sao chép nội dung trong ô.', { variant: 'error' });
+    }
+  };
 
   return (
-    <Grid item xs={12}>
+    <div className="class-code-editor">
+      <div className="class-code-actions">
+        {isEditing ? (
+          <>
+            <Button color="inherit" onClick={cancelEditing}>
+              Hủy
+            </Button>
+            <Button variant="contained" startIcon={<SaveOutlinedIcon />} onClick={applyCodes}>
+              Áp dụng
+            </Button>
+          </>
+        ) : (
+          <Button variant="outlined" startIcon={<EditOutlinedIcon />} onClick={startEditing}>
+            Chỉnh sửa
+          </Button>
+        )}
+        <Button variant="outlined" startIcon={<ContentCopyOutlinedIcon />} onClick={copyCodes}>
+          Chia sẻ mã lớp
+        </Button>
+      </div>
       <TextField
         label="Danh sách mã lớp"
         fullWidth
         size="small"
         multiline
-        inputProps={{ readOnly: useToolXepLop, style: { resize: 'vertical' } }}
+        inputProps={{ readOnly: !isEditing, style: { resize: 'vertical' } }}
         rows={2}
         variant="outlined"
-        onChange={(event) => setTextareChiVeTkb(event.target.value)}
+        placeholder="Dán mã lớp vào đây, ví dụ: IE105.R11.CNVN, IE104.R11.CNVN"
+        onChange={(event) => setDraft(event.target.value.toUpperCase())}
         value={value}
-        disabled={useToolXepLop && !hasLop}
-        sx={useToolXepLop ? getReadonlySx(theme) : undefined}
-        InputProps={{
-          inputComponent: ListInputComponent,
-          endAdornment:
-            useToolXepLop && hasLop ? (
-              <Tooltip title="Chia sẻ thời khóa biểu">
-                <IconButton
-                  edge="end"
-                  size="small"
-                  onClick={() => {
-                    const newUrl = window.location.origin + window.location.pathname + '?self_selected=' + value;
-                    navigator.clipboard.writeText(newUrl);
-                    window.open(newUrl, Math.random().toString());
-                  }}
-                >
-                  <ShareIcon />
-                </IconButton>
-              </Tooltip>
-            ) : null,
-        }}
+        error={invalidCodes.length > 0}
+        helperText={
+          isEditing
+            ? invalidCodes.length
+              ? `Không tìm thấy: ${invalidCodes.join(', ')}`
+              : 'Mỗi mã cách nhau bằng dấu phẩy, khoảng trắng hoặc xuống dòng.'
+            : `${listMaLop.length} mã lớp đang được dùng để tạo lịch.`
+        }
       />
-    </Grid>
+    </div>
   );
 }

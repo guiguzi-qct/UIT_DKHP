@@ -3,7 +3,7 @@ import { memoize } from 'proxy-memoize';
 import { Mutate, StoreApi, create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { ClassModel, ClassModelOriginal } from '../types';
-import { calcTongSoTC, hasTimetableSlot, isSameAgGridRowId } from '../utils';
+import { calcTongSoTC, hasTimetableSlot, isSameAgGridRowId, parseListMaLop } from '../utils';
 
 type TkbStore = {
   dataExcel: {
@@ -104,8 +104,8 @@ export const selectSelectedClassesBuoc3 = memoize((state: TkbStore): ClassModel[
   const finalDataTkb = selectFinalDataTkb(state);
 
   if (isChiVeTkb) {
-    const listMaLop = textareaChiVeTkb.split(/\s+|\+|,/);
-    return finalDataTkb.filter((it) => listMaLop.includes(it.MaLop));
+    const listMaLop = new Set(parseListMaLop(textareaChiVeTkb));
+    return finalDataTkb.filter((it) => listMaLop.has(String(it.MaLop).toUpperCase()));
   } else {
     return selectSelectedClasses(state);
   }
