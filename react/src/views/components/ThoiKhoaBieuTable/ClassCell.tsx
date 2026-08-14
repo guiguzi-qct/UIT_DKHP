@@ -13,21 +13,21 @@ import { usePhanLoaiHocTrenTruongContext } from './hooks';
 import './styles.css';
 
 const randomColors = [
-  '#BAE6FD',
-  '#BBF7D0',
-  '#FEF08A',
-  '#FED7AA',
-  '#E9D5FF',
-  '#FBCFE8',
-  '#C7D2FE',
-  '#A7F3D0',
-  '#CBD5E1',
-  '#DDD6FE',
-  '#FDE68A',
-  '#D9F99D',
-  '#FECDD3',
-  '#93C5FD',
-  '#C4B5FD',
+  '#E8D8C8',
+  '#C9D6C5',
+  '#F0E5D8',
+  '#DBC4B0',
+  '#C5D3E8',
+  '#EAD6D6',
+  '#E5E3D2',
+  '#D8C4B6',
+  '#D1D5DB',
+  '#E2CFEA',
+  '#F4E2DE',
+  '#CCD6C6',
+  '#EFE0D4',
+  '#C4D3D5',
+  '#E5C9C9',
 ] as const;
 
 type Props = {
