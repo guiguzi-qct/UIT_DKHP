@@ -44,7 +44,12 @@ const theme = createTheme({
 });
 
 ReactDOM.render(
-  <SnackbarProvider>
+  <SnackbarProvider
+    maxSnack={3}
+    anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+    autoHideDuration={2500}
+    preventDuplicate
+  >
     <StyledEngineProvider injectFirst>
       <ThemeProvider theme={theme}>
         <CssBaseline />
