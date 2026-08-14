@@ -219,6 +219,13 @@ export default function PlanSelectorBar() {
                 }}
               >
                 <div className="plan-item-left">
+                  <span
+                    className="plan-drag-handle"
+                    title="Nhấn giữ để kéo di chuyển vị trí"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <DragIndicatorIcon fontSize="small" />
+                  </span>
                   <span className="plan-item-badge">{index + 1}</span>
                   <span className="plan-check-icon">
                     {isActive ? <CheckIcon fontSize="small" color="primary" /> : null}
@@ -234,13 +241,6 @@ export default function PlanSelectorBar() {
                 </div>
 
                 <div className="plan-item-actions" onClick={(e) => e.stopPropagation()}>
-                  <span
-                    className="plan-drag-handle"
-                    title="Nhấn giữ để kéo di chuyển vị trí"
-                  >
-                    <DragIndicatorIcon fontSize="small" />
-                  </span>
-
                   <IconButton
                     size="small"
                     className="plan-item-menu-btn"

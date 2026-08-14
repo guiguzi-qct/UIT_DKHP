@@ -2,7 +2,7 @@
   position: fixed;
   z-index: 1300;
   right: 28px;
-  bottom: 84px;
+  bottom: 14px;
 }
 
 .floating-plan-fab {
@@ -143,20 +143,22 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
+  width: 20px;
   height: 24px;
   color: #8EA5B7;
   cursor: grab;
-  border-radius: 6px;
+  border-radius: 4px;
   transition: all 140ms ease;
+  margin-right: -2px;
+}
+
+.plan-drag-handle:hover {
+  color: #0E2128;
+  background: #EBF1F5;
 }
 
 .plan-drag-handle:active {
   cursor: grabbing;
-}
-
-.popover-plan-item:hover .plan-drag-handle {
-  color: #0E2128;
 }
 
 .popover-plan-item.is-dragging {
