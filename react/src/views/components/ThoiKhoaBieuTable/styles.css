@@ -314,7 +314,7 @@
   gap: 8px;
 }
 #thoi-khoa-bieu.interactive-timetable {
-  padding-bottom: 90px;
+  padding-bottom: 0;
 }
 #thoi-khoa-bieu.compact .timetable-toolbar {
   display: none;
