@@ -24,22 +24,14 @@ export default function WorkflowNav() {
         if (isDisabled) {
           return (
             <span className={className} aria-disabled="true" key={step.path}>
-              <span className="workflow-step-number">{index + 1}</span>
-              <span className="workflow-step-copy">
-                <strong>{step.shortName}</strong>
-                <small>{step.description}</small>
-              </span>
+              <span className="workflow-step-text">{index + 1}. {step.shortName}</span>
             </span>
           );
         }
 
         return (
           <NavLink className={className} to={step.path + location.search} key={step.path}>
-            <span className="workflow-step-number">{index + 1}</span>
-            <span className="workflow-step-copy">
-              <strong>{step.shortName}</strong>
-              <small>{step.description}</small>
-            </span>
+            <span className="workflow-step-text">{index + 1}. {step.shortName}</span>
           </NavLink>
         );
       })}

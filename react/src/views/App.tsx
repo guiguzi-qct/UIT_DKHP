@@ -99,13 +99,18 @@ function App() {
             <Toolbar className="app-toolbar">
               <Box className="brand-lockup">
                 <img className="brand-mark" src={`${process.env.PUBLIC_URL}/logo.png`} alt="UIT no Jikan logo" />
-                <Box>
+                <Box className="brand-text">
                   <Typography className="brand-name">UIT no Jikan</Typography>
-                  <Typography className="brand-tagline">Xếp thời khóa biểu dễ hơn</Typography>
+                  <Typography className="brand-subtitle">Xếp lịch học UIT</Typography>
                 </Box>
               </Box>
+
               <WorkflowNav />
-              <Chip className="privacy-chip" icon={<LockOutlinedIcon />} label="Dữ liệu chỉ lưu trên thiết bị" variant="outlined" />
+
+              <Box className="header-status-badge">
+                <span className="status-live-dot" />
+                <span>Lưu trên máy</span>
+              </Box>
             </Toolbar>
           </AppBar>
           <Container className="app-container" maxWidth={false}>
