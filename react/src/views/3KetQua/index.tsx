@@ -4,6 +4,7 @@ import Chip from '@mui/material/Chip';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import ThoiKhoaBieuTable from '../components/ThoiKhoaBieuTable';
+import PlanSelectorBar from '../components/PlanSelectorBar';
 import { selectIsChiVeTkb, selectSelectedClassesBuoc3, selectTongSoTcBuoc3, useTkbStore } from '../../zus';
 import DanhSachLopInput from './DanhSachLopInput';
 
@@ -24,6 +25,8 @@ function Index() {
           <Chip label={`${credits} tín chỉ`} variant="outlined" />
         </div>
       </header>
+
+      <PlanSelectorBar />
 
       <Paper className="surface-card class-source-card">
         <div className="class-source-copy">

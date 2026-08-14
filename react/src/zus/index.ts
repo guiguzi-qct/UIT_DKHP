@@ -5,6 +5,14 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 import { ClassModel, ClassModelOriginal } from '../types';
 import { calcTongSoTC, extractListMaLop, hasTimetableSlot, isSameAgGridRowId, parseListMaLop } from '../utils';
 
+export type TimetablePlan = {
+  id: string;
+  name: string;
+  selectedClasses: ClassModel[];
+  isChiVeTkb: boolean;
+  textareaChiVeTkb: string;
+};
+
 type TkbStore = {
   dataExcel: {
     fileName: string;
@@ -13,6 +21,9 @@ type TkbStore = {
     lastUpdate?: string;
     lastUpdateTimestamp?: number;
   } | null;
+
+  plans: TimetablePlan[];
+  activePlanId: string;
 
   selectedClasses: ClassModel[];
   // in case Buoc 3 chi ve TKB chu khong dung Buoc 2 Xep Lop
@@ -24,23 +35,48 @@ type TkbStore = {
   removeClasses: (data: ClassModel[]) => void;
   setIsChiVeTkb: (data: TkbStore['isChiVeTkb']) => void;
   setTextareChiVeTkb: (data: TkbStore['textareaChiVeTkb']) => void;
+
+  // Plan management actions
+  setActivePlanId: (id: string) => void;
+  createPlan: (name?: string) => void;
+  duplicatePlan: (id: string) => void;
+  renamePlan: (id: string, name: string) => void;
+  deletePlan: (id: string) => void;
 };
+
+const getDefaultPlans = (state: Partial<TkbStore>): TimetablePlan[] => [
+  {
+    id: 'plan_a',
+    name: 'Phương án A',
+    selectedClasses: state.selectedClasses || [],
+    isChiVeTkb: state.isChiVeTkb || false,
+    textareaChiVeTkb: state.textareaChiVeTkb || '',
+  },
+];
 
 export const useTkbStore = create<TkbStore>()(
   persist(
     (set, get) => ({
       dataExcel: null,
 
+      plans: [
+        {
+          id: 'plan_a',
+          name: 'Phương án A',
+          selectedClasses: [],
+          isChiVeTkb: false,
+          textareaChiVeTkb: '',
+        },
+      ],
+      activePlanId: 'plan_a',
+
       selectedClasses: [], // [{}, {}]
       isChiVeTkb: false,
       textareaChiVeTkb: '',
 
-      // TODO: move actions outside of store
       setDataExcel: (data) => {
         const newDataExcel = data?.data ?? [];
         const currentSelectedClasses = get().selectedClasses;
-        // When the user uploads a new excel file:
-        // Giữ lại các lớp vẫn còn tồn tại khi người dùng tải bản Excel cập nhật.
         const newSelectedClasses = newDataExcel.filter((newClass) =>
           currentSelectedClasses.some((selectedClass) => isSameAgGridRowId(selectedClass, newClass)),
         );
@@ -48,7 +84,17 @@ export const useTkbStore = create<TkbStore>()(
       },
       setSelectedClasses: (data) => {
         const newMaLopList = extractListMaLop(data);
-        set({ selectedClasses: data, textareaChiVeTkb: newMaLopList.join(',') });
+        const state = get();
+        const plans = state.plans && state.plans.length > 0 ? state.plans : getDefaultPlans(state);
+        const activeId = state.activePlanId || plans[0].id;
+        const updatedPlans = plans.map((p) =>
+          p.id === activeId ? { ...p, selectedClasses: data, textareaChiVeTkb: newMaLopList.join(',') } : p,
+        );
+        set({
+          plans: updatedPlans,
+          selectedClasses: data,
+          textareaChiVeTkb: newMaLopList.join(','),
+        });
       },
       removeClasses: (classesToRemove) => {
         set((state) => {
@@ -57,17 +103,122 @@ export const useTkbStore = create<TkbStore>()(
             classesToRemove.every((classToRemove) => !isSameAgGridRowId(selectedClass, classToRemove)),
           );
           const newMaLopList = extractListMaLop(newSelectedClasses);
+          const plans = state.plans && state.plans.length > 0 ? state.plans : getDefaultPlans(state);
+          const activeId = state.activePlanId || plans[0].id;
+          const updatedPlans = plans.map((p) =>
+            p.id === activeId
+              ? { ...p, selectedClasses: newSelectedClasses, textareaChiVeTkb: newMaLopList.join(',') }
+              : p,
+          );
           return {
+            plans: updatedPlans,
             selectedClasses: newSelectedClasses,
             textareaChiVeTkb: newMaLopList.join(','),
           };
         });
       },
       setIsChiVeTkb: (data) => {
-        set({ isChiVeTkb: data });
+        set((state) => {
+          const plans = state.plans && state.plans.length > 0 ? state.plans : getDefaultPlans(state);
+          const activeId = state.activePlanId || plans[0].id;
+          const updatedPlans = plans.map((p) => (p.id === activeId ? { ...p, isChiVeTkb: data } : p));
+          return { plans: updatedPlans, isChiVeTkb: data };
+        });
       },
       setTextareChiVeTkb: (data) => {
-        set({ textareaChiVeTkb: data.toUpperCase() });
+        const upper = data.toUpperCase();
+        set((state) => {
+          const plans = state.plans && state.plans.length > 0 ? state.plans : getDefaultPlans(state);
+          const activeId = state.activePlanId || plans[0].id;
+          const updatedPlans = plans.map((p) => (p.id === activeId ? { ...p, textareaChiVeTkb: upper } : p));
+          return { plans: updatedPlans, textareaChiVeTkb: upper };
+        });
+      },
+
+      setActivePlanId: (id) => {
+        const state = get();
+        const plans = state.plans && state.plans.length > 0 ? state.plans : getDefaultPlans(state);
+        const targetPlan = plans.find((p) => p.id === id);
+        if (!targetPlan) return;
+
+        set({
+          activePlanId: id,
+          selectedClasses: targetPlan.selectedClasses || [],
+          isChiVeTkb: targetPlan.isChiVeTkb || false,
+          textareaChiVeTkb: targetPlan.textareaChiVeTkb || '',
+        });
+      },
+
+      createPlan: (customName) => {
+        const state = get();
+        const plans = state.plans && state.plans.length > 0 ? state.plans : getDefaultPlans(state);
+        const nextLetter = String.fromCharCode(65 + plans.length);
+        const name = customName || `Phương án ${nextLetter}`;
+        const newPlan: TimetablePlan = {
+          id: `plan_${Date.now()}`,
+          name,
+          selectedClasses: [],
+          isChiVeTkb: false,
+          textareaChiVeTkb: '',
+        };
+        const updatedPlans = [...plans, newPlan];
+        set({
+          plans: updatedPlans,
+          activePlanId: newPlan.id,
+          selectedClasses: [],
+          isChiVeTkb: false,
+          textareaChiVeTkb: '',
+        });
+      },
+
+      duplicatePlan: (id) => {
+        const state = get();
+        const plans = state.plans && state.plans.length > 0 ? state.plans : getDefaultPlans(state);
+        const sourcePlan = plans.find((p) => p.id === id);
+        if (!sourcePlan) return;
+
+        const newPlan: TimetablePlan = {
+          id: `plan_${Date.now()}`,
+          name: `${sourcePlan.name} (Sao chép)`,
+          selectedClasses: [...sourcePlan.selectedClasses],
+          isChiVeTkb: sourcePlan.isChiVeTkb,
+          textareaChiVeTkb: sourcePlan.textareaChiVeTkb,
+        };
+        const updatedPlans = [...plans, newPlan];
+        set({
+          plans: updatedPlans,
+          activePlanId: newPlan.id,
+          selectedClasses: newPlan.selectedClasses,
+          isChiVeTkb: newPlan.isChiVeTkb,
+          textareaChiVeTkb: newPlan.textareaChiVeTkb,
+        });
+      },
+
+      renamePlan: (id, name) => {
+        const state = get();
+        const plans = state.plans && state.plans.length > 0 ? state.plans : getDefaultPlans(state);
+        const updatedPlans = plans.map((p) => (p.id === id ? { ...p, name } : p));
+        set({ plans: updatedPlans });
+      },
+
+      deletePlan: (id) => {
+        const state = get();
+        const plans = state.plans && state.plans.length > 0 ? state.plans : getDefaultPlans(state);
+        if (plans.length <= 1) return;
+
+        const updatedPlans = plans.filter((p) => p.id !== id);
+        let nextActiveId = state.activePlanId;
+        if (state.activePlanId === id) {
+          nextActiveId = updatedPlans[0].id;
+        }
+        const activePlan = updatedPlans.find((p) => p.id === nextActiveId) || updatedPlans[0];
+        set({
+          plans: updatedPlans,
+          activePlanId: activePlan.id,
+          selectedClasses: activePlan.selectedClasses || [],
+          isChiVeTkb: activePlan.isChiVeTkb || false,
+          textareaChiVeTkb: activePlan.textareaChiVeTkb || '',
+        });
       },
     }),
     {
@@ -124,3 +275,15 @@ export const selectPhanLoaiHocTrenTruong = memoize((state: TkbStore): [ClassMode
   // vẫn được chọn, tính tín chỉ và đăng ký; chỉ không đưa vào lưới thời khóa biểu.
   return partition(selectSelectedClassesBuoc3(state), (classModel) => !hasTimetableSlot(classModel));
 });
+
+export const selectPlans = (state: TkbStore): TimetablePlan[] => {
+  if (state.plans && state.plans.length > 0) return state.plans;
+  return getDefaultPlans(state);
+};
+
+export const selectActivePlanId = (state: TkbStore): string => {
+  const plans = selectPlans(state);
+  return state.activePlanId && plans.some((p) => p.id === state.activePlanId)
+    ? state.activePlanId
+    : plans[0].id;
+};

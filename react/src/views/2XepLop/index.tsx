@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { ROUTES } from '../../constants';
 import { selectSelectedClassesBuoc3, selectTongSoTcBuoc3, useTkbStore } from '../../zus';
+import PlanSelectorBar from '../components/PlanSelectorBar';
 import ThoiKhoaBieuTable, { TimetablePickTarget } from '../components/ThoiKhoaBieuTable';
 import CoursePickerDialog, { PickerTarget } from './CoursePickerDialog';
 import './styles.css';
@@ -29,6 +30,8 @@ function Index() {
 
   return (
     <section className="page-wrap wide builder-page">
+      <PlanSelectorBar />
+
       <Paper className="surface-card timetable-card builder-timetable">
         <ThoiKhoaBieuTable interactive onPickSlot={openPickerFromTimetable} />
       </Paper>
