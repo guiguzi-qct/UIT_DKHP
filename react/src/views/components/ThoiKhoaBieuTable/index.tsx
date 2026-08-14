@@ -135,22 +135,21 @@ function MainPeriodRow({
         const data = row[getDayKey(thu)];
 
         if (data === CELL.NO_CLASS) {
-          const run = getEmptyRun(rows, thu, index, group);
-          if (index !== run.start) return null;
+          const isGroupEmpty = Array.from(
+            { length: group.end - group.start + 1 },
+            (_, offset) => rows[group.start + offset][getDayKey(thu)] === CELL.NO_CLASS,
+          ).every(Boolean);
 
-          const tiets = Array.from({ length: run.end - run.start + 1 }, (_, offset) =>
-            getTietValue(run.start + offset),
-          );
-          const label = getRangeLabel(run.start, run.end, group);
+          const midIndex = Math.floor((group.start + group.end) / 2);
+          const label = isGroupEmpty && index === midIndex ? group.label : `Tiết ${index + 1}`;
 
           return (
             <GetCell
               key={thu}
               data={data}
               thu={thu}
-              tiets={tiets}
+              tiets={[getTietValue(index)]}
               label={label}
-              rowSpan={run.end - run.start + 1}
               interactive={interactive}
               onPickSlot={onPickSlot}
             />
@@ -201,7 +200,12 @@ function OnlineRow({
       </td>
       <td colSpan={6} className="online-row-cell">
         {allOutsideClasses.length > 0 ? (
-          <div className="online-classes-flex">
+          <div
+            className="online-classes-flex"
+            style={{
+              ['--item-count' as any]: Math.min(allOutsideClasses.length, 6),
+            }}
+          >
             {allOutsideClasses.map((lop) => (
               <ClassCell
                 key={`${lop.MaLop}-${lop.Thu}-${lop.Tiet}`}

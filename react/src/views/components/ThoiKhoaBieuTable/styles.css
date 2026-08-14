@@ -157,43 +157,40 @@
 }
 #thoi-khoa-bieu .empty-schedule-slot {
   position: relative;
-  padding: 0 !important;
+  padding: 4px !important;
   background: #ffffff !important;
   vertical-align: middle;
+  text-align: center;
 }
 #thoi-khoa-bieu .empty-slot-button {
-  position: absolute;
-  inset: 4px;
-  width: calc(100% - 8px);
-  height: calc(100% - 8px);
-  min-height: 50px;
-  padding: 8px;
+  width: 100%;
+  height: 100%;
+  min-height: 48px;
+  padding: 4px 8px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  border: 1.5px solid #ADBECC;
-  border-radius: 10px;
-  color: #59899D;
+  gap: 2px;
+  border: 1px solid #D5E0E8;
+  border-radius: 8px;
+  color: #17333F;
   background: #F4F7F9;
   cursor: pointer;
   transition: all 160ms ease;
 }
 #thoi-khoa-bieu .empty-slot-label {
   color: #17333F;
-  font-size: var(--text-sm);
+  font-size: var(--text-xs);
   font-weight: 800;
   white-space: nowrap;
 }
 #thoi-khoa-bieu .empty-slot-label.static {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
+  display: block;
+  text-align: center;
   color: #17333F;
-  font-size: var(--text-sm);
-  font-weight: 800;
+  font-size: var(--text-xs);
+  font-weight: 700;
 }
 #thoi-khoa-bieu .empty-slot-action {
   color: #0E2128;
@@ -273,8 +270,15 @@
 #thoi-khoa-bieu .online-classes-flex {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: stretch;
   gap: 8px;
+  width: 100%;
+}
+#thoi-khoa-bieu .online-classes-flex > .cell-class,
+#thoi-khoa-bieu .online-classes-flex > td {
+  flex: 1 1 calc((100% - (var(--item-count, 1) - 1) * 8px) / var(--item-count, 1)) !important;
+  max-width: calc((100% - (var(--item-count, 1) - 1) * 8px) / var(--item-count, 1)) !important;
+  box-sizing: border-box !important;
 }
 #thoi-khoa-bieu .extra-classes-grid-row {
   margin-top: 12px;
