@@ -48,7 +48,7 @@ const getTietLabel = (index: number) => String(index + 1);
 
 const getRangeLabel = (start: number, end: number, group: TietGroup) => {
   if (start === group.start && end === group.end) {
-    return `${group.label} · Tiết ${getTietLabel(start)}–${getTietLabel(end)}`;
+    return group.label;
   }
   if (start === end) return `Tiết ${getTietLabel(start)}`;
   return `Tiết ${getTietLabel(start)}–${getTietLabel(end)}`;

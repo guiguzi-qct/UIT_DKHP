@@ -179,9 +179,9 @@
   transition: all 160ms ease;
 }
 #thoi-khoa-bieu .empty-slot-label {
-  color: #59899D;
-  font-size: var(--text-xs);
-  font-weight: 700;
+  color: #17333F;
+  font-size: var(--text-sm);
+  font-weight: 800;
   white-space: nowrap;
 }
 #thoi-khoa-bieu .empty-slot-label.static {
@@ -189,7 +189,9 @@
   inset: 0;
   display: grid;
   place-items: center;
-  color: #8FAFC4;
+  color: #17333F;
+  font-size: var(--text-sm);
+  font-weight: 800;
 }
 #thoi-khoa-bieu .empty-slot-action {
   color: #0E2128;
