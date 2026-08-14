@@ -121,7 +121,7 @@ function ClassCell({ data, isOutsideTable = false, interactive = false, onPick, 
     <Tooltip title={isRedundantRelated ? 'Bị trùng TKB' : null}>
       <td
         {...restProps}
-        className={clsx('cell-class-wrapper', {
+        className={clsx('cell-class', {
           'cell-class-pickable': interactive,
           'cell-class-unbounded': !restProps.rowSpan,
           'cell-class-hovering': isHoveringOnThisCell(data, 'MaMH'),
@@ -129,6 +129,9 @@ function ClassCell({ data, isOutsideTable = false, interactive = false, onPick, 
         role={interactive ? 'button' : undefined}
         tabIndex={interactive ? 0 : undefined}
         aria-label={interactive ? `Đổi lớp ${TenMH}` : undefined}
+        style={{
+          boxShadow: isRedundantRelated ? `inset 0 0 0 3px ${randomColors[redundantIndex]}` : undefined,
+        }}
         onMouseEnter={() => setCellHovering(data)}
         onMouseLeave={() => setCellHovering(null)}
         onClick={
@@ -153,72 +156,65 @@ function ClassCell({ data, isOutsideTable = false, interactive = false, onPick, 
             : undefined
         }
       >
-        <div
-          className="class-cell-card"
-          style={{
-            boxShadow: isRedundantRelated ? `inset 0 0 0 3px ${randomColors[redundantIndex]}` : undefined,
-          }}
-        >
-          {interactive && <span className="cell-picker-hint">Click để đổi lớp</span>}
-          {interactive && (
-            <Tooltip
-              title={
-                <>
-                  Xoá môn này
-                  {isWarning(data) && isHoveringOnThisCell(data, 'MaLop') && (
-                    <>
-                      <br />
-                      hoặc Shift+Click để chỉ xoá slot thừa này
-                    </>
-                  )}
-                </>
-              }
-              open={isHoveringOnThisCellRemoveIcon(data)}
+        {interactive && <span className="cell-picker-hint">Click để đổi lớp</span>}
+        {interactive && (
+          <Tooltip
+            title={
+              <>
+                Xoá môn này
+                {isWarning(data) && isHoveringOnThisCell(data, 'MaLop') && (
+                  <>
+                    <br />
+                    hoặc Shift+Click để chỉ xoá slot thừa này
+                  </>
+                )}
+              </>
+            }
+            open={isHoveringOnThisCellRemoveIcon(data)}
+          >
+            <IconButton
+              onMouseEnter={() => setIsHoveringOnRemoveIcon(true)}
+              onMouseLeave={() => setIsHoveringOnRemoveIcon(false)}
+              onMouseDown={(e) => e.stopPropagation()}
+              onMouseUp={(e) => e.stopPropagation()}
+              style={{ position: 'absolute', top: 4, right: 4, zIndex: 10 }}
+              color="inherit"
+              size="small"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setIsConfirmOpen(true);
+              }}
+              className="remove-class-btn"
             >
-              <IconButton
-                onMouseEnter={() => setIsHoveringOnRemoveIcon(true)}
-                onMouseLeave={() => setIsHoveringOnRemoveIcon(false)}
-                onMouseDown={(e) => e.stopPropagation()}
-                onMouseUp={(e) => e.stopPropagation()}
-                style={{ position: 'absolute', top: 2, right: 2, zIndex: 10 }}
-                color="inherit"
-                size="small"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setIsConfirmOpen(true);
-                }}
-                className="remove-class-btn"
-              >
-                <DeleteOutlineIcon style={{ pointerEvents: 'none' }} />
-              </IconButton>
-            </Tooltip>
-          )}
-          <div className="class-cell-content">
-            <strong className="class-cell-code">
-              {MaLop}
-              {isWarning(data) && (
-                <Tooltip open={isHoveringOnThisCellWarningIcon(data)} title="Có vẻ như bạn đang chọn thừa cho môn này">
-                  <WarningAmberIcon
-                    onMouseEnter={() => setIsHoveringOnWarningIcon(true)}
-                    onMouseLeave={() => setIsHoveringOnWarningIcon(false)}
-                    style={{ color: getWarningColor(data) }}
-                  />
-                </Tooltip>
-              )}{' '}
-              - {NgonNgu}
+              <DeleteOutlineIcon style={{ pointerEvents: 'none' }} />
+            </IconButton>
+          </Tooltip>
+        )}
+        <div className="class-cell-content">
+          <strong className="class-cell-code">
+            {MaLop}
+            {isWarning(data) && (
+              <Tooltip open={isHoveringOnThisCellWarningIcon(data)} title="Có vẻ như bạn đang chọn thừa cho môn này">
+                <WarningAmberIcon
+                  onMouseEnter={() => setIsHoveringOnWarningIcon(true)}
+                  onMouseLeave={() => setIsHoveringOnWarningIcon(false)}
+                  style={{ color: getWarningColor(data) }}
+                />
+              </Tooltip>
+            )}{' '}
+            - {NgonNgu}
+          </strong>
+          {TenMH && <span className="class-cell-name">{TenMH}</span>}
+          {TenGV && <strong className="class-cell-secondary">{TenGV}</strong>}
+          {PhongHoc && <span className="class-cell-secondary">{PhongHoc}</span>}
+          {NBD && <span className="class-cell-secondary">BĐ: {NBD}</span>}
+          {NKT && <span className="class-cell-secondary">KT: {NKT}</span>}
+          {isOutsideTable && (
+            <strong className="class-cell-secondary">
+              Thứ {Thu} Tiết {Tiet}
             </strong>
-            {TenMH && <span className="class-cell-name">{TenMH}</span>}
-            {TenGV && <strong className="class-cell-secondary">{TenGV}</strong>}
-            {PhongHoc && <span className="class-cell-secondary">{PhongHoc}</span>}
-            {NBD && <span className="class-cell-secondary">BĐ: {NBD}</span>}
-            {NKT && <span className="class-cell-secondary">KT: {NKT}</span>}
-            {isOutsideTable && (
-              <strong className="class-cell-secondary">
-                Thứ {Thu} Tiết {Tiet}
-              </strong>
-            )}
-          </div>
+          )}
         </div>
 
         <Dialog
