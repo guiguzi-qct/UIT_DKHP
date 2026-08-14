@@ -198,10 +198,18 @@
   font-size: var(--text-sm);
 }
 .course-group-action {
-  flex: 0 0 auto;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #d4d4d8;
+  border-radius: 10px;
   color: #111;
-  font-size: var(--text-sm);
-  font-weight: 800;
+  background: rgba(255, 255, 255, 0.82);
+}
+.course-group-action svg {
+  font-size: 24px;
 }
 .course-option-list {
   padding: 8px;
@@ -268,13 +276,44 @@
   gap: 6px;
 }
 .course-option-action {
-  flex: 0 0 auto;
-  display: flex;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  display: grid;
   align-items: center;
-  gap: 3px;
+  justify-content: center;
+  border: 1px solid #d4d4d8;
+  border-radius: 10px;
   color: #111;
-  font-size: var(--text-xs);
+  background: #fff;
   font-weight: 800;
+}
+.course-option-action svg {
+  font-size: 23px;
+}
+.course-option:not(.course-option-conflict):hover .course-option-action,
+.course-option:not(.course-option-conflict):focus-visible .course-option-action {
+  border-color: #2563eb;
+  color: #fff;
+  background: #2563eb;
+}
+.course-option-action-conflict {
+  width: auto;
+  height: auto;
+  flex-basis: auto;
+  display: flex;
+  border: 0;
+  background: transparent;
+}
+.course-picker-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 .course-picker-empty {
   padding: 44px 20px;

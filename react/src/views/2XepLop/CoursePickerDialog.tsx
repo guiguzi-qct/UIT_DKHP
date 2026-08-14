@@ -1,3 +1,6 @@
+import AddIcon from '@mui/icons-material/Add';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import Button from '@mui/material/Button';
 import ButtonBase from '@mui/material/ButtonBase';
 import Chip from '@mui/material/Chip';
@@ -299,7 +302,10 @@ export default function CoursePickerDialog({ target, onClose }: Props) {
                       {group.courseCodes.join(', ') || 'Chưa có mã môn'} · {group.candidates.length} lớp
                     </small>
                   </span>
-                  <span className="course-group-action">{isExpanded ? 'Thu gọn' : 'Xem lớp'}</span>
+                  <span className="course-group-action" aria-hidden="true">
+                    {isExpanded ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+                  </span>
+                  <span className="course-picker-visually-hidden">{isExpanded ? 'Thu gọn' : 'Xem lớp'}</span>
                 </button>
 
                 {isExpanded && (
@@ -312,6 +318,7 @@ export default function CoursePickerDialog({ target, onClose }: Props) {
                           key={getCandidateKey(candidate)}
                           disabled={!!conflictReason}
                           onClick={() => chooseCandidate(candidate)}
+                          aria-label={conflictReason || `Chọn lớp ${candidate.MaLop}`}
                         >
                           <div className="course-option-main">
                             <strong>{candidate.MaLop}</strong>
@@ -325,7 +332,16 @@ export default function CoursePickerDialog({ target, onClose }: Props) {
                               {!!candidate.ThucHanh && <Chip size="small" variant="outlined" label="Thực hành" />}
                             </div>
                           </div>
-                          <span className="course-option-action">{conflictReason || 'Chọn'}</span>
+                          <span
+                            className={`course-option-action${conflictReason ? ' course-option-action-conflict' : ''}`}
+                          >
+                            {conflictReason || (
+                              <>
+                                <AddIcon aria-hidden="true" />
+                                <span className="course-picker-visually-hidden">Chọn</span>
+                              </>
+                            )}
+                          </span>
                         </ButtonBase>
                       );
                     })}

@@ -249,6 +249,12 @@ function Render({ interactive = false, onPickSlot }: InteractiveProps) {
         </div>
         <div className="timetable-scroll">
           <table ref={tkbTableRef}>
+            <colgroup>
+              <col className="timetable-period-column" />
+              {DAY_NUMBERS.map((thu) => (
+                <col key={thu} className="timetable-day-column" />
+              ))}
+            </colgroup>
             <TableHead />
             <tbody>
               {MAIN_GROUPS.flatMap((group) =>

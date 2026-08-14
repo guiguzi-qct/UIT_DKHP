@@ -150,7 +150,9 @@ function ClassCell({ data, isOutsideTable = false, interactive = false, onPick, 
     <Tooltip title={isRedundantRelated ? 'Bị trùng TKB' : null}>
       <td
         {...restProps}
-        className={clsx('cell-class', { 'cell-class-pickable': interactive,
+        className={clsx('cell-class', {
+          'cell-class-pickable': interactive,
+          'cell-class-unbounded': !restProps.rowSpan,
           'cell-class-hovering': isHoveringOnThisCell(data, 'MaMH'),
         })}
         role={interactive ? 'button' : undefined}
@@ -216,39 +218,31 @@ function ClassCell({ data, isOutsideTable = false, interactive = false, onPick, 
             </IconButton>
           </Tooltip>
         )}
-        <strong>
-          {MaLop}
-          {isWarning(data) && (
-            <Tooltip open={isHoveringOnThisCellWarningIcon(data)} title="Có vẻ như bạn đang chọn thừa cho môn này">
-              <WarningAmberIcon
-                onMouseEnter={() => setIsHoveringOnWarningIcon(true)}
-                onMouseLeave={() => setIsHoveringOnWarningIcon(false)}
-                style={{ color: getWarningColor(data) }}
-              />
-            </Tooltip>
-          )}{' '}
-          - {NgonNgu}
-        </strong>
-        <br />
-        {TenMH}
-        <br />
-        <strong>{TenGV}</strong>
-        <br />
-        {PhongHoc}
-        <br />
-        BĐ: {NBD}
-        <br />
-        KT: {NKT}
-        <br />
-        {isOutsideTable && (
-          <>
-            <br />
-            <strong>
+        <div className="class-cell-content">
+          <strong className="class-cell-code">
+            {MaLop}
+            {isWarning(data) && (
+              <Tooltip open={isHoveringOnThisCellWarningIcon(data)} title="Có vẻ như bạn đang chọn thừa cho môn này">
+                <WarningAmberIcon
+                  onMouseEnter={() => setIsHoveringOnWarningIcon(true)}
+                  onMouseLeave={() => setIsHoveringOnWarningIcon(false)}
+                  style={{ color: getWarningColor(data) }}
+                />
+              </Tooltip>
+            )}{' '}
+            - {NgonNgu}
+          </strong>
+          {TenMH && <span className="class-cell-name">{TenMH}</span>}
+          {TenGV && <strong className="class-cell-secondary">{TenGV}</strong>}
+          {PhongHoc && <span className="class-cell-secondary">{PhongHoc}</span>}
+          {NBD && <span className="class-cell-secondary">BĐ: {NBD}</span>}
+          {NKT && <span className="class-cell-secondary">KT: {NKT}</span>}
+          {isOutsideTable && (
+            <strong className="class-cell-secondary">
               Thứ {Thu} Tiết {Tiet}
             </strong>
-            <br />
-          </>
-        )}
+          )}
+        </div>
       </td>
     </Tooltip>
   );
