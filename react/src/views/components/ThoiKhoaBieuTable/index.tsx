@@ -176,12 +176,12 @@ function MainPeriodRow({
 function OnlineRow({ rows, interactive, onPickSlot }: { rows: RowData[] } & InteractiveProps) {
   const row = rows[tietOnline.index];
   const isEmpty = Object.values(row).every((cell) => cell === CELL.NO_CLASS);
-  if (isEmpty) return null;
+  if (isEmpty && !interactive) return null;
 
   return (
     <tr className="online-row">
       <td className="cell-tiet">
-        <strong>Online</strong>
+        <strong>Tiết 11</strong>
       </td>
       {DAY_NUMBERS.map((thu) => (
         <GetCell
@@ -189,7 +189,7 @@ function OnlineRow({ rows, interactive, onPickSlot }: { rows: RowData[] } & Inte
           data={row[getDayKey(thu)]}
           thu={thu}
           tiets={[tietOnline.stringValue]}
-          label="Online"
+          label="Tiết 11"
           interactive={interactive}
           onPickSlot={onPickSlot}
         />
@@ -203,6 +203,8 @@ function Render({ interactive = false, onPickSlot }: InteractiveProps) {
   const location = useLocation();
   const { tkbTableRef, saveTkbImageToComputer, copyTkbImageToClipboard } = useProcessImageTkb();
   const isInStep2 = location.pathname === ROUTES._2XepLop.path;
+
+  const extraClasses = khongHocTrenTruong.concat(redundant.flatMap((it) => it.new));
 
   return (
     <ClassCellContext>
@@ -224,13 +226,6 @@ function Render({ interactive = false, onPickSlot }: InteractiveProps) {
           </div>
         )}
 
-        <div className="redundant-class-list">
-          {redundant
-            .flatMap((it) => it.new)
-            .map((lop) => (
-              <ClassCell key={`${lop.MaLop}-${lop.Thu}-${lop.Tiet}`} data={lop} isOutsideTable />
-            ))}
-        </div>
         <div className="timetable-scroll">
           <table ref={tkbTableRef}>
             <colgroup>
@@ -257,26 +252,32 @@ function Render({ interactive = false, onPickSlot }: InteractiveProps) {
                 }),
               )}
               <OnlineRow rows={rowDataHocTrenTruong} interactive={interactive} onPickSlot={onPickSlot} />
-              {khongHocTrenTruong.map((lop) => (
-                <tr key={`${lop.MaLop}-${lop.Thu}-${lop.Tiet}`}>
-                  <ClassCell
-                    colSpan={7}
-                    data={lop}
-                    interactive={interactive}
-                    onPick={() =>
-                      onPickSlot?.({
-                        thu: Number(lop.Thu) || 2,
-                        tiets: getDanhSachTiet(lop.Tiet),
-                        label: 'Lịch chưa cố định',
-                        existing: lop,
-                      })
-                    }
-                  />
-                </tr>
-              ))}
             </tbody>
           </table>
         </div>
+
+        {extraClasses.length > 0 && (
+          <div className="extra-classes-grid-row">
+            <span className="extra-classes-label">Môn chưa có tiết cố định / Đồ án:</span>
+            <div className="extra-classes-list">
+              {extraClasses.map((lop) => (
+                <ClassCell
+                  key={`${lop.MaLop}-${lop.Thu}-${lop.Tiet}`}
+                  data={lop}
+                  interactive={interactive}
+                  onPick={() =>
+                    onPickSlot?.({
+                      thu: Number(lop.Thu) || 2,
+                      tiets: getDanhSachTiet(lop.Tiet),
+                      label: 'Lịch chưa cố định',
+                      existing: lop,
+                    })
+                  }
+                />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </ClassCellContext>
   );

@@ -4,7 +4,6 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import EditIcon from '@mui/icons-material/Edit';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import Badge from '@mui/material/Badge';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -39,7 +38,6 @@ export default function PlanSelectorBar() {
   const deletePlan = useTkbStore((s) => s.deletePlan);
 
   const activePlan = plans.find((p) => p.id === activePlanId) || plans[0];
-  const activeClassCount = activePlan?.selectedClasses?.length || 0;
 
   const [fabAnchorEl, setFabAnchorEl] = useState<HTMLElement | null>(null);
   const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement | null>(null);
@@ -47,6 +45,7 @@ export default function PlanSelectorBar() {
 
   const [isRenameDialogOpen, setIsRenameDialogOpen] = useState(false);
   const [renameInput, setRenameInput] = useState('');
+  const [isConfirmDeleteDialogOpen, setIsConfirmDeleteDialogOpen] = useState(false);
 
   const isPopoverOpen = Boolean(fabAnchorEl);
 
@@ -107,29 +106,34 @@ export default function PlanSelectorBar() {
     setIsRenameDialogOpen(false);
   };
 
-  const handleDelete = () => {
+  const handleOpenDeleteConfirm = () => {
+    setIsConfirmDeleteDialogOpen(true);
+    handleCloseMenu();
+  };
+
+  const handleConfirmDelete = () => {
     if (selectedPlanId) {
       const target = plans.find((p) => p.id === selectedPlanId);
       deletePlan(selectedPlanId);
       enqueueSnackbar(`Đã xóa ${target?.name || 'phương án'}`, { variant: 'info' });
     }
-    handleCloseMenu();
+    setIsConfirmDeleteDialogOpen(false);
   };
+
+  const targetPlanToDelete = plans.find((p) => p.id === selectedPlanId);
 
   return (
     <>
       <div className="floating-plan-fab-wrap">
-        <Badge badgeContent={activeClassCount} color="primary" overlap="circular">
-          <Fab
-            variant="extended"
-            size="medium"
-            className="floating-plan-fab"
-            onClick={handleOpenPopover}
-            aria-label="Chọn phương án thời khóa biểu"
-          >
-            <span className="fab-plan-title">{activePlan?.name || 'Phương án'}</span>
-          </Fab>
-        </Badge>
+        <Fab
+          variant="extended"
+          size="medium"
+          className="floating-plan-fab"
+          onClick={handleOpenPopover}
+          aria-label="Chọn phương án thời khóa biểu"
+        >
+          <span className="fab-plan-title">{activePlan?.name || 'Phương án'}</span>
+        </Fab>
       </div>
 
       <Popover
@@ -228,7 +232,7 @@ export default function PlanSelectorBar() {
           <ListItemText>Tạo bản sao</ListItemText>
         </MenuItem>
         {plans.length > 1 && (
-          <MenuItem onClick={handleDelete} sx={{ color: 'error.main' }}>
+          <MenuItem onClick={handleOpenDeleteConfirm} sx={{ color: 'error.main' }}>
             <ListItemIcon sx={{ color: 'error.main' }}>
               <DeleteOutlineIcon fontSize="small" />
             </ListItemIcon>
@@ -259,6 +263,21 @@ export default function PlanSelectorBar() {
           <Button onClick={() => setIsRenameDialogOpen(false)}>Hủy</Button>
           <Button variant="contained" onClick={handleSaveRename} disabled={!renameInput.trim()}>
             Lưu
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={isConfirmDeleteDialogOpen} onClose={() => setIsConfirmDeleteDialogOpen(false)} maxWidth="xs" fullWidth>
+        <DialogTitle>Xác nhận xóa phương án</DialogTitle>
+        <DialogContent dividers>
+          <Typography variant="body2">
+            Bạn có chắc chắn muốn xóa <strong>{targetPlanToDelete?.name || 'phương án này'}</strong> không? Thao tác này không thể hoàn tác.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setIsConfirmDeleteDialogOpen(false)}>Hủy</Button>
+          <Button color="error" variant="contained" onClick={handleConfirmDelete}>
+            Xóa phương án
           </Button>
         </DialogActions>
       </Dialog>
