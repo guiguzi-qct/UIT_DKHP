@@ -137,7 +137,7 @@ function ClassCell({ data, isOutsideTable = false, interactive = false, onPick, 
         onClick={
           interactive
             ? (e) => {
-                if (isHoveringOnRemoveIcon || (e.target as HTMLElement).closest('.remove-class-btn')) {
+                if (isHoveringOnThisCellRemoveIcon(data) || (e.target as HTMLElement).closest('.remove-class-btn')) {
                   e.stopPropagation();
                   return;
                 }
