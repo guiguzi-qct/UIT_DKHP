@@ -27,7 +27,7 @@
 .timetable-scroll {
   width: 100%;
   overflow: auto;
-  border: 1px solid #D5E0E8;
+  border: 1px solid #B8CBD8;
   border-radius: 14px;
   background: #ffffff;
   overscroll-behavior-inline: contain;
@@ -50,7 +50,7 @@
 #thoi-khoa-bieu th,
 #thoi-khoa-bieu td {
   padding: 10px 8px;
-  border: 1px solid #D5E0E8 !important;
+  border: 1px solid #B8CBD8 !important;
 }
 #thoi-khoa-bieu .main-period-row {
   height: 64px;
@@ -111,7 +111,7 @@
   border-radius: 12px !important;
   color: #0E2128;
   background: #F4F7F9 !important;
-  border: 1.5px solid #ADBECC !important;
+  border: 1.5px solid #8EA5B7 !important;
   box-shadow: 0 4px 14px rgba(14, 33, 40, 0.05);
   box-sizing: border-box;
   overflow: hidden;
@@ -154,12 +154,14 @@
   min-height: 96px;
 }
 #thoi-khoa-bieu .cell-class-wrapper .remove-class-btn {
-  opacity: 0.15;
-  transition: opacity 120ms ease;
+  opacity: 0.45;
+  color: #59899D;
+  transition: all 120ms ease;
 }
 #thoi-khoa-bieu .cell-class-hovering .remove-class-btn,
 #thoi-khoa-bieu .cell-class-wrapper:hover .remove-class-btn {
   opacity: 1;
+  color: #ef4444;
 }
 #thoi-khoa-bieu .empty-schedule-slot {
   position: relative;
@@ -179,7 +181,7 @@
   align-items: center;
   justify-content: center;
   gap: 4px;
-  border: 1.5px dashed #ADBECC;
+  border: 1.5px dashed #8EA5B7;
   border-radius: 10px;
   color: #17333F;
   background: #F4F7F9;
