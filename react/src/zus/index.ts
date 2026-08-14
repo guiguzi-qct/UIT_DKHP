@@ -42,6 +42,7 @@ type TkbStore = {
   duplicatePlan: (id: string) => void;
   renamePlan: (id: string, name: string) => void;
   deletePlan: (id: string) => void;
+  resetAllData: () => void;
 };
 
 const getDefaultPlans = (state: Partial<TkbStore>): TimetablePlan[] => [
@@ -221,6 +222,25 @@ export const useTkbStore = create<TkbStore>()(
           selectedClasses: activePlan.selectedClasses || [],
           isChiVeTkb: activePlan.isChiVeTkb || false,
           textareaChiVeTkb: activePlan.textareaChiVeTkb || '',
+        });
+      },
+
+      resetAllData: () => {
+        set({
+          dataExcel: null,
+          selectedClasses: [],
+          isChiVeTkb: false,
+          textareaChiVeTkb: '',
+          plans: [
+            {
+              id: 'plan_a',
+              name: 'Phương án A',
+              selectedClasses: [],
+              isChiVeTkb: false,
+              textareaChiVeTkb: '',
+            },
+          ],
+          activePlanId: 'plan_a',
         });
       },
     }),

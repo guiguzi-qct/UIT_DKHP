@@ -21,11 +21,6 @@ function Index() {
 
   return (
     <section className="page-wrap upload-page">
-      <header className="page-heading">
-        <h1>Bắt đầu xếp thời khóa biểu</h1>
-        <p>Tải file Excel từ trang ĐKHP UIT hoặc dán danh sách mã lớp để xem lịch.</p>
-      </header>
-
       <SelectExcelButton />
 
       {dataExcel && (

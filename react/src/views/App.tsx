@@ -1,12 +1,24 @@
+import NightsStayOutlinedIcon from '@mui/icons-material/NightsStayOutlined';
+import RotateLeftIcon from '@mui/icons-material/RotateLeft';
+import WbSunnyOutlinedIcon from '@mui/icons-material/WbSunnyOutlined';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import IconButton from '@mui/material/IconButton';
 import LinearProgress from '@mui/material/LinearProgress';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Toolbar from '@mui/material/Toolbar';
+import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
-import React, { Suspense } from 'react';
-import { BrowserRouter, Redirect, Route, useLocation } from 'react-router-dom';
+import { useSnackbar } from 'notistack';
+import React, { Suspense, useEffect, useState } from 'react';
+import { BrowserRouter, Redirect, Route, useHistory, useLocation } from 'react-router-dom';
 import { ROUTES } from '../constants';
 import { selectFinalDataTkb, selectIsChiVeTkb, selectTextareaChiVeTkb, useTkbStore } from '../zus';
 import ChonFileExcel from './1ChonFileExcel';
@@ -81,6 +93,73 @@ function FallbackRoute() {
   return hasAnyMatch ? null : <Redirect to={ROUTES._1ChonFileExcel.path} />;
 }
 
+function HeaderActions() {
+  const history = useHistory();
+  const { enqueueSnackbar } = useSnackbar();
+  const resetAllData = useTkbStore((s) => s.resetAllData);
+  const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
+  const [darkMode, setDarkMode] = useState<boolean>(() => {
+    return localStorage.getItem('theme_mode') === 'dark';
+  });
+
+  useEffect(() => {
+    if (darkMode) {
+      document.body.classList.add('dark-mode');
+      localStorage.setItem('theme_mode', 'dark');
+    } else {
+      document.body.classList.remove('dark-mode');
+      localStorage.setItem('theme_mode', 'light');
+    }
+  }, [darkMode]);
+
+  const handleConfirmReset = () => {
+    resetAllData();
+    setIsResetConfirmOpen(false);
+    enqueueSnackbar('Đã đặt lại dữ liệu thành công', { variant: 'success' });
+    history.push(ROUTES._1ChonFileExcel.path);
+  };
+
+  return (
+    <Box className="header-actions">
+      <Tooltip title="Đặt lại toàn bộ dữ liệu">
+        <Button
+          variant="outlined"
+          size="small"
+          className="header-action-btn reset-btn"
+          startIcon={<RotateLeftIcon />}
+          onClick={() => setIsResetConfirmOpen(true)}
+        >
+          Đặt lại
+        </Button>
+      </Tooltip>
+
+      <Tooltip title={darkMode ? 'Chuyển sang giao diện Sáng' : 'Chuyển sang giao diện Tối'}>
+        <IconButton
+          className="header-action-btn theme-toggle-btn"
+          onClick={() => setDarkMode((prev) => !prev)}
+        >
+          {darkMode ? <WbSunnyOutlinedIcon style={{ color: '#fbbf24' }} /> : <NightsStayOutlinedIcon />}
+        </IconButton>
+      </Tooltip>
+
+      <Dialog open={isResetConfirmOpen} onClose={() => setIsResetConfirmOpen(false)}>
+        <DialogTitle fontWeight={800}>Xác nhận đặt lại dữ liệu?</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Tất cả file Excel đã tải, các môn đã chọn và các phương án xếp lịch của bạn sẽ bị xóa. Bạn có muốn tiếp tục không?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setIsResetConfirmOpen(false)}>Hủy</Button>
+          <Button variant="contained" color="error" onClick={handleConfirmReset} autoFocus>
+            Xác nhận xóa & làm lại
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
+  );
+}
+
 function App() {
   const dataTkb = useTkbStore(selectFinalDataTkb);
   const isChiVeTkb = useTkbStore(selectIsChiVeTkb);
@@ -91,35 +170,32 @@ function App() {
     <ErrorBoundary>
       <ThemeProvider theme={customTheme}>
         <BrowserRouter basename={process.env.PUBLIC_URL}>
-        <Box className="app-shell">
-          <Route component={ScrollToTop} />
-          <AppBar className="app-header" position="sticky" elevation={0}>
-            <Toolbar className="app-toolbar">
-              <Box className="brand-lockup">
-                <img className="brand-mark" src={`${process.env.PUBLIC_URL}/logo.png`} alt="UIT no Jikan logo" />
-                <Typography className="brand-name">UIT no Jikan</Typography>
-              </Box>
+          <Box className="app-shell">
+            <Route component={ScrollToTop} />
+            <AppBar className="app-header" position="sticky" elevation={0}>
+              <Toolbar className="app-toolbar">
+                <Box className="brand-lockup">
+                  <img className="brand-mark" src={`${process.env.PUBLIC_URL}/logo.png`} alt="UIT no Jikan logo" />
+                  <Typography className="brand-name">UIT no Jikan</Typography>
+                </Box>
 
-              <WorkflowNav />
+                <WorkflowNav />
 
-              <Box className="header-status-badge">
-                <span className="status-live-dot" />
-                <span>Lưu trên máy</span>
-              </Box>
-            </Toolbar>
-          </AppBar>
-          <Container className="app-container" maxWidth={false}>
-            <main className="app-content">
-              <Suspense fallback={<LinearProgress className="route-loader" />}>
-              <PersistedRoute path={ROUTES._1ChonFileExcel.path} component={ChonFileExcel} />
-              <PersistedRoute path={ROUTES._2XepLop.path} component={hasData ? XepLop : NeedStep1Warning} />
-              <PersistedRoute path={ROUTES._3KetQua.path} component={hasData ? KetQua : NeedStep1Warning} />
-              <FallbackRoute />
-              </Suspense>
-            </main>
-          </Container>
-        </Box>
-      </BrowserRouter>
+                <HeaderActions />
+              </Toolbar>
+            </AppBar>
+            <Container className="app-container" maxWidth={false}>
+              <main className="app-content">
+                <Suspense fallback={<LinearProgress className="route-loader" />}>
+                  <PersistedRoute path={ROUTES._1ChonFileExcel.path} component={ChonFileExcel} />
+                  <PersistedRoute path={ROUTES._2XepLop.path} component={hasData ? XepLop : NeedStep1Warning} />
+                  <PersistedRoute path={ROUTES._3KetQua.path} component={hasData ? KetQua : NeedStep1Warning} />
+                  <FallbackRoute />
+                </Suspense>
+              </main>
+            </Container>
+          </Box>
+        </BrowserRouter>
       </ThemeProvider>
     </ErrorBoundary>
   );
