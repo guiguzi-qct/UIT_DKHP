@@ -145,6 +145,7 @@
   overscroll-behavior: contain;
 }
 .course-group {
+  flex: 0 0 auto;
   overflow: hidden;
   border: 1px solid #e4e4e7;
   border-radius: 13px;
