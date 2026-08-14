@@ -243,9 +243,9 @@
   bottom: 0;
   left: 0;
   width: 100%;
-  z-index: 5;
+  z-index: 15;
   padding: 6px 4px;
-  border-radius: 0 0 10px 10px;
+  border-radius: 0;
   color: #ffffff;
   background: #0E2128;
   font-size: var(--text-xs);

@@ -153,46 +153,47 @@ function ClassCell({ data, isOutsideTable = false, interactive = false, onPick, 
             : undefined
         }
       >
+        {interactive && (
+          <Tooltip
+            title={
+              <>
+                Xoá môn này
+                {isWarning(data) && isHoveringOnThisCell(data, 'MaLop') && (
+                  <>
+                    <br />
+                    hoặc Shift+Click để chỉ xoá slot thừa này
+                  </>
+                )}
+              </>
+            }
+            open={isHoveringOnThisCellRemoveIcon(data)}
+          >
+            <IconButton
+              onMouseEnter={() => setIsHoveringOnRemoveIcon(true)}
+              onMouseLeave={() => setIsHoveringOnRemoveIcon(false)}
+              onMouseDown={(e) => e.stopPropagation()}
+              onMouseUp={(e) => e.stopPropagation()}
+              style={{ position: 'absolute', top: 6, right: 6, zIndex: 10 }}
+              color="inherit"
+              size="small"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setIsConfirmOpen(true);
+              }}
+              className="remove-class-btn"
+            >
+              <DeleteOutlineIcon style={{ pointerEvents: 'none' }} />
+            </IconButton>
+          </Tooltip>
+        )}
+
         <div
           className="class-cell-card"
           style={{
             boxShadow: isRedundantRelated ? `inset 0 0 0 3px ${randomColors[redundantIndex]}` : undefined,
           }}
         >
-          {interactive && (
-            <Tooltip
-              title={
-                <>
-                  Xoá môn này
-                  {isWarning(data) && isHoveringOnThisCell(data, 'MaLop') && (
-                    <>
-                      <br />
-                      hoặc Shift+Click để chỉ xoá slot thừa này
-                    </>
-                  )}
-                </>
-              }
-              open={isHoveringOnThisCellRemoveIcon(data)}
-            >
-              <IconButton
-                onMouseEnter={() => setIsHoveringOnRemoveIcon(true)}
-                onMouseLeave={() => setIsHoveringOnRemoveIcon(false)}
-                onMouseDown={(e) => e.stopPropagation()}
-                onMouseUp={(e) => e.stopPropagation()}
-                style={{ position: 'absolute', top: 2, right: 2, zIndex: 10 }}
-                color="inherit"
-                size="small"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setIsConfirmOpen(true);
-                }}
-                className="remove-class-btn"
-              >
-                <DeleteOutlineIcon style={{ pointerEvents: 'none' }} />
-              </IconButton>
-            </Tooltip>
-          )}
           <div className="class-cell-content">
             <strong className="class-cell-code">
               {MaLop}
@@ -218,8 +219,9 @@ function ClassCell({ data, isOutsideTable = false, interactive = false, onPick, 
               </strong>
             )}
           </div>
-          {interactive && <span className="cell-picker-hint">Click để đổi lớp</span>}
         </div>
+
+        {interactive && <span className="cell-picker-hint">Click để đổi lớp</span>}
 
         <Dialog
           open={isConfirmOpen}
