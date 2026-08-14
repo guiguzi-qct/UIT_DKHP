@@ -268,14 +268,14 @@
   height: 64px;
 }
 #thoi-khoa-bieu .online-row-cell {
-  padding: 8px !important;
-  background: #F4F7F9 !important;
+  position: relative;
+  padding: 0 !important;
+  background: #ffffff !important;
   vertical-align: middle;
 }
-#thoi-khoa-bieu .online-row-empty {
-  color: #59899D;
-  font-size: 13px;
-  font-weight: 600;
+#thoi-khoa-bieu .online-row-cell:has(.online-classes-flex) {
+  padding: 8px !important;
+  background: #F4F7F9 !important;
 }
 #thoi-khoa-bieu .online-classes-flex {
   display: flex;
