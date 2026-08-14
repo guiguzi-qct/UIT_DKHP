@@ -134,15 +134,15 @@
 #thoi-khoa-bieu .class-cell-name {
   display: block;
   margin-top: 2px;
-  color: #040309;
+  color: #1C2A33;
   font-size: 13px;
   font-weight: 600;
 }
 #thoi-khoa-bieu .class-cell-secondary {
   display: block;
   margin-top: 2px;
-  color: #17333F;
-  font-size: 12.5px;
+  color: #3B6275;
+  font-size: 12px;
   font-weight: 600;
 }
 #thoi-khoa-bieu .cell-class-unbounded {
