@@ -12,13 +12,6 @@ function Index() {
 
   return (
     <section className="page-wrap wide result-page">
-      <header className="page-heading result-heading">
-        <div>
-          <h1>Thời khóa biểu của bạn</h1>
-          <p>Kiểm tra lần cuối, tải ảnh để lưu, hoặc chia sẻ mã lớp cho bạn bè.</p>
-        </div>
-      </header>
-
       <PlanSelectorBar />
 
       <Paper className="surface-card class-source-card">
