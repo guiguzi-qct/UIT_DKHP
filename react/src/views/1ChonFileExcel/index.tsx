@@ -1,7 +1,5 @@
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import UploadFileOutlinedIcon from '@mui/icons-material/UploadFileOutlined';
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -24,8 +22,8 @@ function Index() {
   return (
     <section className="page-wrap upload-page">
       <header className="page-heading">
-        <h1>Bắt đầu với thời khóa biểu UIT</h1>
-        <p>UIT no Jikan xử lý dữ liệu trực tiếp trên trình duyệt, giúp bạn tìm lớp, xếp lịch không lo trùng và chia sẻ mã lớp dễ dàng.</p>
+        <h1>Bắt đầu xếp thời khóa biểu</h1>
+        <p>Tải file Excel từ trang ĐKHP UIT hoặc dán danh sách mã lớp để xem lịch.</p>
       </header>
 
       <SelectExcelButton />
@@ -46,44 +44,23 @@ function Index() {
         </Paper>
       )}
 
-      <div className="step1-guide-grid">
-        <Paper className="surface-card guide-card">
-          <div className="guide-card-header">
-            <span className="guide-card-badge primary">Cách 1</span>
-            <UploadFileOutlinedIcon color="primary" />
-          </div>
-          <Typography fontWeight={700} variant="h6">Tải file Excel từ trường (ĐKHP UIT)</Typography>
-          <Typography variant="body2" color="text.secondary">
-            Tải file <strong>.xlsx</strong> thời khóa biểu từ trang ĐKHP của trường UIT. Tất cả lớp học phần sẽ được đọc để bạn chọn và xem trực quan ở Bước 2.
-          </Typography>
-        </Paper>
-
-        <Paper className="surface-card guide-card">
-          <div className="guide-card-header">
-            <span className="guide-card-badge secondary">Cách 2</span>
-            <EditOutlinedIcon color="action" />
-          </div>
-          <Typography fontWeight={700} variant="h6">Tự nhập / Dán mã lớp từ bạn bè</Typography>
-          <Typography variant="body2" color="text.secondary">
-            Phù hợp khi tạo lịch mới bằng danh sách mã lớp có sẵn hoặc bạn bè gửi cho. Bạn có thể dán danh sách mã lớp và chỉnh sửa bất kỳ lúc nào.
-          </Typography>
-          <Button
-            variant="outlined"
-            size="small"
-            startIcon={<EditOutlinedIcon />}
-            onClick={() => {
-              setIsChiVeTkb(true);
-              history.push(ROUTES._3KetQua.path);
-            }}
-            className="guide-card-action"
-          >
-            Dán / Nhập mã lớp ngay
-          </Button>
-        </Paper>
+      <div className="manual-entry-shortcut">
+        <span>Hoặc dán mã lớp có sẵn từ bạn bè?</span>
+        <Button
+          variant="text"
+          color="primary"
+          endIcon={<ArrowForwardIcon fontSize="small" />}
+          onClick={() => {
+            setIsChiVeTkb(true);
+            history.push(ROUTES._3KetQua.path);
+          }}
+        >
+          Dán mã lớp ngay
+        </Button>
       </div>
 
       <Alert className="privacy-alert" icon={<LockOutlinedIcon />} severity="info">
-        File và danh sách lớp chỉ được xử lý, lưu trên trình duyệt của bạn. Lớp chưa có THỨ hoặc TIẾT vẫn chọn được nhưng không đưa vào lưới lịch.
+        Dữ liệu chỉ được xử lý trên trình duyệt của bạn.
       </Alert>
     </section>
   );

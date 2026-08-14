@@ -1,21 +1,22 @@
 import AddIcon from '@mui/icons-material/Add';
+import CheckIcon from '@mui/icons-material/Check';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import EditIcon from '@mui/icons-material/Edit';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import StarIcon from '@mui/icons-material/Star';
+import Badge from '@mui/material/Badge';
 import Button from '@mui/material/Button';
-import Chip from '@mui/material/Chip';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
+import Fab from '@mui/material/Fab';
 import IconButton from '@mui/material/IconButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-import Paper from '@mui/material/Paper';
+import Popover from '@mui/material/Popover';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { enqueueSnackbar } from 'notistack';
@@ -37,20 +38,34 @@ export default function PlanSelectorBar() {
   const renamePlan = useTkbStore((s) => s.renamePlan);
   const deletePlan = useTkbStore((s) => s.deletePlan);
 
-  const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null);
+  const activePlan = plans.find((p) => p.id === activePlanId) || plans[0];
+  const activeClassCount = activePlan?.selectedClasses?.length || 0;
+
+  const [fabAnchorEl, setFabAnchorEl] = useState<HTMLElement | null>(null);
+  const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement | null>(null);
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
 
   const [isRenameDialogOpen, setIsRenameDialogOpen] = useState(false);
   const [renameInput, setRenameInput] = useState('');
 
+  const isPopoverOpen = Boolean(fabAnchorEl);
+
+  const handleOpenPopover = (event: React.MouseEvent<HTMLElement>) => {
+    setFabAnchorEl(event.currentTarget);
+  };
+
+  const handleClosePopover = () => {
+    setFabAnchorEl(null);
+  };
+
   const handleOpenMenu = (event: React.MouseEvent<HTMLElement>, planId: string) => {
     event.stopPropagation();
     setSelectedPlanId(planId);
-    setMenuAnchor(event.currentTarget);
+    setMenuAnchorEl(event.currentTarget);
   };
 
   const handleCloseMenu = () => {
-    setMenuAnchor(null);
+    setMenuAnchorEl(null);
   };
 
   const handleSelectPlan = (id: string) => {
@@ -102,71 +117,109 @@ export default function PlanSelectorBar() {
   };
 
   return (
-    <Paper className="surface-card plan-selector-card">
-      <div className="plan-selector-header">
-        <Typography variant="subtitle2" fontWeight={700} className="plan-selector-title">
-          📁 Các phương án thời khóa biểu ({plans.length})
-        </Typography>
+    <>
+      <div className="floating-plan-fab-wrap">
+        <Badge badgeContent={activeClassCount} color="primary" overlap="circular">
+          <Fab
+            variant="extended"
+            size="medium"
+            className="floating-plan-fab"
+            onClick={handleOpenPopover}
+            aria-label="Chọn phương án thời khóa biểu"
+          >
+            <span className="fab-plan-title">{activePlan?.name || 'Phương án'}</span>
+          </Fab>
+        </Badge>
       </div>
 
-      <div className="plan-chip-list">
-        {plans.map((plan) => {
-          const isActive = plan.id === activePlanId;
-          const classCount = plan.selectedClasses?.length || 0;
-          const tcCount = calcTongSoTC(plan.selectedClasses || []);
+      <Popover
+        open={isPopoverOpen}
+        anchorEl={fabAnchorEl}
+        onClose={handleClosePopover}
+        anchorOrigin={{
+          vertical: 'top',
+          horizontal: 'right',
+        }}
+        transformOrigin={{
+          vertical: 'bottom',
+          horizontal: 'right',
+        }}
+        PaperProps={{
+          className: 'floating-plan-popover-paper',
+        }}
+      >
+        <div className="popover-plan-header">
+          <Typography variant="subtitle2" fontWeight={700}>
+            Phương án thời khóa biểu ({plans.length})
+          </Typography>
+        </div>
 
-          return (
-            <div
-              key={plan.id}
-              className={`plan-chip ${isActive ? 'active' : ''}`}
-              onClick={() => handleSelectPlan(plan.id)}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  handleSelectPlan(plan.id);
-                }
-              }}
-            >
-              <span className="plan-chip-icon">{isActive ? <StarIcon fontSize="small" color="primary" /> : '📁'}</span>
-              <span className="plan-chip-name">{plan.name}</span>
-              <Chip
-                size="small"
-                className="plan-chip-badge"
-                label={`${classCount} lớp${tcCount ? ` · ${tcCount} TC` : ''}`}
-                color={isActive ? 'primary' : 'default'}
-                variant={isActive ? 'filled' : 'outlined'}
-              />
-              <IconButton
-                size="small"
-                className="plan-chip-menu-btn"
-                onClick={(e) => handleOpenMenu(e, plan.id)}
-                aria-label="Tùy chọn phương án"
+        <div className="popover-plan-list">
+          {plans.map((plan) => {
+            const isActive = plan.id === activePlanId;
+            const classCount = plan.selectedClasses?.length || 0;
+            const tcCount = calcTongSoTC(plan.selectedClasses || []);
+
+            return (
+              <div
+                key={plan.id}
+                className={`popover-plan-item ${isActive ? 'active' : ''}`}
+                onClick={() => handleSelectPlan(plan.id)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleSelectPlan(plan.id);
+                  }
+                }}
               >
-                <MoreVertIcon fontSize="small" />
-              </IconButton>
-            </div>
-          );
-        })}
+                <div className="plan-item-left">
+                  <span className="plan-check-icon">
+                    {isActive ? <CheckIcon fontSize="small" color="primary" /> : null}
+                  </span>
+                  <div className="plan-item-info">
+                    <Typography variant="body2" fontWeight={isActive ? 700 : 500}>
+                      {plan.name}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      {classCount} lớp {tcCount ? `· ${tcCount} TC` : ''}
+                    </Typography>
+                  </div>
+                </div>
 
-        <Button
-          variant="outlined"
-          size="small"
-          startIcon={<AddIcon />}
-          onClick={handleCreate}
-          className="plan-add-btn"
-        >
-          Thêm phương án
-        </Button>
-      </div>
+                <IconButton
+                  size="small"
+                  className="plan-item-menu-btn"
+                  onClick={(e) => handleOpenMenu(e, plan.id)}
+                  aria-label="Tùy chọn phương án"
+                >
+                  <MoreVertIcon fontSize="small" />
+                </IconButton>
+              </div>
+            );
+          })}
+        </div>
 
-      <Menu anchorEl={menuAnchor} open={Boolean(menuAnchor)} onClose={handleCloseMenu}>
+        <div className="popover-plan-footer">
+          <Button
+            fullWidth
+            variant="outlined"
+            size="small"
+            startIcon={<AddIcon />}
+            onClick={handleCreate}
+          >
+            Thêm phương án mới
+          </Button>
+        </div>
+      </Popover>
+
+      <Menu anchorEl={menuAnchorEl} open={Boolean(menuAnchorEl)} onClose={handleCloseMenu}>
         <MenuItem onClick={handleOpenRename}>
           <ListItemIcon>
             <EditIcon fontSize="small" />
           </ListItemIcon>
-          <ListItemText>Đổi tên phương án</ListItemText>
+          <ListItemText>Đổi tên</ListItemText>
         </MenuItem>
         <MenuItem onClick={handleDuplicate}>
           <ListItemIcon>
@@ -179,7 +232,7 @@ export default function PlanSelectorBar() {
             <ListItemIcon sx={{ color: 'error.main' }}>
               <DeleteOutlineIcon fontSize="small" />
             </ListItemIcon>
-            <ListItemText>Xóa phương án này</ListItemText>
+            <ListItemText>Xóa phương án</ListItemText>
           </MenuItem>
         )}
       </Menu>
@@ -209,6 +262,6 @@ export default function PlanSelectorBar() {
           </Button>
         </DialogActions>
       </Dialog>
-    </Paper>
+    </>
   );
 }
