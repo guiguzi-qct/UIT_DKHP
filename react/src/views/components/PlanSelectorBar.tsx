@@ -3,6 +3,8 @@ import CheckIcon from '@mui/icons-material/Check';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import EditIcon from '@mui/icons-material/Edit';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
@@ -36,6 +38,7 @@ export default function PlanSelectorBar() {
   const duplicatePlan = useTkbStore((s) => s.duplicatePlan);
   const renamePlan = useTkbStore((s) => s.renamePlan);
   const deletePlan = useTkbStore((s) => s.deletePlan);
+  const movePlan = useTkbStore((s) => s.movePlan);
 
   const activePlanIndex = plans.findIndex((p) => p.id === activePlanId);
   const displayPlanNumber = activePlanIndex >= 0 ? activePlanIndex + 1 : 1;
@@ -159,7 +162,7 @@ export default function PlanSelectorBar() {
         </div>
 
         <div className="popover-plan-list">
-          {plans.map((plan) => {
+          {plans.map((plan, index) => {
             const isActive = plan.id === activePlanId;
             const classCount = plan.selectedClasses?.length || 0;
             const tcCount = calcTongSoTC(plan.selectedClasses || []);
@@ -179,6 +182,7 @@ export default function PlanSelectorBar() {
                 }}
               >
                 <div className="plan-item-left">
+                  <span className="plan-item-badge">{index + 1}</span>
                   <span className="plan-check-icon">
                     {isActive ? <CheckIcon fontSize="small" color="primary" /> : null}
                   </span>
@@ -192,14 +196,44 @@ export default function PlanSelectorBar() {
                   </div>
                 </div>
 
-                <IconButton
-                  size="small"
-                  className="plan-item-menu-btn"
-                  onClick={(e) => handleOpenMenu(e, plan.id)}
-                  aria-label="Tùy chọn Plan"
-                >
-                  <MoreVertIcon fontSize="small" />
-                </IconButton>
+                <div className="plan-item-actions" onClick={(e) => e.stopPropagation()}>
+                  {plans.length > 1 && (
+                    <div className="plan-move-arrows">
+                      <IconButton
+                        size="small"
+                        disabled={index === 0}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          movePlan(index, index - 1);
+                        }}
+                        title="Trượt lên trên"
+                        className="plan-arrow-btn"
+                      >
+                        <KeyboardArrowUpIcon fontSize="small" />
+                      </IconButton>
+                      <IconButton
+                        size="small"
+                        disabled={index === plans.length - 1}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          movePlan(index, index + 1);
+                        }}
+                        title="Trượt xuống dưới"
+                        className="plan-arrow-btn"
+                      >
+                        <KeyboardArrowDownIcon fontSize="small" />
+                      </IconButton>
+                    </div>
+                  )}
+                  <IconButton
+                    size="small"
+                    className="plan-item-menu-btn"
+                    onClick={(e) => handleOpenMenu(e, plan.id)}
+                    aria-label="Tùy chọn Plan"
+                  >
+                    <MoreVertIcon fontSize="small" />
+                  </IconButton>
+                </div>
               </div>
             );
           })}

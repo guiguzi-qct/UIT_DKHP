@@ -88,12 +88,27 @@
 .plan-item-left {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   min-width: 0;
 }
 
+.plan-item-badge {
+  min-width: 22px;
+  height: 22px;
+  padding: 0 4px;
+  border-radius: 6px;
+  background: #0E2128;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(14, 33, 40, 0.15);
+}
+
 .plan-check-icon {
-  width: 20px;
+  width: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -116,6 +131,37 @@
   font-size: 12px;
   font-weight: 600;
   color: #3B6275;
+}
+
+.plan-item-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.plan-move-arrows {
+  display: flex;
+  flex-direction: column;
+  margin-right: 2px;
+}
+
+.plan-arrow-btn {
+  padding: 0 !important;
+  width: 20px !important;
+  height: 18px !important;
+  min-width: 20px !important;
+  min-height: 18px !important;
+  color: #59899D !important;
+  border-radius: 4px !important;
+}
+
+.plan-arrow-btn:hover:not(:disabled) {
+  color: #0E2128 !important;
+  background: #EBF1F5 !important;
+}
+
+.plan-arrow-btn:disabled {
+  opacity: 0.2 !important;
 }
 
 .plan-item-menu-btn {

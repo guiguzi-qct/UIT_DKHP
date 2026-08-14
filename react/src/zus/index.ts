@@ -42,6 +42,7 @@ type TkbStore = {
   duplicatePlan: (id: string) => void;
   renamePlan: (id: string, name: string) => void;
   deletePlan: (id: string) => void;
+  movePlan: (fromIndex: number, toIndex: number) => void;
   resetAllData: () => void;
 };
 
@@ -224,6 +225,15 @@ export const useTkbStore = create<TkbStore>()(
           isChiVeTkb: activePlan.isChiVeTkb || false,
           textareaChiVeTkb: activePlan.textareaChiVeTkb || '',
         });
+      },
+
+      movePlan: (fromIndex, toIndex) => {
+        const state = get();
+        const plans = [...(state.plans && state.plans.length > 0 ? state.plans : getDefaultPlans(state))];
+        if (fromIndex < 0 || fromIndex >= plans.length || toIndex < 0 || toIndex >= plans.length) return;
+        const [moved] = plans.splice(fromIndex, 1);
+        plans.splice(toIndex, 0, moved);
+        set({ plans });
       },
 
       resetAllData: () => {
