@@ -108,6 +108,8 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
+  align-items: center;
+  text-align: center;
   border-radius: 12px !important;
   color: #0E2128;
   background: #F4F7F9 !important;
@@ -124,6 +126,10 @@
 }
 #thoi-khoa-bieu .class-cell-content {
   padding: 4px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 #thoi-khoa-bieu .class-cell-code {
   display: block;
