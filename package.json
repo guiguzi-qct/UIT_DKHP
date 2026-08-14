@@ -1,0 +1,12 @@
+{
+  "name": "guiguzi-deploy",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "npm --prefix react run build",
+    "test": "npm --prefix react test -- --watchAll=false"
+  },
+  "engines": {
+    "node": "20.x"
+  }
+}

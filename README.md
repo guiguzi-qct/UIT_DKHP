@@ -27,6 +27,17 @@ Build production:
 npm run build
 ```
 
+## Deploy lên Vercel
+
+Import thư mục `guiguzi` vào Vercel và để trống **Root Directory**. File
+`vercel.json` ở thư mục gốc sẽ tự cài dependency trong `react`, build ứng dụng
+và chuyển các route như `/1`, `/2`, `/3` về `index.html`.
+
+Nếu đã đặt **Root Directory** là `react`, dự án cũng có sẵn
+`react/vercel.json` để build và xử lý các route SPA theo cùng cách.
+
+Dự án sử dụng Node.js 20.x khi build trên Vercel.
+
 Nếu sử dụng tính năng AG Grid Enterprise, cấu hình khóa riêng trong `react/.env`:
 
 ```env
