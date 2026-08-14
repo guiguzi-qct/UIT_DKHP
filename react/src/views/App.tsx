@@ -20,31 +20,31 @@ import ScrollToTop from './components/ScrollToTop';
 import WorkflowNav from './components/WorkflowNav';
 import './App.css';
 
-const vintageTheme = createTheme({
+const customTheme = createTheme({
   palette: {
     primary: {
-      main: '#7c4d3a',
-      light: '#9e6d5a',
-      dark: '#5a3527',
-      contrastText: '#fffdfa',
+      main: '#0E2128',
+      light: '#59899D',
+      dark: '#040309',
+      contrastText: '#ffffff',
     },
     secondary: {
-      main: '#5a6b57',
-      light: '#7a8c77',
-      dark: '#3c4a3a',
-      contrastText: '#fffdfa',
+      main: '#59899D',
+      light: '#ADBECC',
+      dark: '#0E2128',
+      contrastText: '#ffffff',
     },
     error: {
-      main: '#b94a48',
-      light: '#d96b69',
+      main: '#d9534f',
+      light: '#e6716e',
     },
     background: {
-      default: '#f7f4ee',
-      paper: '#fffdfa',
+      default: '#F4F7F9',
+      paper: '#ffffff',
     },
     text: {
-      primary: '#332925',
-      secondary: '#665952',
+      primary: '#040309',
+      secondary: '#59899D',
     },
   },
   typography: {
@@ -91,7 +91,7 @@ function App() {
 
   return (
     <ErrorBoundary>
-      <ThemeProvider theme={vintageTheme}>
+      <ThemeProvider theme={customTheme}>
         <BrowserRouter basename={process.env.PUBLIC_URL}>
         <Box className="app-shell">
           <Route component={ScrollToTop} />
