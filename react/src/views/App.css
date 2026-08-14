@@ -248,6 +248,42 @@ body {
   border-radius: 14px !important;
 }
 
+.step1-guide-grid {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.guide-card {
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.guide-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.guide-card-badge {
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: var(--text-xs);
+  font-weight: 800;
+}
+.guide-card-badge.primary {
+  color: #0f766e;
+  background: #ccfbf1;
+}
+.guide-card-badge.secondary {
+  color: #4338ca;
+  background: #e0e7ff;
+}
+.guide-card-action {
+  margin-top: 6px !important;
+  align-self: flex-start;
+}
+
 .result-heading {
   display: flex;
   align-items: flex-end;
@@ -324,6 +360,9 @@ body {
 }
 
 @media (max-width: 720px) {
+  .step1-guide-grid {
+    grid-template-columns: 1fr;
+  }
   .app-toolbar {
     min-height: 58px !important;
     gap: 8px;

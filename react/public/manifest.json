@@ -1,11 +1,11 @@
 {
-  "short_name": "Jikan",
-  "name": "Jikan",
+  "short_name": "UIT no Jikan",
+  "name": "UIT no Jikan",
   "icons": [
     {
-      "src": "favicon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml"
+      "src": "logo.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png"
     }
   ],
   "start_url": ".",

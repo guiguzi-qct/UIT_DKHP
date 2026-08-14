@@ -9,7 +9,7 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import React, { lazy, Suspense } from 'react';
 import { BrowserRouter, Redirect, Route, useLocation } from 'react-router-dom';
 import { ROUTES } from '../constants';
-import { selectFinalDataTkb, useTkbStore } from '../zus';
+import { selectFinalDataTkb, selectIsChiVeTkb, selectTextareaChiVeTkb, useTkbStore } from '../zus';
 import ErrorBoundary from './components/ErrorBoundary';
 import NeedStep1Warning from './components/NeedStep1';
 import ScrollToTop from './components/ScrollToTop';
@@ -41,12 +41,18 @@ function PersistedRoute(props: PersistedRouteProps) {
 
 function FallbackRoute() {
   const location = useLocation();
+  if (location.pathname === '/1') return <Redirect to={ROUTES._1ChonFileExcel.path} />;
+  if (location.pathname === '/2') return <Redirect to={ROUTES._2XepLop.path} />;
+  if (location.pathname === '/3') return <Redirect to={ROUTES._3KetQua.path} />;
   const hasAnyMatch = Object.values(ROUTES).some((route) => route.path === location.pathname);
   return hasAnyMatch ? null : <Redirect to={ROUTES._1ChonFileExcel.path} />;
 }
 
 function App() {
   const dataTkb = useTkbStore(selectFinalDataTkb);
+  const isChiVeTkb = useTkbStore(selectIsChiVeTkb);
+  const textareaChiVeTkb = useTkbStore(selectTextareaChiVeTkb);
+  const hasData = dataTkb.length > 0 || isChiVeTkb || textareaChiVeTkb.trim().length > 0;
 
   return (
     <ErrorBoundary>
@@ -56,9 +62,9 @@ function App() {
           <AppBar className="app-header" position="sticky" elevation={0}>
             <Toolbar className="app-toolbar">
               <Box className="brand-lockup">
-                <img className="brand-mark" src={`${process.env.PUBLIC_URL}/logo.png`} alt="Jikan logo" />
+                <img className="brand-mark" src={`${process.env.PUBLIC_URL}/logo.png`} alt="UIT no Jikan logo" />
                 <Box>
-                  <Typography className="brand-name">Jikan</Typography>
+                  <Typography className="brand-name">UIT no Jikan</Typography>
                   <Typography className="brand-tagline">Xếp thời khóa biểu dễ hơn</Typography>
                 </Box>
               </Box>
@@ -70,8 +76,8 @@ function App() {
             <main className="app-content">
               <Suspense fallback={<LinearProgress className="route-loader" />}>
               <PersistedRoute path={ROUTES._1ChonFileExcel.path} component={ChonFileExcel} />
-              <PersistedRoute path={ROUTES._2XepLop.path} component={dataTkb.length ? XepLop : NeedStep1Warning} />
-              <PersistedRoute path={ROUTES._3KetQua.path} component={dataTkb.length ? KetQua : NeedStep1Warning} />
+              <PersistedRoute path={ROUTES._2XepLop.path} component={hasData ? XepLop : NeedStep1Warning} />
+              <PersistedRoute path={ROUTES._3KetQua.path} component={hasData ? KetQua : NeedStep1Warning} />
               <FallbackRoute />
               </Suspense>
             </main>
