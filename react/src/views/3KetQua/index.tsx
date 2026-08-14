@@ -18,11 +18,8 @@ function Index() {
         <DanhSachLopInput
           header={
             <div className="class-source-copy">
-              <Typography fontWeight={800}>Danh sách lớp dùng để xếp lịch</Typography>
-              <Typography variant="body2" color="text.secondary">
-                {isManualMode
-                  ? 'Đang dùng danh sách mã lớp nhập thủ công hoặc từ bạn bè chia sẻ.'
-                  : 'Đang dùng các lớp bạn đã chọn ở bước 2. Bấm "Chia sẻ mã lớp" để gửi cho bạn bè.'}
+              <Typography fontWeight={800} style={{ fontSize: '15px', color: '#0E2128' }}>
+                Danh sách lớp dùng để xếp lịch
               </Typography>
             </div>
           }

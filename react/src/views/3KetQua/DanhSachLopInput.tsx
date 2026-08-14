@@ -1,4 +1,4 @@
-import ShareOutlinedIcon from '@mui/icons-material/ShareOutlined';
+import ContentCopyOutlinedIcon from '@mui/icons-material/ContentCopyOutlined';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 import Button from '@mui/material/Button';
@@ -129,8 +129,8 @@ export default function DanhSachLopInput({ header }: { header?: React.ReactNode 
               Chỉnh sửa
             </Button>
           )}
-          <Button variant="outlined" startIcon={<ShareOutlinedIcon />} onClick={copyCodes}>
-            Chia sẻ mã lớp
+          <Button variant="outlined" startIcon={<ContentCopyOutlinedIcon />} onClick={copyCodes}>
+            Sao chép mã lớp
           </Button>
         </div>
       </div>

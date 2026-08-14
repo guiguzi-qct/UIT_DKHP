@@ -19,8 +19,13 @@ function Index() {
   const setSelectedClasses = useTkbStore((s) => s.setSelectedClasses);
 
   const openPickerFromTimetable = (target: TimetablePickTarget) => {
-    if (target.existing) setPickerTarget({ kind: 'replace', existing: target.existing });
-    else setPickerTarget({ kind: 'slot', thu: target.thu, tiets: target.tiets, label: target.label });
+    if (target.existing) {
+      setPickerTarget({ kind: 'replace', existing: target.existing });
+    } else if (target.label === 'Ngoài giờ') {
+      setPickerTarget({ kind: 'all' });
+    } else {
+      setPickerTarget({ kind: 'slot', thu: target.thu, tiets: target.tiets, label: target.label });
+    }
   };
 
   const handleClearAll = () => {

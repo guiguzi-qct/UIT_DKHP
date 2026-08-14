@@ -224,15 +224,15 @@ function OnlineRow({
             ))}
           </div>
         ) : (
-          <div className="empty-schedule-slot" style={{ height: '100%', minHeight: '52px' }}>
+          <div style={{ padding: '4px' }}>
             {interactive ? (
               <button
-                className="empty-slot-button"
+                className="online-empty-button"
                 type="button"
                 onClick={() =>
                   onPickSlot?.({
-                    thu: 2,
-                    tiets: [tietOnline.stringValue],
+                    thu: 0,
+                    tiets: [],
                     label: 'Ngoài giờ',
                   })
                 }
@@ -241,7 +241,7 @@ function OnlineRow({
                 <span className="empty-slot-action">Click để chọn</span>
               </button>
             ) : (
-              <div className="empty-slot-button static">
+              <div className="online-empty-button static">
                 <span className="empty-slot-label">Ngoài giờ</span>
               </div>
             )}
