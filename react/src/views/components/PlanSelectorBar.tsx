@@ -4,6 +4,7 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import EditIcon from '@mui/icons-material/Edit';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
@@ -160,12 +161,14 @@ export default function PlanSelectorBar() {
     <>
       <div className="floating-plan-fab-wrap">
         <Fab
+          variant="extended"
           size="medium"
           className="floating-plan-fab"
           onClick={handleOpenPopover}
           aria-label="Chọn Plan"
         >
-          <span className="fab-plan-number">{displayPlanNumber}</span>
+          <span className="fab-plan-title">PLAN {displayPlanNumber}</span>
+          <KeyboardArrowUpIcon className="fab-plan-arrow" />
         </Fab>
       </div>
 
