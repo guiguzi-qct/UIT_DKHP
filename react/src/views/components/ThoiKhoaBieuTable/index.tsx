@@ -44,6 +44,26 @@ const MAIN_GROUPS: TietGroup[] = [
 
 const getDayKey = (thu: number) => `Thu${thu}` as keyof RowData;
 const getTietValue = (index: number) => (index === 9 ? '0' : String(index + 1));
+const getTietLabel = (index: number) => String(index + 1);
+
+const getRangeLabel = (start: number, end: number, group: TietGroup) => {
+  if (start === group.start && end === group.end) {
+    return group.label;
+  }
+  if (start === end) return `Tiết ${getTietLabel(start)}`;
+  return `Tiết ${getTietLabel(start)}–${getTietLabel(end)}`;
+};
+
+const getEmptyRun = (rows: RowData[], thu: number, index: number, group: TietGroup) => {
+  const dayKey = getDayKey(thu);
+  let start = index;
+  let end = index;
+
+  while (start > group.start && rows[start - 1][dayKey] === CELL.NO_CLASS) start -= 1;
+  while (end < group.end && rows[end + 1][dayKey] === CELL.NO_CLASS) end += 1;
+
+  return { start, end };
+};
 
 const GetCell = ({
   data,
@@ -115,21 +135,22 @@ function MainPeriodRow({
         const data = row[getDayKey(thu)];
 
         if (data === CELL.NO_CLASS) {
-          const isGroupEmpty = Array.from(
-            { length: group.end - group.start + 1 },
-            (_, offset) => rows[group.start + offset][getDayKey(thu)] === CELL.NO_CLASS,
-          ).every(Boolean);
+          const run = getEmptyRun(rows, thu, index, group);
+          if (index !== run.start) return null;
 
-          const midIndex = Math.floor((group.start + group.end) / 2);
-          const label = isGroupEmpty && index === midIndex ? group.label : `Tiết ${index + 1}`;
+          const tiets = Array.from({ length: run.end - run.start + 1 }, (_, offset) =>
+            getTietValue(run.start + offset),
+          );
+          const label = getRangeLabel(run.start, run.end, group);
 
           return (
             <GetCell
               key={thu}
               data={data}
               thu={thu}
-              tiets={[getTietValue(index)]}
+              tiets={tiets}
               label={label}
+              rowSpan={run.end - run.start + 1}
               interactive={interactive}
               onPickSlot={onPickSlot}
             />
