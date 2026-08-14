@@ -229,9 +229,7 @@ export default function CoursePickerDialog({ target, onClose }: Props) {
       fullWidth
       maxWidth="lg"
       className="course-picker-dialog"
-      onClose={(_event, reason) => {
-        if (reason === 'escapeKeyDown') closeDialog();
-      }}
+      onClose={closeDialog}
     >
       <DialogTitle className="course-picker-title">
         <span>{copy.title}</span>
