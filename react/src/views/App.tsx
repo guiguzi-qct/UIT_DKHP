@@ -1,25 +1,24 @@
-import LinearProgress from '@mui/material/LinearProgress';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import Container from '@mui/material/Container';
+import LinearProgress from '@mui/material/LinearProgress';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import React, { Suspense } from 'react';
 import { BrowserRouter, Redirect, Route, useLocation } from 'react-router-dom';
 import { ROUTES } from '../constants';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { selectFinalDataTkb, selectIsChiVeTkb, selectTextareaChiVeTkb, useTkbStore } from '../zus';
+import ChonFileExcel from './1ChonFileExcel';
+import XepLop from './2XepLop';
+import KetQua from './3KetQua';
 import ErrorBoundary from './components/ErrorBoundary';
 import NeedStep1Warning from './components/NeedStep1';
 import ScrollToTop from './components/ScrollToTop';
 import WorkflowNav from './components/WorkflowNav';
 import './App.css';
-
-import ChonFileExcel from './1ChonFileExcel';
-import XepLop from './2XepLop';
-import KetQua from './3KetQua';
 
 const pastelTheme = createTheme({
   palette: {
