@@ -99,8 +99,11 @@ export const useTkbStore = create<TkbStore>()(
       removeClasses: (classesToRemove) => {
         set((state) => {
           const currentClasses = selectSelectedClassesBuoc3(state);
-          const newSelectedClasses = currentClasses.filter((selectedClass) =>
-            classesToRemove.every((classToRemove) => !isSameAgGridRowId(selectedClass, classToRemove)),
+          const removeCodes = new Set(classesToRemove.map((c) => String(c.MaLop).toUpperCase()));
+          const newSelectedClasses = currentClasses.filter(
+            (selectedClass) =>
+              !removeCodes.has(String(selectedClass.MaLop).toUpperCase()) &&
+              classesToRemove.every((classToRemove) => !isSameAgGridRowId(selectedClass, classToRemove)),
           );
           const newMaLopList = extractListMaLop(newSelectedClasses);
           const plans = state.plans && state.plans.length > 0 ? state.plans : getDefaultPlans(state);

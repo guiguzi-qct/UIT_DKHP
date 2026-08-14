@@ -249,7 +249,28 @@
   transform: translateY(0);
 }
 #thoi-khoa-bieu .online-row {
-  height: 64px;
+  height: 52px;
+}
+#thoi-khoa-bieu .online-row-cell {
+  padding: 8px 14px;
+  background: #F4F7F9;
+  border: 1px solid #D5E0E8;
+  border-radius: 10px;
+  vertical-align: middle;
+}
+#thoi-khoa-bieu .online-row-empty {
+  display: block;
+  text-align: center;
+  color: #59899D;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+#thoi-khoa-bieu .online-classes-flex {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
 }
 #thoi-khoa-bieu .extra-classes-grid-row {
   margin-top: 12px;

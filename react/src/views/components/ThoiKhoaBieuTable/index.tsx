@@ -175,25 +175,40 @@ function MainPeriodRow({
 
 function OnlineRow({ rows, interactive, onPickSlot }: { rows: RowData[] } & InteractiveProps) {
   const row = rows[tietOnline.index];
-  const isEmpty = Object.values(row).every((cell) => cell === CELL.NO_CLASS);
-  if (isEmpty && !interactive) return null;
+  const onlineClasses = DAY_NUMBERS.map((thu) => row[getDayKey(thu)]).filter(
+    (cell): cell is ClassModel => cell !== CELL.NO_CLASS && cell !== CELL.OCCUPIED,
+  );
+
+  if (!onlineClasses.length && !interactive) return null;
 
   return (
     <tr className="online-row">
       <td className="cell-tiet">
         <strong>Tiết 11</strong>
       </td>
-      {DAY_NUMBERS.map((thu) => (
-        <GetCell
-          key={thu}
-          data={row[getDayKey(thu)]}
-          thu={thu}
-          tiets={[tietOnline.stringValue]}
-          label="Tiết 11"
-          interactive={interactive}
-          onPickSlot={onPickSlot}
-        />
-      ))}
+      <td colSpan={6} className="online-row-cell">
+        {onlineClasses.length > 0 ? (
+          <div className="online-classes-flex">
+            {onlineClasses.map((lop) => (
+              <ClassCell
+                key={`${lop.MaLop}-${lop.Thu}-${lop.Tiet}`}
+                data={lop}
+                interactive={interactive}
+                onPick={() =>
+                  onPickSlot?.({
+                    thu: Number(lop.Thu) || 2,
+                    tiets: [tietOnline.stringValue],
+                    label: 'Tiết 11',
+                    existing: lop,
+                  })
+                }
+              />
+            ))}
+          </div>
+        ) : (
+          <span className="online-row-empty">Tiết 11</span>
+        )}
+      </td>
     </tr>
   );
 }

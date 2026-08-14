@@ -1,10 +1,11 @@
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
-import { IconButton, Tooltip } from '@mui/material';
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Tooltip, Typography } from '@mui/material';
 import clsx from 'clsx';
 import constate from 'constate';
 import groupBy from 'lodash/groupBy';
 import reverse from 'lodash/reverse';
+import { enqueueSnackbar } from 'notistack';
 import { useMemo, useState } from 'react';
 import { ClassModel } from '../../../types';
 import { isSameAgGridRowId, uniqMaLop } from '../../../utils';
@@ -86,6 +87,7 @@ export const [ClassCellContext, useClassCellContext] = constate(() => {
 
 function ClassCell({ data, isOutsideTable = false, interactive = false, onPick, ...restProps }: Props) {
   const { MaLop, NgonNgu, TenMH, TenGV, PhongHoc, NBD, NKT, Thu, Tiet } = data;
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const removeClasses = useTkbStore((s) => s.removeClasses);
   const selectedClasses = useTkbStore(selectSelectedClassesBuoc3);
   const {
@@ -145,46 +147,37 @@ function ClassCell({ data, isOutsideTable = false, interactive = false, onPick, 
         }
       >
         {interactive && <span className="cell-picker-hint">Click để đổi lớp</span>}
-        <Tooltip
-          title={
-            <>
-              Xoá môn này
-              {isWarning(data) && isHoveringOnThisCell(data, 'MaLop') && (
-                <>
-                  <br />
-                  hoặc Shift+Click để chỉ xoá slot thừa này
-                </>
-              )}
-            </>
-          }
-          open={isHoveringOnThisCellRemoveIcon(data)}
-        >
-          <IconButton
-            onMouseEnter={() => setIsHoveringOnRemoveIcon(true)}
-            onMouseLeave={() => setIsHoveringOnRemoveIcon(false)}
-            style={{ position: 'absolute', top: 0, right: 0 }}
-            color="inherit"
-            size="small"
-            onClick={(e) => {
-              e.stopPropagation();
-              const classesToRemove = (() => {
-                if (isWarning(data) && e.shiftKey) {
-                  return [data];
-                }
-                if ((e.ctrlKey || e.metaKey) && e.shiftKey) {
-                  // easter eggs: Cmd + Shift + Click to remove all selected classes
-                  return selectedClasses;
-                }
-                return cacLopChungMonDangChon;
-              })();
-              removeClasses(classesToRemove);
-              onRemoveClass();
-            }}
-            className="remove-class-btn"
+        {interactive && (
+          <Tooltip
+            title={
+              <>
+                Xoá môn này
+                {isWarning(data) && isHoveringOnThisCell(data, 'MaLop') && (
+                  <>
+                    <br />
+                    hoặc Shift+Click để chỉ xoá slot thừa này
+                  </>
+                )}
+              </>
+            }
+            open={isHoveringOnThisCellRemoveIcon(data)}
           >
-            <DeleteOutlineIcon />
-          </IconButton>
-        </Tooltip>
+            <IconButton
+              onMouseEnter={() => setIsHoveringOnRemoveIcon(true)}
+              onMouseLeave={() => setIsHoveringOnRemoveIcon(false)}
+              style={{ position: 'absolute', top: 0, right: 0 }}
+              color="inherit"
+              size="small"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsConfirmOpen(true);
+              }}
+              className="remove-class-btn"
+            >
+              <DeleteOutlineIcon />
+            </IconButton>
+          </Tooltip>
+        )}
         <div className="class-cell-content">
           <strong className="class-cell-code">
             {MaLop}
@@ -210,6 +203,37 @@ function ClassCell({ data, isOutsideTable = false, interactive = false, onPick, 
             </strong>
           )}
         </div>
+
+        <Dialog
+          open={isConfirmOpen}
+          onClose={() => setIsConfirmOpen(false)}
+          maxWidth="xs"
+          fullWidth
+          onClick={(e) => e.stopPropagation()}
+        >
+          <DialogTitle fontWeight={800}>Xác nhận xóa lớp</DialogTitle>
+          <DialogContent dividers>
+            <Typography variant="body2">
+              Bạn có chắc chắn muốn xóa lớp <strong>{MaLop}</strong> ({TenMH}) khỏi thời khóa biểu không?
+            </Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setIsConfirmOpen(false)}>Hủy</Button>
+            <Button
+              color="error"
+              variant="contained"
+              onClick={() => {
+                const classesToRemove = cacLopChungMonDangChon.length > 0 ? cacLopChungMonDangChon : [data];
+                removeClasses(classesToRemove);
+                onRemoveClass();
+                enqueueSnackbar(`Đã xóa lớp ${data.MaLop}`, { variant: 'info' });
+                setIsConfirmOpen(false);
+              }}
+            >
+              Xóa lớp
+            </Button>
+          </DialogActions>
+        </Dialog>
       </td>
     </Tooltip>
   );
