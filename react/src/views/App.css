@@ -167,6 +167,7 @@ body {
   width: 100%;
   max-width: 1120px;
   margin: 0 auto;
+  padding: 24px 20px;
 }
 .page-wrap.wide {
   max-width: 1600px;
