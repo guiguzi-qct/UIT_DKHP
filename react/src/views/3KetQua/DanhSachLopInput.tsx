@@ -33,7 +33,7 @@ const copyText = async (value: string) => {
   if (!copied) throw new Error('Không thể sao chép mã lớp');
 };
 
-export default function DanhSachLopInput() {
+export default function DanhSachLopInput({ header }: { header?: React.ReactNode }) {
   const history = useHistory();
   const [isEditing, setIsEditing] = useState(false);
   const [draft, setDraft] = useState('');
@@ -112,24 +112,27 @@ export default function DanhSachLopInput() {
 
   return (
     <div className="class-code-editor">
-      <div className="class-code-actions">
-        {isEditing ? (
-          <>
-            <Button color="inherit" onClick={cancelEditing}>
-              Hủy
+      <div className="class-source-header">
+        {header}
+        <div className="class-code-actions">
+          {isEditing ? (
+            <>
+              <Button color="inherit" onClick={cancelEditing}>
+                Hủy
+              </Button>
+              <Button variant="contained" startIcon={<SaveOutlinedIcon />} onClick={applyCodes}>
+                Áp dụng
+              </Button>
+            </>
+          ) : (
+            <Button variant="outlined" startIcon={<EditOutlinedIcon />} onClick={startEditing}>
+              Chỉnh sửa
             </Button>
-            <Button variant="contained" startIcon={<SaveOutlinedIcon />} onClick={applyCodes}>
-              Áp dụng
-            </Button>
-          </>
-        ) : (
-          <Button variant="outlined" startIcon={<EditOutlinedIcon />} onClick={startEditing}>
-            Chỉnh sửa
+          )}
+          <Button variant="outlined" startIcon={<ShareOutlinedIcon />} onClick={copyCodes}>
+            Chia sẻ mã lớp
           </Button>
-        )}
-        <Button variant="outlined" startIcon={<ShareOutlinedIcon />} onClick={copyCodes}>
-          Chia sẻ mã lớp
-        </Button>
+        </div>
       </div>
       <TextField
         label="Danh sách mã lớp"

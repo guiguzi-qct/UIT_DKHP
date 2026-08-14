@@ -353,26 +353,33 @@ body {
 
 .class-source-card {
   margin-bottom: 16px;
-  padding: 18px;
-  display: grid;
-  grid-template-columns: 1fr auto;
+  padding: 16px 20px;
+}
+.class-code-editor {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.class-source-header {
+  display: flex;
   align-items: center;
-  gap: 14px 20px;
+  justify-content: space-between;
+  gap: 16px;
 }
 .class-source-copy {
   display: flex;
-  align-items: center;
-  gap: 11px;
-}
-.class-code-editor {
-  grid-column: 1 / -1;
+  flex-direction: column;
+  min-width: 0;
 }
 .class-code-actions {
   margin-bottom: 0;
   display: flex;
+  align-items: center;
   flex-wrap: wrap;
   justify-content: flex-end;
   gap: 8px;
+  flex-shrink: 0;
 }
 .class-code-editor .MuiInputBase-input[readonly] {
   color: #0E2128;
