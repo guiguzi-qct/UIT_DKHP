@@ -2,9 +2,8 @@ import AddIcon from '@mui/icons-material/Add';
 import CheckIcon from '@mui/icons-material/Check';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import EditIcon from '@mui/icons-material/Edit';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
@@ -50,6 +49,37 @@ export default function PlanSelectorBar() {
   const [isRenameDialogOpen, setIsRenameDialogOpen] = useState(false);
   const [renameInput, setRenameInput] = useState('');
   const [isConfirmDeleteDialogOpen, setIsConfirmDeleteDialogOpen] = useState(false);
+
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    setDraggedIndex(index);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', String(index));
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    if (draggedIndex !== null && draggedIndex !== index) {
+      setDragOverIndex(index);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent, dropIndex: number) => {
+    e.preventDefault();
+    if (draggedIndex !== null && draggedIndex !== dropIndex) {
+      movePlan(draggedIndex, dropIndex);
+    }
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+  };
 
   const isPopoverOpen = Boolean(fabAnchorEl);
 
@@ -170,7 +200,14 @@ export default function PlanSelectorBar() {
             return (
               <div
                 key={plan.id}
-                className={`popover-plan-item ${isActive ? 'active' : ''}`}
+                draggable
+                onDragStart={(e) => handleDragStart(e, index)}
+                onDragOver={(e) => handleDragOver(e, index)}
+                onDrop={(e) => handleDrop(e, index)}
+                onDragEnd={handleDragEnd}
+                className={`popover-plan-item ${isActive ? 'active' : ''} ${
+                  draggedIndex === index ? 'is-dragging' : ''
+                } ${dragOverIndex === index ? 'is-drag-over' : ''}`}
                 onClick={() => handleSelectPlan(plan.id)}
                 role="button"
                 tabIndex={0}
@@ -197,34 +234,13 @@ export default function PlanSelectorBar() {
                 </div>
 
                 <div className="plan-item-actions" onClick={(e) => e.stopPropagation()}>
-                  {plans.length > 1 && (
-                    <div className="plan-move-arrows">
-                      <IconButton
-                        size="small"
-                        disabled={index === 0}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          movePlan(index, index - 1);
-                        }}
-                        title="Trượt lên trên"
-                        className="plan-arrow-btn"
-                      >
-                        <KeyboardArrowUpIcon fontSize="small" />
-                      </IconButton>
-                      <IconButton
-                        size="small"
-                        disabled={index === plans.length - 1}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          movePlan(index, index + 1);
-                        }}
-                        title="Trượt xuống dưới"
-                        className="plan-arrow-btn"
-                      >
-                        <KeyboardArrowDownIcon fontSize="small" />
-                      </IconButton>
-                    </div>
-                  )}
+                  <span
+                    className="plan-drag-handle"
+                    title="Nhấn giữ để kéo di chuyển vị trí"
+                  >
+                    <DragIndicatorIcon fontSize="small" />
+                  </span>
+
                   <IconButton
                     size="small"
                     className="plan-item-menu-btn"

@@ -139,29 +139,36 @@
   gap: 2px;
 }
 
-.plan-move-arrows {
+.plan-drag-handle {
   display: flex;
-  flex-direction: column;
-  margin-right: 2px;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  color: #8EA5B7;
+  cursor: grab;
+  border-radius: 6px;
+  transition: all 140ms ease;
 }
 
-.plan-arrow-btn {
-  padding: 0 !important;
-  width: 20px !important;
-  height: 18px !important;
-  min-width: 20px !important;
-  min-height: 18px !important;
-  color: #59899D !important;
-  border-radius: 4px !important;
+.plan-drag-handle:active {
+  cursor: grabbing;
 }
 
-.plan-arrow-btn:hover:not(:disabled) {
-  color: #0E2128 !important;
+.popover-plan-item:hover .plan-drag-handle {
+  color: #0E2128;
+}
+
+.popover-plan-item.is-dragging {
+  opacity: 0.35;
+  border-style: dashed !important;
+  border-color: #0E2128 !important;
+}
+
+.popover-plan-item.is-drag-over {
+  border-color: #0E2128 !important;
   background: #EBF1F5 !important;
-}
-
-.plan-arrow-btn:disabled {
-  opacity: 0.2 !important;
+  transform: scale(1.02);
 }
 
 .plan-item-menu-btn {
