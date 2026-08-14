@@ -56,9 +56,9 @@ function App() {
           <AppBar className="app-header" position="sticky" elevation={0}>
             <Toolbar className="app-toolbar">
               <Box className="brand-lockup">
-                <span className="brand-mark">g</span>
+                <img className="brand-mark" src={`${process.env.PUBLIC_URL}/logo.png`} alt="Jikan logo" />
                 <Box>
-                  <Typography className="brand-name">guiguzi</Typography>
+                  <Typography className="brand-name">Jikan</Typography>
                   <Typography className="brand-tagline">Xếp thời khóa biểu dễ hơn</Typography>
                 </Box>
               </Box>

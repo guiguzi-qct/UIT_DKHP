@@ -4,7 +4,7 @@ import { useLocation } from 'react-router-dom';
 import { ROUTES } from '../../../constants';
 import { ClassModel } from '../../../types';
 import { getDanhSachTiet } from '../../../utils';
-import { selectIsChiVeTkb, useTkbStore } from '../../../zus';
+import { useTkbStore } from '../../../zus';
 import ErrorBoundary from '../ErrorBoundary';
 import ClassCell, { ClassCellContext } from './ClassCell';
 import TableHead from './TableHead';
@@ -201,24 +201,8 @@ function OnlineRow({ rows, interactive, onPickSlot }: { rows: RowData[] } & Inte
 function Render({ interactive = false, onPickSlot }: InteractiveProps) {
   const { rowDataHocTrenTruong, khongHocTrenTruong, redundant } = usePhanLoaiHocTrenTruongContext();
   const location = useLocation();
-  const isChiVeTkb = useTkbStore(selectIsChiVeTkb);
   const { tkbTableRef, saveTkbImageToComputer, copyTkbImageToClipboard } = useProcessImageTkb();
   const isInStep2 = location.pathname === ROUTES._2XepLop.path;
-
-  if (isInStep2 && isChiVeTkb) {
-    return (
-      <h3 style={{ textAlign: 'center', padding: 20 }}>
-        {location.search.includes('self_selected') ? (
-          <>
-            Preview bị disable ở chế độ chia sẻ TKB <code style={{ whiteSpace: 'nowrap' }}>?self_selected=</code>, sang
-            tab Bước 3 để xem TKB
-          </>
-        ) : (
-          `Bạn đang chọn "Tự chuẩn bị danh sách mã lớp" ở tab Bước 3`
-        )}
-      </h3>
-    );
-  }
 
   return (
     <ClassCellContext>

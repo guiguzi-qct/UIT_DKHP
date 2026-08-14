@@ -1,4 +1,6 @@
 import ContentCopyOutlinedIcon from '@mui/icons-material/ContentCopyOutlined';
+import ShareOutlinedIcon from '@mui/icons-material/ShareOutlined';
+import ShareOutlinedIcon from '@mui/icons-material/ShareOutlined';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 import Button from '@mui/material/Button';
@@ -44,8 +46,31 @@ export default function DanhSachLopInput() {
   const listMaLop = useMemo(() => extractListMaLop(cacLop.flat()), [cacLop]);
   const isChiVeTkb = useTkbStore(selectIsChiVeTkb);
   const textareaChiVeTkb = useTkbStore(selectTextareaChiVeTkb);
+
+  const handlePaste = (event: React.ClipboardEvent<HTMLDivElement>) => {
+    if (!isEditing) {
+      const pastedText = event.clipboardData.getData('text').toUpperCase();
+      if (pastedText.trim()) {
+        setDraft(pastedText);
+        setIsEditing(true);
+        event.preventDefault();
+      }
+    }
+  };
+
   const storedValue = isChiVeTkb ? textareaChiVeTkb : listMaLop.join(',');
   const value = isEditing ? draft : storedValue;
+
+  const handlePaste = (event: React.ClipboardEvent<HTMLDivElement>) => {
+    if (!isEditing) {
+      const pastedText = event.clipboardData.getData('text').toUpperCase();
+      if (pastedText.trim()) {
+        setDraft(pastedText);
+        setIsEditing(true);
+        event.preventDefault();
+      }
+    }
+  };
   const draftCodes = useMemo(() => parseListMaLop(draft), [draft]);
   const availableCodes = useMemo(
     () => new Set(finalDataTkb.map((item) => String(item.MaLop).toUpperCase())),
@@ -110,7 +135,7 @@ export default function DanhSachLopInput() {
             Chỉnh sửa
           </Button>
         )}
-        <Button variant="outlined" startIcon={<ContentCopyOutlinedIcon />} onClick={copyCodes}>
+        <Button variant="outlined" startIcon={<ShareOutlinedIcon />} onClick={copyCodes}>
           Chia sẻ mã lớp
         </Button>
       </div>
@@ -122,16 +147,17 @@ export default function DanhSachLopInput() {
         inputProps={{ readOnly: !isEditing, style: { resize: 'vertical' } }}
         rows={2}
         variant="outlined"
-        placeholder="Dán mã lớp vào đây, ví dụ: IE105.R11.CNVN, IE104.R11.CNVN"
+        placeholder="Dán danh sách mã lớp, ví dụ: IT001.M11, CS112.L21"
         onChange={(event) => setDraft(event.target.value.toUpperCase())}
+        onPaste={handlePaste}
         value={value}
         error={invalidCodes.length > 0}
         helperText={
           isEditing
             ? invalidCodes.length
-              ? `Không tìm thấy: ${invalidCodes.join(', ')}`
-              : 'Mỗi mã cách nhau bằng dấu phẩy, khoảng trắng hoặc xuống dòng.'
-            : `${listMaLop.length} mã lớp đang được dùng để tạo lịch.`
+              ? `Không tìm thấy các mã lớp: ${invalidCodes.join(', ')}`
+              : 'Dán mã lớp và nhấn Áp dụng. Các mã có thể cách nhau bằng dấu phẩy, khoảng trắng hoặc xuống dòng.'
+            : `${listMaLop.length} mã lớp đang được dùng. Bạn có thể dán danh sách mới hoặc bấm Chỉnh sửa để thay đổi.`
         }
       />
     </div>

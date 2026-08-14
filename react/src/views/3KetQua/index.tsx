@@ -17,7 +17,7 @@ function Index() {
       <header className="page-heading result-heading">
         <div>
           <h1>Thời khóa biểu của bạn</h1>
-          <p>Kiểm tra lần cuối, sau đó tải ảnh hoặc sao chép để lưu và chia sẻ.</p>
+          <p>Kiểm tra lần cuối, tải ảnh để lưu, hoặc chia sẻ mã lớp cho bạn bè.</p>
         </div>
         <div className="result-stats">
           <Chip label={`${classes.length} lớp`} color="primary" />
@@ -31,7 +31,7 @@ function Index() {
           <div>
             <Typography fontWeight={800}>Danh sách lớp dùng để xếp lịch</Typography>
             <Typography variant="body2" color="text.secondary">
-              {isManualMode ? 'Đang dùng danh sách mã lớp nhập thủ công.' : 'Đang dùng các lớp bạn đã chọn ở bước 2.'}
+              {isManualMode ? 'Đang dùng danh sách mã lớp nhập thủ công hoặc từ bạn bè chia sẻ.' : 'Đang dùng các lớp bạn đã chọn ở bước 2. Bấm "Chia sẻ mã lớp" để gửi cho bạn bè.'}
             </Typography>
           </div>
         </div>
