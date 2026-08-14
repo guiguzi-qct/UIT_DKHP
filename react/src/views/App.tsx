@@ -6,7 +6,7 @@ import Container from '@mui/material/Container';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import React, { lazy, Suspense } from 'react';
+import React, { Suspense } from 'react';
 import { BrowserRouter, Redirect, Route, useLocation } from 'react-router-dom';
 import { ROUTES } from '../constants';
 import { selectFinalDataTkb, selectIsChiVeTkb, selectTextareaChiVeTkb, useTkbStore } from '../zus';
@@ -16,9 +16,9 @@ import ScrollToTop from './components/ScrollToTop';
 import WorkflowNav from './components/WorkflowNav';
 import './App.css';
 
-const ChonFileExcel = lazy(() => import('./1ChonFileExcel'));
-const XepLop = lazy(() => import('./2XepLop'));
-const KetQua = lazy(() => import('./3KetQua'));
+import ChonFileExcel from './1ChonFileExcel';
+import XepLop from './2XepLop';
+import KetQua from './3KetQua';
 
 type PersistedRouteProps = {
   path: string;

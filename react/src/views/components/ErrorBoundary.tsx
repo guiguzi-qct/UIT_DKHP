@@ -42,6 +42,19 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
     this.setState({
       errorInfo,
     });
+
+    const isChunkLoadError =
+      error?.name === 'ChunkLoadError' ||
+      /Loading chunk/i.test(error?.message || '');
+
+    if (isChunkLoadError) {
+      const storageKey = 'chunk_reload_attempts';
+      const attempts = Number(sessionStorage.getItem(storageKey) || 0);
+      if (attempts < 2) {
+        sessionStorage.setItem(storageKey, String(attempts + 1));
+        window.location.reload();
+      }
+    }
   }
 
   handleReload = () => {
