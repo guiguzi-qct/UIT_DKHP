@@ -38,6 +38,11 @@ Nếu đã đặt **Root Directory** là `react`, dự án cũng có sẵn
 
 Dự án sử dụng Node.js 20.x khi build trên Vercel.
 
+Trong **Project Settings → Build and Deployment**, hãy xóa Install Command
+tùy chỉnh nếu đang đặt là `npm audit fix --force`. Dự án đã dùng `npm ci`
+qua `vercel.json`; chạy `audit fix --force` trong lúc deploy có thể tự đổi
+dependency so với lockfile và làm kết quả build không ổn định.
+
 Nếu sử dụng tính năng AG Grid Enterprise, cấu hình khóa riêng trong `react/.env`:
 
 ```env

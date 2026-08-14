@@ -2,7 +2,6 @@ import constate from 'constate';
 import html2canvas from 'html2canvas';
 import React from 'react';
 import { enqueueSnackbar } from 'notistack';
-import { tracker } from '../../..';
 import { ClassModel } from '../../../types';
 import { findOverlapedClasses, getDanhSachTiet, hasTimetableSlot } from '../../../utils';
 import { selectPhanLoaiHocTrenTruong, useTkbStore } from '../../../zus';
@@ -102,14 +101,12 @@ export const useProcessImageTkb = () => {
 
   const saveTkbImageToComputer = React.useCallback(async () => {
     if (!tkbTableRef.current) return;
-    tracker.track('[tkb_table] btn_save_image_clicked');
     const canvas = await html2canvas(tkbTableRef.current);
     downloadFromCanvas(canvas, 'thoikhoabieu.png');
   }, []);
 
   const copyTkbImageToClipboard = React.useCallback(async () => {
     if (!tkbTableRef.current) return;
-    tracker.track('[tkb_table] btn_copy_image_clicked');
     const canvas = await html2canvas(tkbTableRef.current);
     canvas.toBlob((blob) => {
       if (blob === null) {

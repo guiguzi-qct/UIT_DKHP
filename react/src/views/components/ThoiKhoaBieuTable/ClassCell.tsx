@@ -6,7 +6,6 @@ import constate from 'constate';
 import groupBy from 'lodash/groupBy';
 import reverse from 'lodash/reverse';
 import { useMemo, useState } from 'react';
-import { tracker } from '../../..';
 import { ClassModel } from '../../../types';
 import { isSameAgGridRowId, uniqMaLop } from '../../../utils';
 import { selectIsChiVeTkb, selectSelectedClasses, selectSelectedClassesBuoc3, useTkbStore } from '../../../zus';
@@ -180,24 +179,16 @@ function ClassCell({ data, isOutsideTable = false, ...restProps }: Props) {
               color="inherit"
               size="small"
               onClick={(e) => {
-                let clickType: string;
                 const classesToRemove = (() => {
                   if (isWarning(data) && e.shiftKey) {
-                    clickType = 'shift_click';
                     return [data];
                   }
                   if ((e.ctrlKey || e.metaKey) && e.shiftKey) {
-                    clickType = 'cmd_shift_click';
                     // easter eggs: Cmd + Shift + Click to remove all selected classes
                     return selectedClasses;
                   }
-                  clickType = 'click';
                   return cacLopChungMonDangChon;
                 })();
-                tracker.track('[tkb_table] btn_remove_class_clicked', {
-                  clickType,
-                  classesToRemove: classesToRemove.map((it) => it.MaLop).join(','),
-                });
                 removeClasses(classesToRemove);
                 onRemoveClass();
               }}

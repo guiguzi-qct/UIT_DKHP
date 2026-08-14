@@ -1,6 +1,5 @@
 import { AgGridReact } from 'ag-grid-react';
 import { ClassModel } from 'types';
-import { tracker } from '../../..';
 import { useDrawerStore } from '../../../zus';
 import './styles.css';
 import { useGridOptions } from './utils';
@@ -67,14 +66,6 @@ function AgGrid() {
         onGridReady={onGridReady}
         getRowId={getRowId}
         onRowClicked={onRowClicked}
-        onToolPanelVisibleChanged={(e) => {
-          if (e.source === 'sideBarButtonClicked') {
-            tracker.track('[page2] tool_panel_clicked', {
-              panel: e.key,
-              visible: e.visible,
-            });
-          }
-        }}
       />
     </div>
   );

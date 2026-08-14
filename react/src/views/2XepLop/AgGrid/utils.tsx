@@ -18,7 +18,6 @@ import { closeSnackbar, enqueueSnackbar } from 'notistack';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { Buoi, ClassModel } from 'types';
 import { useDebouncedCallback } from 'use-debounce';
-import { tracker } from '../../..';
 import SoTinChi from '../../components/SoTinChi';
 import ThoiKhoaBieuTable from '../../components/ThoiKhoaBieuTable';
 import {
@@ -408,9 +407,6 @@ export const useGridOptions = () => {
         oldSelectedClasses.concat(newSelectedClasses),
       );
       if (redundant.length) {
-        tracker.track('[page2] dialog_trung_tkb_shown', {
-          redundant: JSON.stringify(redundant),
-        });
         openTrungTkbDialog(redundant);
       }
       setSelectedClasses(finalSelectedClasses);
@@ -424,11 +420,6 @@ export const useGridOptions = () => {
   const setAgGridColumnState = useTkbStore((s) => s.setAgGridColumnState);
   const onFilterChanged: GridOptions['onFilterChanged'] = useDebouncedCallback((e: FilterChangedEvent) => {
     log('>>onFilterChanged', e);
-    if (e.source !== PROGRAMMATICALLY_CHANGE_SELECTION) {
-      tracker.track('[page2] filter_changed', {
-        columns: e.columns.map((it) => it.getColId()).join(','),
-      });
-    }
     setAgGridFilterModel(e.api.getFilterModel());
   }, DEBOUNCE_TIME);
 
@@ -461,7 +452,6 @@ export const useGridOptions = () => {
       node.setExpanded(!node.expanded);
     }
     if (node.data && !node.selectable) {
-      tracker.track('[page2] row_unselectable_clicked');
       enqueueSnackbar(`Không thể chọn lớp ${node.data.MaLop} do bị trùng TKB với lớp đã chọn`, {
         variant: 'warning',
         preventDuplicate: true,
@@ -489,7 +479,6 @@ export const useGridOptions = () => {
         addToBlock({
           name: `Copy text "${value}"`,
           action: () => {
-            tracker.track('[page2] context_menu_copy_text_clicked', { text: value });
             navigator.clipboard.writeText(value);
           },
         });
@@ -504,10 +493,6 @@ export const useGridOptions = () => {
           addToBlock({
             name: `Add Filter "${headerName}"="${value}"`,
             action: () => {
-              tracker.track('[page2] context_menu_add_filter_clicked', {
-                headerName,
-                value,
-              });
               api.setFilterModel({
                 ...api.getFilterModel(),
                 [column.getColId()]: {
@@ -526,7 +511,6 @@ export const useGridOptions = () => {
           addToBlock({
             name: `Reset Filter For "${headerName}"`,
             action: () => {
-              tracker.track('[page2] context_menu_reset_1_filter_clicked', { headerName });
               api.setFilterModel({
                 ...api.getFilterModel(),
                 [column.getColId()]: null,
@@ -538,7 +522,6 @@ export const useGridOptions = () => {
           addToBlock({
             name: `Reset All Filters Except "${headerName}"`,
             action: () => {
-              tracker.track('[page2] context_menu_reset_n_1_filters_clicked', { headerName });
               api.setFilterModel({
                 [column.getColId()]: api.getFilterModel()[column.getColId()],
               });
@@ -550,7 +533,6 @@ export const useGridOptions = () => {
         addToBlock({
           name: 'Reset All Filters',
           action: () => {
-            tracker.track('[page2] context_menu_reset_all_filters_clicked');
             api.setFilterModel(null);
           },
         });
@@ -566,9 +548,6 @@ export const useGridOptions = () => {
       endOfBlock();
 
       const final = constructFinal();
-      tracker.track('[page2] context_menu_shown', {
-        items: final.map((item) => (typeof item === 'string' ? item : item.name)).join(','),
-      });
       return final;
     },
     [],
