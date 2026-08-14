@@ -1,4 +1,3 @@
-import AutoAwesomeOutlinedIcon from '@mui/icons-material/AutoAwesomeOutlined';
 import Alert from '@mui/material/Alert';
 import Chip from '@mui/material/Chip';
 import Paper from '@mui/material/Paper';
@@ -30,7 +29,6 @@ function Index() {
 
       <Paper className="surface-card class-source-card">
         <div className="class-source-copy">
-          <AutoAwesomeOutlinedIcon color="primary" />
           <div>
             <Typography fontWeight={800}>Danh sách lớp dùng để xếp lịch</Typography>
             <Typography variant="body2" color="text.secondary">

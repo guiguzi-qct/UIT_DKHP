@@ -97,10 +97,7 @@ function App() {
             <Toolbar className="app-toolbar">
               <Box className="brand-lockup">
                 <img className="brand-mark" src={`${process.env.PUBLIC_URL}/logo.png`} alt="UIT no Jikan logo" />
-                <Box className="brand-text">
-                  <Typography className="brand-name">UIT no Jikan</Typography>
-                  <Typography className="brand-subtitle">Xếp lịch học UIT</Typography>
-                </Box>
+                <Typography className="brand-name">UIT no Jikan</Typography>
               </Box>
 
               <WorkflowNav />
