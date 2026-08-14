@@ -1,6 +1,6 @@
 import { NavLink, useLocation } from 'react-router-dom';
 import { ROUTES } from '../../constants';
-import { selectFinalDataTkb, selectSelectedClassesBuoc3, useTkbStore } from '../../zus';
+import { selectFinalDataTkb, useTkbStore } from '../../zus';
 
 const steps = [
   { ...ROUTES._1ChonFileExcel, shortName: 'Nhập dữ liệu', description: 'Chọn file Excel' },
@@ -11,8 +11,6 @@ const steps = [
 export default function WorkflowNav() {
   const location = useLocation();
   const data = useTkbStore(selectFinalDataTkb);
-  const selectedClasses = useTkbStore(selectSelectedClassesBuoc3);
-  const completion = [data.length > 0, selectedClasses.length > 0, false];
 
   return (
     <nav className="workflow-nav" aria-label="Các bước tạo thời khóa biểu">
@@ -37,7 +35,7 @@ export default function WorkflowNav() {
 
         return (
           <NavLink className={className} to={step.path + location.search} key={step.path}>
-            <span className="workflow-step-number">{completion[index] && !isActive ? '✓' : index + 1}</span>
+            <span className="workflow-step-number">{index + 1}</span>
             <span className="workflow-step-copy">
               <strong>{step.shortName}</strong>
               <small>{step.description}</small>
