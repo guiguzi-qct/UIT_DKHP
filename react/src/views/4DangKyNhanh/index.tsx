@@ -305,7 +305,6 @@ ${codesIndent}
             </Box>
 
             <Box className="dkn-section-actions">
-
               {checkedCount > 0 && (
                 <Button
                   variant="outlined"
@@ -327,6 +326,7 @@ ${codesIndent}
               >
                 {copiedAllCodes ? 'Đã sao chép tất cả!' : 'Copy Tất Cả Mã Lớp'}
               </Button>
+            </Box>
           </Box>
 
           {classCount === 0 ? (
