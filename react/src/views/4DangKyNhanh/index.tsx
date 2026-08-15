@@ -32,7 +32,9 @@ export default function DangKyNhanh() {
     return plans.find((p) => p.id === activePlanId) || plans[0];
   }, [plans, activePlanId]);
 
-  const selectedClasses = currentPlan?.selectedClasses || [];
+  const selectedClasses = useMemo(() => {
+    return currentPlan?.selectedClasses || [];
+  }, [currentPlan]);
   const classCount = selectedClasses.length;
   const totalTc = useMemo(() => calcTongSoTC(selectedClasses), [selectedClasses]);
 
