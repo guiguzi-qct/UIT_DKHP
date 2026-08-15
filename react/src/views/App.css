@@ -12,13 +12,13 @@
   --text-xl: 20px;
 }
 html {
-  background: #F4F7F9;
+  background: #0E2128;
 }
 body {
   margin: 0;
   color: #040309;
-  background-color: #F4F7F9;
-  background-image: url('./uit-bg.png');
+  background-color: #0E2128;
+  background-image: linear-gradient(to bottom, rgba(14, 33, 40, 0.22), rgba(14, 33, 40, 0.32)), url('./uit-bg.png');
   background-attachment: fixed;
   background-size: cover;
   background-position: center top;
