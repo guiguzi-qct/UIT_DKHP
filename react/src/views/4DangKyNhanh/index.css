@@ -268,9 +268,10 @@
 
 .dkn-code-sub {
   font-size: 13px !important;
-  color: #59899D;
+  color: #0E2128 !important;
   margin-top: 2px;
-  font-weight: 600;
+  font-weight: 700 !important;
+  opacity: 0.85;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -405,7 +406,8 @@
 
 .dkn-step-body span {
   font-size: 13px !important;
-  color: #59899D;
+  color: #0E2128 !important;
+  font-weight: 600 !important;
   line-height: 1.45;
 }
 

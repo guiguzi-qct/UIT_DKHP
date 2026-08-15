@@ -3,6 +3,8 @@
   height: min(86vh, 780px);
   max-height: min(92vh, 920px);
   border-radius: 18px;
+  border: 1.5px solid #0E2128 !important;
+  box-shadow: 0 16px 44px rgba(14, 33, 40, 0.25) !important;
   animation: course-picker-in 180ms ease-out both;
 }
 .course-picker-title {
@@ -18,7 +20,7 @@
   right: 12px;
   width: 40px;
   height: 40px;
-  border: 1px solid #D5E0E8;
+  border: 1.5px solid #0E2128 !important;
   border-radius: 10px;
   color: #040309;
   background: #fff;
@@ -42,14 +44,15 @@
 }
 .course-picker-description {
   margin-bottom: 14px !important;
-  color: #59899D !important;
+  color: #0E2128 !important;
+  font-weight: 600 !important;
 }
 .course-picker-draft {
   margin-bottom: 14px;
   padding: 12px;
-  border: 1px solid #ADBECC;
+  border: 1.5px solid #0E2128 !important;
   border-radius: 13px;
-  background: #EBF1F5;
+  background: #D5E2EC !important;
 }
 .course-picker-draft-head {
   display: flex;

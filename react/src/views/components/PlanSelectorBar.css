@@ -54,13 +54,13 @@
   padding: 14px;
   background: rgba(255, 255, 255, 0.98) !important;
   backdrop-filter: blur(20px) !important;
-  border: 1px solid #D5E0E8 !important;
-  box-shadow: 0 18px 44px rgba(4, 3, 9, 0.14) !important;
+  border: 1.5px solid #0E2128 !important;
+  box-shadow: 0 18px 44px rgba(14, 33, 40, 0.25) !important;
 }
 
 .popover-plan-header {
   padding: 4px 6px 12px;
-  border-bottom: 1px solid #EBF1F5;
+  border-bottom: 1px solid #D5E0E8;
   color: #0E2128;
 }
 
@@ -79,7 +79,7 @@
   align-items: center;
   justify-content: space-between;
   border-radius: 12px;
-  border: 1.5px solid #D5E0E8;
+  border: 1.5px solid #0E2128;
   background: #ffffff;
   cursor: pointer;
   transition: all 140ms ease;
@@ -87,13 +87,13 @@
 
 .popover-plan-item:hover {
   background: #F4F7F9;
-  border-color: #8EA5B7;
+  border-color: #0E2128;
 }
 
 .popover-plan-item.active {
-  background: #EBF1F5;
-  border: 1.5px solid #0E2128;
-  box-shadow: 0 2px 8px rgba(14, 33, 40, 0.08);
+  background: #D5E2EC;
+  border: 2px solid #0E2128;
+  box-shadow: 0 2px 8px rgba(14, 33, 40, 0.12);
 }
 
 .plan-item-left {
