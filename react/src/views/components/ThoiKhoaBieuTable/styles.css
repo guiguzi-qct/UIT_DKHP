@@ -95,9 +95,9 @@
 }
 #thoi-khoa-bieu .cell-class-wrapper {
   position: relative;
-  padding: 4px !important;
+  padding: 0 !important;
   vertical-align: middle;
-  background: #ffffff !important;
+  background: transparent !important;
 }
 #thoi-khoa-bieu .class-cell-card {
   position: relative;
@@ -110,19 +110,17 @@
   justify-content: center;
   align-items: center;
   text-align: center;
-  border-radius: 12px !important;
+  border-radius: 0 !important;
   color: #0E2128;
-  background: #F4F7F9 !important;
-  border: 1.5px solid #8EA5B7 !important;
-  box-shadow: 0 4px 14px rgba(14, 33, 40, 0.05);
+  background: #EBF1F5 !important;
+  border: 0 !important;
+  box-shadow: none;
   box-sizing: border-box;
   overflow: hidden;
-  transition: transform 140ms ease, box-shadow 140ms ease, border-color 140ms ease;
+  transition: background 140ms ease;
 }
 #thoi-khoa-bieu .cell-class-wrapper:hover .class-cell-card {
-  transform: translateY(-1px);
-  border-color: #0E2128 !important;
-  box-shadow: 0 6px 20px rgba(14, 33, 40, 0.12);
+  background: #D5E2EC !important;
 }
 #thoi-khoa-bieu .class-cell-content {
   padding: 4px;
