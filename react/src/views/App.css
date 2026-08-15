@@ -108,6 +108,13 @@ body {
   background: #EBF1F5;
   border: 1px solid #D5E0E8;
 }
+.workflow-nav-divider {
+  width: 1px;
+  height: 20px;
+  background: #CBD5E1;
+  margin: 0 4px;
+  flex-shrink: 0;
+}
 .workflow-step {
   min-height: 40px;
   padding: 6px 18px;

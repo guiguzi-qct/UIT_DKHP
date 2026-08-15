@@ -5,7 +5,7 @@ export const ROUTES = {
   },
   _2XepLop: {
     path: '/xep-lop',
-    name: '2. Xếp lớp',
+    name: '2. Chỉnh sửa',
   },
   _3KetQua: {
     path: '/ket-qua',

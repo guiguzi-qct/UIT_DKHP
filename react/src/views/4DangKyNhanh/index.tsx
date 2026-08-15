@@ -77,7 +77,6 @@ export default function DangKyNhanh() {
   }, [selectedClasses]);
 
   const scriptCode = useMemo(() => {
-    const planName = currentPlan?.name || 'Plan';
     const codesIndent = selectedClasses
       .map((c) => c.MaLop?.trim())
       .filter(Boolean)
@@ -171,7 +170,7 @@ ${codesIndent}
     \`Yêu cầu: \${targets.size} | Tick mới: \${selected} | Đã có: \${already} | Bị khóa: \${disabled} | Không tìm thấy: \${missing} | Không checkbox: \${noCheckbox} | \${ms}ms\`
   );
 })();`;
-  }, [currentPlan, selectedClasses]);
+  }, [selectedClasses]);
 
   const scriptLines = useMemo(() => scriptCode.split('\n'), [scriptCode]);
 
