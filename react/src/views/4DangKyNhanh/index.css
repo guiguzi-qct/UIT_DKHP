@@ -44,10 +44,10 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  background: #F4F7F9;
+  background: #D9E4EC;
   padding: 8px 16px;
   border-radius: 14px;
-  border: 1px solid #D5E0E8;
+  border: 1px solid #BACCD6;
   flex-wrap: wrap;
 }
 

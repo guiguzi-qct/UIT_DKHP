@@ -12,13 +12,13 @@
   --text-xl: 20px;
 }
 html {
-  background: #0E2128;
+  background: #081318;
 }
 body {
   margin: 0;
   color: #040309;
-  background-color: #0E2128;
-  background-image: linear-gradient(to bottom, rgba(14, 33, 40, 0.22), rgba(14, 33, 40, 0.32)), url('./uit-bg.png');
+  background-color: #081318;
+  background-image: linear-gradient(to bottom, rgba(8, 19, 24, 0.48), rgba(8, 19, 24, 0.58)), url('./uit-bg.png');
   background-attachment: fixed;
   background-size: cover;
   background-position: center top;
@@ -107,15 +107,15 @@ body {
 .workflow-nav-wrapper {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 .workflow-nav-standalone {
   display: flex;
   align-items: center;
   padding: 4px;
   border-radius: 14px;
-  background: #EBF1F5;
-  border: 1px solid #D5E0E8;
+  background: #D5E2EC;
+  border: 1.5px solid #0E2128;
 }
 .workflow-nav {
   display: flex;
@@ -123,33 +123,37 @@ body {
   gap: 4px;
   padding: 4px;
   border-radius: 14px;
-  background: #EBF1F5;
-  border: 1px solid #D5E0E8;
+  background: #D5E2EC;
+  border: 1.5px solid #0E2128;
 }
 .workflow-step {
-  min-height: 40px;
+  min-height: 38px;
   padding: 6px 18px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
   border-radius: 10px;
-  color: #59899D;
+  color: #0E2128 !important;
   text-decoration: none;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700 !important;
   transition: all 160ms cubic-bezier(0.4, 0, 0.2, 1);
   white-space: nowrap;
+  opacity: 0.85;
 }
 .workflow-step:not(.disabled):hover {
-  color: #0E2128;
-  background: rgba(255, 255, 255, 0.5);
+  color: #0E2128 !important;
+  background: rgba(255, 255, 255, 0.7);
+  opacity: 1;
 }
 .workflow-step.active {
-  color: #0E2128;
-  background: #ffffff;
-  font-weight: 700;
-  box-shadow: 0 2px 10px rgba(14, 33, 40, 0.08);
+  color: #0E2128 !important;
+  background: #ffffff !important;
+  border: 1.5px solid #0E2128 !important;
+  font-weight: 800 !important;
+  opacity: 1 !important;
+  box-shadow: 0 3px 10px rgba(14, 33, 40, 0.12) !important;
 }
 .workflow-step.disabled {
   opacity: 0.45;
@@ -423,6 +427,24 @@ body {
 .class-code-editor .MuiOutlinedInput-root {
   padding-top: 10px !important;
   padding-bottom: 10px !important;
+  background: rgba(235, 241, 245, 0.75) !important;
+  border-radius: 12px !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  transition: all 180ms ease !important;
+}
+.class-code-editor .MuiOutlinedInput-root fieldset {
+  border-color: #BACCD6 !important;
+  border-width: 1.5px !important;
+}
+.class-code-editor .MuiOutlinedInput-root:hover fieldset,
+.class-code-editor .MuiOutlinedInput-root.Mui-focused fieldset {
+  border-color: #0E2128 !important;
+}
+.class-code-editor .MuiInputBase-input {
+  color: #0E2128 !important;
+  font-weight: 700 !important;
+  font-family: monospace, monospace !important;
 }
 .class-code-editor textarea.MuiInputBase-inputMultiline {
   padding-top: 0 !important;

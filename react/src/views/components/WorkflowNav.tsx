@@ -19,7 +19,7 @@ export default function WorkflowNav() {
 
   return (
     <Box className="workflow-nav-wrapper">
-      {/* Standalone Step 1 Capsule */}
+      {/* Standalone Capsule 1: Step 1 */}
       <Box className="workflow-nav-standalone">
         <NavLink
           className={`workflow-step ${isStep1Active ? 'active' : ''}`}
@@ -29,7 +29,7 @@ export default function WorkflowNav() {
         </NavLink>
       </Box>
 
-      {/* Main Steps 2-4 Capsule */}
+      {/* Main Capsule 2: Steps 2-4 */}
       <nav className="workflow-nav" aria-label="Điều hướng các bước">
         {steps24.map((step) => {
           const isActive = location.pathname === step.path;
