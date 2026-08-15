@@ -86,9 +86,6 @@ export default function DangKyNhanh() {
     return `(() => {
   const t0 = performance.now();
 
-  // =========================
-  // DANH SÁCH MÃ LỚP (${planName})
-  // =========================
   const RAW_CODES = \`
 ${codesIndent}
   \`;
@@ -175,6 +172,8 @@ ${codesIndent}
   );
 })();`;
   }, [currentPlan, selectedClasses]);
+
+  const scriptLines = useMemo(() => scriptCode.split('\n'), [scriptCode]);
 
   // Target full class selected by student
   const targetFullClass = useMemo(() => {
@@ -266,16 +265,6 @@ ${codesIndent}
 
   return (
     <Box className="dang-ky-nhanh-root">
-      {/* Header Toolbar */}
-      <Card className="dkn-header-card" elevation={0}>
-        <Box className="dkn-header-left">
-          <Typography className="dkn-header-title">Hỗ trợ đăng ký</Typography>
-          <Typography className="dkn-header-desc">
-            Xuất danh sách mã lớp độc lập để copy-paste thủ công, chạy Script Auto-Tick hoặc đổi lớp khi hết slot.
-          </Typography>
-        </Box>
-      </Card>
-
       {/* Main Content Grid */}
       <Box className="dkn-content-grid">
         {/* SECTION 1 (TOP): Single Class Codes Checklist & 1-Click Copy */}
@@ -284,9 +273,7 @@ ${codesIndent}
             <Box className="dkn-section-title-wrap">
               <FormatListBulletedIcon className="dkn-section-icon" />
               <Typography className="dkn-section-title">Checklist mã lớp</Typography>
-            </Box>
 
-            <Box className="dkn-section-actions">
               <Box className="dkn-plan-switcher">
                 <Typography className="dkn-plan-label">Đang chọn Plan:</Typography>
                 <Select
@@ -315,6 +302,9 @@ ${codesIndent}
                   </span>
                 </Box>
               </Box>
+            </Box>
+
+            <Box className="dkn-section-actions">
 
               {checkedCount > 0 && (
                 <Button
@@ -337,12 +327,7 @@ ${codesIndent}
               >
                 {copiedAllCodes ? 'Đã sao chép tất cả!' : 'Copy Tất Cả Mã Lớp'}
               </Button>
-            </Box>
           </Box>
-
-          <Typography className="dkn-section-subtitle">
-            💡 Bấm nút <strong>"Sao chép"</strong> để chép mã hoặc bấm <strong>"Đánh dấu"</strong> bên dưới để theo dõi các môn đã ĐKMH thành công:
-          </Typography>
 
           {classCount === 0 ? (
             <Box className="dkn-empty-state">
@@ -396,7 +381,7 @@ ${codesIndent}
                         startIcon={isChecked ? <CheckIcon /> : null}
                         onClick={() => toggleCheckClassCode(code)}
                       >
-                        {isChecked ? 'Thành công' : 'Đánh dấu'}
+                        {isChecked ? 'Đã xong' : 'Đã xong'}
                       </Button>
                     </Box>
                   </Box>
@@ -512,7 +497,7 @@ ${codesIndent}
               onClick={handleCopyScript}
               disabled={classCount === 0}
             >
-              {copiedScript ? 'Đã Sao Chép Script!' : 'Copy Script Auto-Tick (1-Click)'}
+              {copiedScript ? 'Đã sao chép Script!' : 'Sao chép Script'}
             </Button>
           </Box>
 
@@ -526,7 +511,7 @@ ${codesIndent}
                 <span className="dkn-step-badge">1</span>
                 <Box className="dkn-step-body">
                   <strong>Sao chép Script</strong>
-                  <span>Bấm nút <code>Copy Script Auto-Tick (1-Click)</code> ở góc trên.</span>
+                  <span>Bấm nút <code>Sao chép Script</code> ở góc trên.</span>
                 </Box>
               </Box>
 
@@ -563,14 +548,15 @@ ${codesIndent}
 
           {showScriptPreview && (
             <Box className="dkn-script-preview-container">
-              <Box className="dkn-script-preview-header">
-                <span>script-auto-tick.js ({currentPlan?.name})</span>
-                <button type="button" onClick={handleCopyScript} disabled={classCount === 0}>
-                  {copiedScript ? '✓ Đã sao chép' : 'Sao chép mã'}
-                </button>
-              </Box>
               <pre className="dkn-script-preview-code">
-                <code>{scriptCode}</code>
+                <code>
+                  {scriptLines.map((line, idx) => (
+                    <div key={`line-${idx}`} className="dkn-code-line">
+                      <span className="dkn-line-number">{idx + 1}</span>
+                      <span className="dkn-line-content">{line}</span>
+                    </div>
+                  ))}
+                </code>
               </pre>
             </Box>
           )}
