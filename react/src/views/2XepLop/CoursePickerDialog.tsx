@@ -1,4 +1,5 @@
 import AddIcon from '@mui/icons-material/Add';
+import CheckIcon from '@mui/icons-material/Check';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import Button from '@mui/material/Button';
@@ -500,8 +501,8 @@ export default function CoursePickerDialog({ target, onClose }: Props) {
                               >
                                 {ltConflict || (
                                   <>
-                                    <AddIcon aria-hidden="true" />
-                                    <span className="course-picker-visually-hidden">Chọn</span>
+                                    {isLTActive ? <CheckIcon aria-hidden="true" /> : <AddIcon aria-hidden="true" />}
+                                    <span className="course-picker-visually-hidden">{isLTActive ? 'Bỏ chọn' : 'Chọn'}</span>
                                   </>
                                 )}
                               </span>
@@ -561,8 +562,8 @@ export default function CoursePickerDialog({ target, onClose }: Props) {
                                       >
                                         {effectiveTHConflict || (
                                           <>
-                                            <AddIcon aria-hidden="true" />
-                                            <span className="course-picker-visually-hidden">Chọn</span>
+                                            {isTHActive ? <CheckIcon aria-hidden="true" /> : <AddIcon aria-hidden="true" />}
+                                            <span className="course-picker-visually-hidden">{isTHActive ? 'Bỏ chọn' : 'Chọn'}</span>
                                           </>
                                         )}
                                       </span>
@@ -609,7 +610,7 @@ export default function CoursePickerDialog({ target, onClose }: Props) {
                                 thConflict ? ' course-option-action-conflict' : ''
                               }`}
                             >
-                              {thConflict || <AddIcon aria-hidden="true" />}
+                              {thConflict || (isTHActive ? <CheckIcon aria-hidden="true" /> : <AddIcon aria-hidden="true" />)}
                             </span>
                           </ButtonBase>
                         );
