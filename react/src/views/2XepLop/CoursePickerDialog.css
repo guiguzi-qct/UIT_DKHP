@@ -281,6 +281,36 @@
   flex-wrap: wrap;
   gap: 6px;
 }
+/* Class Type Chips Styling */
+.chip-thuc-hanh,
+.MuiChip-colorSecondary,
+.course-option-chips .MuiChip-colorSecondary {
+  background: #17333F !important;
+  color: #ffffff !important;
+  font-weight: 800 !important;
+  border: 1px solid #0E2128 !important;
+}
+.chip-thuc-hanh .MuiChip-label,
+.MuiChip-colorSecondary .MuiChip-label,
+.course-option-chips .MuiChip-colorSecondary .MuiChip-label {
+  color: #ffffff !important;
+  font-weight: 800 !important;
+}
+
+.chip-ly-thuyet,
+.MuiChip-colorPrimary,
+.course-option-chips .MuiChip-colorPrimary {
+  background: #ffffff !important;
+  color: #0E2128 !important;
+  font-weight: 800 !important;
+  border: 1.5px solid #0E2128 !important;
+}
+.chip-ly-thuyet .MuiChip-label,
+.MuiChip-colorPrimary .MuiChip-label,
+.course-option-chips .MuiChip-colorPrimary .MuiChip-label {
+  color: #0E2128 !important;
+  font-weight: 800 !important;
+}
 .course-option-action {
   width: 38px;
   height: 38px;

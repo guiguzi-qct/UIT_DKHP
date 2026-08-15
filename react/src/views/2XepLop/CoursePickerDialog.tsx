@@ -490,7 +490,7 @@ export default function CoursePickerDialog({ target, onClose }: Props) {
                                   {theory.PhongHoc && (
                                     <Chip size="small" variant="outlined" label={theory.PhongHoc} />
                                   )}
-                                  <Chip size="small" color="primary" label="Lý thuyết" />
+                                  <Chip size="small" color="primary" className="chip-ly-thuyet" label="Lý thuyết" />
                                 </div>
                               </div>
                               <span
@@ -608,7 +608,7 @@ export default function CoursePickerDialog({ target, onClose }: Props) {
                                 {practice.PhongHoc && (
                                   <Chip size="small" variant="outlined" label={practice.PhongHoc} />
                                 )}
-                                <Chip size="small" color="secondary" label="Thực hành" />
+                                <Chip size="small" color="secondary" className="chip-thuc-hanh" label="Thực hành" />
                               </div>
                             </div>
                             <span
