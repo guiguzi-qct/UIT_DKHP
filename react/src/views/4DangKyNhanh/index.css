@@ -347,3 +347,129 @@
   white-space: pre-wrap;
   word-break: break-word;
 }
+
+/* Script toggle button */
+.dkn-script-toggle-wrap {
+  display: flex;
+  justify-content: center;
+  margin: 14px 0 0 0;
+}
+
+.dkn-toggle-code-btn {
+  border-radius: 10px !important;
+  font-weight: 700 !important;
+  text-transform: none !important;
+  color: #59899D !important;
+  border-color: #D5E0E8 !important;
+}
+
+.dkn-toggle-code-btn:hover {
+  border-color: #0E2128 !important;
+  color: #0E2128 !important;
+  background: #F4F7F9 !important;
+}
+
+/* Section 3: Slot Full Backup Suggester */
+.dkn-full-slot-picker-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: #F4F7F9;
+  padding: 16px 20px;
+  border-radius: 14px;
+  border: 1px solid #D5E0E8;
+  margin-bottom: 20px;
+}
+
+.dkn-full-slot-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0E2128;
+}
+
+.dkn-full-class-select {
+  background: #ffffff;
+  border-radius: 10px;
+  font-weight: 700;
+  color: #0E2128;
+}
+
+.dkn-replacements-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.dkn-replacements-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0E2128;
+}
+
+.dkn-replacement-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 14px;
+}
+
+.dkn-replacement-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 16px;
+  border-radius: 14px;
+  border: 1.5px solid #D5E0E8;
+  background: #ffffff;
+  transition: all 180ms ease;
+}
+
+.dkn-replacement-card.is-feasible {
+  border-color: #59899D;
+  box-shadow: 0 2px 8px rgba(89, 137, 157, 0.08);
+}
+
+.dkn-replacement-card.is-overlap {
+  background: #fef2f2;
+  border-color: #fca5a5;
+  opacity: 0.75;
+}
+
+.dkn-rep-main {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dkn-rep-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dkn-rep-header strong {
+  font-size: 16px;
+  font-weight: 800;
+  color: #0E2128;
+  font-family: monospace;
+}
+
+.dkn-rep-sub {
+  font-size: 13px;
+  color: #59899D;
+  font-weight: 600;
+}
+
+.dkn-rep-chips {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.dkn-swap-btn {
+  border-radius: 10px !important;
+  font-weight: 800 !important;
+  text-transform: none !important;
+  white-space: nowrap;
+}

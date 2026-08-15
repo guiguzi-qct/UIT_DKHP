@@ -4,6 +4,9 @@ import FlashOnIcon from '@mui/icons-material/FlashOn';
 import CodeIcon from '@mui/icons-material/Code';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
@@ -14,19 +17,34 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import { useSnackbar } from 'notistack';
 import React, { useMemo, useState } from 'react';
-import { calcTongSoTC } from '../../utils';
-import { selectActivePlanId, selectPlans, useTkbStore } from '../../zus';
+import { ClassModel } from '../../types';
+import { calcTongSoTC, getDanhSachTiet, hasOverlapSchedule, hasTimetableSlot, isSameAgGridRowId } from '../../utils';
+import { selectActivePlanId, selectFinalDataTkb, selectPlans, useTkbStore } from '../../zus';
 import './index.css';
+
+const formatTiet = (tiet: string) =>
+  getDanhSachTiet(tiet)
+    .map((value) => (value === '0' ? '10' : value))
+    .join(', ');
+
+const formatSchedule = (candidate: ClassModel) => {
+  if (!hasTimetableSlot(candidate)) return 'Chưa có lịch cố định';
+  return `Thứ ${candidate.Thu}, tiết ${formatTiet(candidate.Tiet)}`;
+};
 
 export default function DangKyNhanh() {
   const { enqueueSnackbar } = useSnackbar();
+  const allData = useTkbStore(selectFinalDataTkb);
   const plans = useTkbStore(selectPlans);
   const activePlanId = useTkbStore(selectActivePlanId);
   const setActivePlanId = useTkbStore((s) => s.setActivePlanId);
+  const setSelectedClasses = useTkbStore((s) => s.setSelectedClasses);
 
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [copiedScript, setCopiedScript] = useState(false);
   const [copiedAllCodes, setCopiedAllCodes] = useState(false);
+  const [showScriptPreview, setShowScriptPreview] = useState(false);
+  const [selectedFullClassCode, setSelectedFullClassCode] = useState<string>('');
 
   const currentPlan = useMemo(() => {
     return plans.find((p) => p.id === activePlanId) || plans[0];
@@ -52,75 +70,129 @@ export default function DangKyNhanh() {
     return `(() => {
   const t0 = performance.now();
 
+  // =========================
   // DANH SÁCH MÃ LỚP (${planName})
+  // =========================
   const RAW_CODES = \`
 ${codesIndent}
   \`;
 
-  const norm = (s) => String(s ?? "").replace(/[\\s\\u00A0]+/g, " ").trim().toUpperCase();
-  const targets = new Set(RAW_CODES.split(/[\\s,;]+/).map(norm).filter(Boolean));
+  const norm = s =>
+    String(s ?? "")
+      .replace(/[\\s\\u00A0]+/g, " ")
+      .trim()
+      .toUpperCase();
 
-  if (!targets.size) return console.error("[Guiguzi] Không có mã lớp.");
+  const targets = new Set(
+    RAW_CODES.split(/[\\s,;]+/).map(norm).filter(Boolean)
+  );
 
-  let table = null, colIdx = -1, startRow = 0;
-  for (const t of document.querySelectorAll("table")) {
-    for (let r = 0; r < Math.min(t.rows.length, 5); r++) {
-      const idx = [...t.rows[r].cells].findIndex(c => ["MÃ LỚP", "MA LOP"].includes(norm(c.textContent)));
-      if (idx !== -1) { table = t; colIdx = idx; startRow = r + 1; break; }
-    }
-    if (table) break;
+  if (!targets.size) {
+    console.log("Không có mã lớp.");
+    return;
   }
 
-  if (!table) return console.error('[Guiguzi] Không tìm thấy cột "Mã lớp".');
+  let table;
+  let colIdx = -1;
+  let startRow = 0;
 
-  const res = [];
+  outer:
+  for (const t of document.querySelectorAll("table")) {
+    for (let r = 0; r < Math.min(t.rows.length, 5); r++) {
+      for (let c = 0; c < t.rows[r].cells.length; c++) {
+        const text = norm(t.rows[r].cells[c].textContent);
+
+        if (text === "MÃ LỚP" || text === "MA LOP") {
+          table = t;
+          colIdx = c;
+          startRow = r + 1;
+          break outer;
+        }
+      }
+    }
+  }
+
+  if (!table) {
+    console.log('Không tìm thấy cột "Mã lớp".');
+    return;
+  }
+
   const found = new Set();
+
+  let selected = 0;
+  let already = 0;
+  let disabled = 0;
+  let noCheckbox = 0;
 
   for (let i = startRow; i < table.rows.length; i++) {
     const row = table.rows[i];
-    if (!row.cells || row.cells.length <= colIdx) continue;
+
+    if (row.cells.length <= colIdx) continue;
 
     const code = norm(row.cells[colIdx].textContent);
+
     if (!targets.has(code)) continue;
 
     found.add(code);
+
     const cb = row.querySelector('input[type="checkbox"]');
 
     if (!cb) {
-      res.push({ "Mã lớp": code, "Trạng thái": "⚠ Không có checkbox" });
+      noCheckbox++;
     } else if (cb.disabled) {
-      res.push({ "Mã lớp": code, "Trạng thái": "⚠ Bị khóa" });
+      disabled++;
     } else if (cb.checked) {
-      res.push({ "Mã lớp": code, "Trạng thái": "○ Đã chọn trước" });
+      already++;
     } else {
       cb.click();
-      cb.dispatchEvent(new Event("change", { bubbles: true }));
-      row.style.background = "#e6fffa";
-      res.push({ "Mã lớp": code, "Trạng thái": "✓ Đã tick mới" });
+      selected++;
     }
 
     if (found.size === targets.size) break;
   }
 
-  [...targets].forEach(code => {
-    if (!found.has(code)) res.push({ "Mã lớp": code, "Trạng thái": "✕ Không tìm thấy" });
-  });
-
+  const missing = targets.size - found.size;
   const ms = (performance.now() - t0).toFixed(2);
-  console.log("%c⚡ Guiguzi Quick Select", "font-weight:bold;font-size:14px;color:#0e2128");
-  console.table(res);
 
-  const newlyTicked = res.filter(r => r["Trạng thái"] === "✓ Đã tick mới").length;
-  console.log(\`Yêu cầu: \${targets.size} | Tick mới: \${newlyTicked} | Thời gian: \${ms}ms\`);
-
-  // Hiển thị Banner kết quả trực quan trên trang Web UIT
-  const toast = document.createElement("div");
-  toast.style.cssText = "position:fixed;bottom:24px;right:24px;z-index:999999;background:#0e2128;color:#fff;padding:12px 20px;border-radius:12px;font-family:sans-serif;font-size:14px;box-shadow:0 4px 20px rgba(0,0,0,0.3);border:1px solid #59899d";
-  toast.innerHTML = \`⚡ <b>Guiguzi Auto-Tick:</b> Đã tick mới <b>\${newlyTicked}/\${targets.size}</b> lớp (\${ms}ms)\`;
-  document.body.appendChild(toast);
-  setTimeout(() => toast.remove(), 4500);
+  console.log(
+    \`Yêu cầu: \${targets.size} | Tick mới: \${selected} | Đã có: \${already} | Bị khóa: \${disabled} | Không tìm thấy: \${missing} | Không checkbox: \${noCheckbox} | \${ms}ms\`
+  );
 })();`;
   }, [currentPlan, selectedClasses]);
+
+  // Target full class selected by student
+  const targetFullClass = useMemo(() => {
+    if (!selectedFullClassCode) return null;
+    return selectedClasses.find((c) => c.MaLop === selectedFullClassCode) || null;
+  }, [selectedClasses, selectedFullClassCode]);
+
+  // Candidate replacement classes for targetFullClass
+  const replacementCandidates = useMemo(() => {
+    if (!targetFullClass) return [];
+    const remainingClassesInPlan = selectedClasses.filter((c) => !isSameAgGridRowId(c, targetFullClass));
+
+    // Find classes of same MaMH (and same ThucHanh type) from allData
+    const candidates = allData.filter((c) => {
+      if (c.MaMH !== targetFullClass.MaMH) return false;
+      if (isSameAgGridRowId(c, targetFullClass)) return false;
+      return Boolean(c.ThucHanh) === Boolean(targetFullClass.ThucHanh);
+    });
+
+    return candidates.map((candidate) => {
+      const isOverlap = hasOverlapSchedule(remainingClassesInPlan, candidate);
+      const overlapClass = isOverlap
+        ? remainingClassesInPlan.find((c) => hasOverlapSchedule([c], candidate)) || null
+        : null;
+      return { candidate, isOverlap, overlapClass };
+    }).sort((a, b) => Number(a.isOverlap) - Number(b.isOverlap));
+  }, [allData, selectedClasses, targetFullClass]);
+
+  const handleSwapClass = (oldClass: ClassModel, newClass: ClassModel) => {
+    const updated = selectedClasses.map((c) => (isSameAgGridRowId(c, oldClass) ? newClass : c));
+    setSelectedClasses(updated);
+    setSelectedFullClassCode(newClass.MaLop);
+    enqueueSnackbar(`Đã đổi thành công lớp ${oldClass.MaLop} ➔ ${newClass.MaLop}!`, { variant: 'success' });
+  };
 
   const copyToClipboard = (text: string, onSuccess: () => void) => {
     navigator.clipboard.writeText(text).then(() => {
@@ -163,7 +235,7 @@ ${codesIndent}
         <Box className="dkn-header-left">
           <Typography className="dkn-header-title">Đăng ký nhanh & Xuất Script</Typography>
           <Typography className="dkn-header-desc">
-            Xuất danh sách mã lớp độc lập để copy-paste thủ công hoặc tạo Script Auto-Tick cho trang ĐKMH UIT.
+            Xuất danh sách mã lớp độc lập để copy-paste thủ công, chạy Script Auto-Tick hoặc đổi lớp khi hết slot.
           </Typography>
         </Box>
 
@@ -172,7 +244,10 @@ ${codesIndent}
           <Select
             size="small"
             value={activePlanId}
-            onChange={(e) => setActivePlanId(e.target.value)}
+            onChange={(e) => {
+              setActivePlanId(e.target.value);
+              setSelectedFullClassCode('');
+            }}
             className="dkn-plan-select"
           >
             {plans.map((p) => (
@@ -258,12 +333,12 @@ ${codesIndent}
           )}
         </Card>
 
-        {/* Section 2: Auto-Tick Console Script Generator */}
+        {/* Section 2: Auto-Tick Console Script */}
         <Card className="dkn-section-card" elevation={0}>
           <Box className="dkn-section-header">
             <Box className="dkn-section-title-wrap">
               <CodeIcon className="dkn-section-icon" />
-              <Typography className="dkn-section-title">Script Auto-Tick Checkbox (Guiguzi Quick Select)</Typography>
+              <Typography className="dkn-section-title">Script Auto-Tick Checkbox</Typography>
             </Box>
             <Button
               variant="contained"
@@ -310,18 +385,121 @@ ${codesIndent}
             </Box>
           </Box>
 
-          {/* Script Code Preview */}
-          <Box className="dkn-script-preview-container">
-            <Box className="dkn-script-preview-header">
-              <span>script-auto-tick.js ({currentPlan?.name})</span>
-              <button type="button" onClick={handleCopyScript} disabled={classCount === 0}>
-                {copiedScript ? '✓ Đã sao chép' : 'Sao chép mã'}
-              </button>
-            </Box>
-            <pre className="dkn-script-preview-code">
-              <code>{scriptCode}</code>
-            </pre>
+          {/* Expandable Script Code Preview */}
+          <Box className="dkn-script-toggle-wrap">
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={() => setShowScriptPreview(!showScriptPreview)}
+              endIcon={showScriptPreview ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+              className="dkn-toggle-code-btn"
+            >
+              {showScriptPreview ? 'Thu gọn mã Script' : 'Xem chi tiết mã Script'}
+            </Button>
           </Box>
+
+          {showScriptPreview && (
+            <Box className="dkn-script-preview-container">
+              <Box className="dkn-script-preview-header">
+                <span>script-auto-tick.js ({currentPlan?.name})</span>
+                <button type="button" onClick={handleCopyScript} disabled={classCount === 0}>
+                  {copiedScript ? '✓ Đã sao chép' : 'Sao chép mã'}
+                </button>
+              </Box>
+              <pre className="dkn-script-preview-code">
+                <code>{scriptCode}</code>
+              </pre>
+            </Box>
+          )}
+        </Card>
+
+        {/* Section 3: Slot Full Backup Class Suggester */}
+        <Card className="dkn-section-card" elevation={0}>
+          <Box className="dkn-section-header">
+            <Box className="dkn-section-title-wrap">
+              <SwapHorizIcon className="dkn-section-icon" />
+              <Typography className="dkn-section-title">Xử lý Hết Slot · Đề xuất lớp thay thế</Typography>
+            </Box>
+          </Box>
+
+          <Box className="dkn-full-slot-picker-wrap">
+            <Typography className="dkn-full-slot-label">
+              Nếu một lớp trong Plan bị hết chỗ (hết slot) khi đăng ký trên web trường, hãy chọn lớp đó dưới đây để hệ thống gợi ý lớp thay thế:
+            </Typography>
+
+            <Select
+              fullWidth
+              size="small"
+              value={selectedFullClassCode}
+              onChange={(e) => setSelectedFullClassCode(e.target.value)}
+              className="dkn-full-class-select"
+              displayEmpty
+            >
+              <MenuItem value="" disabled>
+                -- Chọn lớp trong {currentPlan?.name} bị hết slot --
+              </MenuItem>
+              {selectedClasses.map((item) => (
+                <MenuItem key={`${item.MaLop}-${item.Thu}-${item.Tiet}`} value={item.MaLop}>
+                  {item.MaLop} - {item.TenMH} ({item.ThucHanh ? 'Thực hành' : 'Lý thuyết'})
+                </MenuItem>
+              ))}
+            </Select>
+          </Box>
+
+          {selectedFullClassCode && (
+            <Box className="dkn-replacements-list">
+              <Typography className="dkn-replacements-title">
+                Lớp thay thế khả thi cho môn <strong>{targetFullClass?.TenMH}</strong> ({targetFullClass?.MaMH}):
+              </Typography>
+
+              {replacementCandidates.length === 0 ? (
+                <Box className="dkn-empty-state">
+                  <Typography color="text.secondary">
+                    Không tìm thấy lớp nào khác cho môn <strong>{targetFullClass?.TenMH}</strong> trong dữ liệu Excel.
+                  </Typography>
+                </Box>
+              ) : (
+                <Box className="dkn-replacement-cards-grid">
+                  {replacementCandidates.map(({ candidate, isOverlap, overlapClass }) => (
+                    <Box
+                      key={`${candidate.MaLop}-${candidate.Thu}-${candidate.Tiet}`}
+                      className={`dkn-replacement-card ${isOverlap ? 'is-overlap' : 'is-feasible'}`}
+                    >
+                      <Box className="dkn-rep-main">
+                        <Box className="dkn-rep-header">
+                          <strong>{candidate.MaLop}</strong>
+                          <Chip
+                            size="small"
+                            color={isOverlap ? 'error' : 'success'}
+                            variant={isOverlap ? 'outlined' : 'filled'}
+                            label={isOverlap ? `Trùng lịch (${overlapClass?.MaLop})` : 'Khả thi (Không trùng)'}
+                          />
+                        </Box>
+                        <Typography className="dkn-rep-sub">
+                          {candidate.TenGV || 'Chưa có giảng viên'} · {formatSchedule(candidate)}
+                        </Typography>
+                        <Box className="dkn-rep-chips">
+                          <Chip size="small" variant="outlined" label={`${candidate.SoTc} tín chỉ`} />
+                          {candidate.PhongHoc && <Chip size="small" variant="outlined" label={candidate.PhongHoc} />}
+                        </Box>
+                      </Box>
+
+                      <Button
+                        variant={isOverlap ? 'outlined' : 'contained'}
+                        color={isOverlap ? 'inherit' : 'primary'}
+                        size="small"
+                        disabled={isOverlap}
+                        onClick={() => handleSwapClass(targetFullClass!, candidate)}
+                        className="dkn-swap-btn"
+                      >
+                        {isOverlap ? 'Bị trùng lịch' : 'Đổi sang lớp này'}
+                      </Button>
+                    </Box>
+                  ))}
+                </Box>
+              )}
+            </Box>
+          )}
         </Card>
       </Box>
     </Box>
