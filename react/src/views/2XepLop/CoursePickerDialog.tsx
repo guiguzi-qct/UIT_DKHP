@@ -55,14 +55,7 @@ export function getMatchingPracticeClasses(ltClass: ClassModel, allCandidates: C
 
 const isSameCoursePart = (a: ClassModel, b: ClassModel) => {
   if (a.MaMH !== b.MaMH) return false;
-  const aIsTH = isThucHanhClass(a);
-  const bIsTH = isThucHanhClass(b);
-  if (aIsTH !== bIsTH) return false;
-
-  if (aIsTH) {
-    return getParentTheoryCode(a.MaLop) === getParentTheoryCode(b.MaLop);
-  }
-  return a.MaLop?.trim() === b.MaLop?.trim();
+  return isThucHanhClass(a) === isThucHanhClass(b);
 };
 
 const getSelectionWithoutCoursePart = (selectedClasses: ClassModel[], candidate: ClassModel) =>
@@ -110,8 +103,9 @@ export function getDraftConflictReason(
   selectedClasses: ClassModel[],
   draftCandidates: ClassModel[],
 ): string | null {
+  const isTH = isThucHanhClass(candidate);
   if (draftCandidates.some((draft) => isSameCoursePart(draft, candidate))) {
-    return 'Đã chọn lớp khác cùng phần môn';
+    return isTH ? 'Đã chọn lớp Thực hành cho môn này' : 'Đã chọn lớp Lý thuyết cho môn này';
   }
 
   const selectionWithDraft = applyCandidateBatch(selectedClasses, draftCandidates);
