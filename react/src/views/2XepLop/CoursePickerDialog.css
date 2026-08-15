@@ -282,35 +282,39 @@
   gap: 6px;
 }
 /* Class Type Chips Styling */
-.chip-thuc-hanh,
-.MuiChip-colorSecondary,
-.course-option-chips .MuiChip-colorSecondary {
+.chip-thuc-hanh {
   background: #17333F !important;
   color: #ffffff !important;
   font-weight: 800 !important;
   border: 1px solid #0E2128 !important;
 }
-.chip-thuc-hanh .MuiChip-label,
-.MuiChip-colorSecondary .MuiChip-label,
-.course-option-chips .MuiChip-colorSecondary .MuiChip-label {
+.chip-thuc-hanh .MuiChip-label {
+  color: #ffffff !important;
+  font-weight: 800 !important;
+}
+.chip-thuc-hanh.active {
+  background: #0E2128 !important;
+  color: #ffffff !important;
+  font-weight: 800 !important;
+  border: 1.5px solid #0E2128 !important;
+  box-shadow: 0 2px 6px rgba(14, 33, 40, 0.25) !important;
+}
+.chip-thuc-hanh.active .MuiChip-label {
   color: #ffffff !important;
   font-weight: 800 !important;
 }
 
-.chip-ly-thuyet,
-.MuiChip-colorPrimary,
-.course-option-chips .MuiChip-colorPrimary {
+.chip-ly-thuyet {
   background: #ffffff !important;
   color: #0E2128 !important;
   font-weight: 800 !important;
   border: 1.5px solid #0E2128 !important;
 }
-.chip-ly-thuyet .MuiChip-label,
-.MuiChip-colorPrimary .MuiChip-label,
-.course-option-chips .MuiChip-colorPrimary .MuiChip-label {
+.chip-ly-thuyet .MuiChip-label {
   color: #0E2128 !important;
   font-weight: 800 !important;
 }
+
 .course-option-action {
   width: 38px;
   height: 38px;
@@ -318,20 +322,32 @@
   display: grid;
   align-items: center;
   justify-content: center;
-  border: 1px solid #D5E0E8;
-  border-radius: 10px;
-  color: #040309;
-  background: #fff;
-  font-weight: 800;
+  border: 1.5px solid #0E2128 !important;
+  border-radius: 10px !important;
+  color: #0E2128 !important;
+  background: #ffffff !important;
+  font-weight: 800 !important;
+  transition: all 140ms ease !important;
 }
 .course-option-action svg {
-  font-size: 23px;
+  font-size: 23px !important;
+  color: #0E2128 !important;
+  fill: #0E2128 !important;
 }
 .course-option:not(.course-option-conflict):hover .course-option-action,
-.course-option:not(.course-option-conflict):focus-visible .course-option-action {
-  border-color: #0E2128;
-  color: #fff;
-  background: #0E2128;
+.course-option:not(.course-option-conflict):focus-visible .course-option-action,
+.course-option-active-th .course-option-action,
+.course-option-active-lt .course-option-action {
+  border-color: #0E2128 !important;
+  color: #ffffff !important;
+  background: #0E2128 !important;
+}
+.course-option:not(.course-option-conflict):hover .course-option-action svg,
+.course-option:not(.course-option-conflict):focus-visible .course-option-action svg,
+.course-option-active-th .course-option-action svg,
+.course-option-active-lt .course-option-action svg {
+  color: #ffffff !important;
+  fill: #ffffff !important;
 }
 .course-option-action-conflict {
   width: auto;

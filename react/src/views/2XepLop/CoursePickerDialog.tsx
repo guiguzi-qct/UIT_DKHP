@@ -548,8 +548,7 @@ export default function CoursePickerDialog({ target, onClose }: Props) {
                                           {!effectiveTHConflict && (
                                             <Chip
                                               size="small"
-                                              color={isTHActive ? 'primary' : isUnlockedTH ? 'primary' : 'default'}
-                                              variant={isUnlockedTH ? 'outlined' : 'filled'}
+                                              className={`chip-thuc-hanh ${isTHActive ? 'active' : ''}`}
                                               label={
                                                 isTHActive
                                                   ? 'Thực hành (Đã chọn)'
