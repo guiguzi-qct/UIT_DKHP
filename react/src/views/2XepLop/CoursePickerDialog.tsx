@@ -22,7 +22,48 @@ export type PickerTarget =
   | { kind: 'slot'; thu: number; tiets: string[]; label: string }
   | { kind: 'replace'; existing: ClassModel };
 
-const isSameCoursePart = (a: ClassModel, b: ClassModel) => a.MaMH === b.MaMH && a.ThucHanh === b.ThucHanh;
+export function getParentTheoryCode(maLop: string): string {
+  const trimmed = (maLop || '').trim();
+  if (/\.\d+$/.test(trimmed)) {
+    return trimmed.replace(/\.\d+$/, '');
+  }
+  return trimmed;
+}
+
+export function isThucHanhClass(candidate: ClassModel): boolean {
+  if (candidate.ThucHanh) return true;
+  const maLop = candidate.MaLop?.trim() || '';
+  return /\.\d+$/.test(maLop);
+}
+
+export function isTheoryClass(candidate: ClassModel): boolean {
+  return !isThucHanhClass(candidate);
+}
+
+export function isPracticeOfTheory(thClass: ClassModel, ltClass: ClassModel): boolean {
+  if (thClass.MaMH !== ltClass.MaMH) return false;
+  if (!isThucHanhClass(thClass) || !isTheoryClass(ltClass)) return false;
+  const ltCode = ltClass.MaLop?.trim() || '';
+  const thCode = thClass.MaLop?.trim() || '';
+  const subSuffix = thCode.slice(ltCode.length);
+  return thCode.startsWith(ltCode) && /^\.\d+$/.test(subSuffix);
+}
+
+export function getMatchingPracticeClasses(ltClass: ClassModel, allCandidates: ClassModel[]): ClassModel[] {
+  return allCandidates.filter((c) => isPracticeOfTheory(c, ltClass));
+}
+
+const isSameCoursePart = (a: ClassModel, b: ClassModel) => {
+  if (a.MaMH !== b.MaMH) return false;
+  const aIsTH = isThucHanhClass(a);
+  const bIsTH = isThucHanhClass(b);
+  if (aIsTH !== bIsTH) return false;
+
+  if (aIsTH) {
+    return getParentTheoryCode(a.MaLop) === getParentTheoryCode(b.MaLop);
+  }
+  return a.MaLop?.trim() === b.MaLop?.trim();
+};
 
 const getSelectionWithoutCoursePart = (selectedClasses: ClassModel[], candidate: ClassModel) =>
   selectedClasses.filter((selectedClass) => !isSameCoursePart(selectedClass, candidate));
@@ -78,25 +119,6 @@ export function getDraftConflictReason(
   if (hasOverlapSchedule(classesKeptWhileTryingCandidate, candidate)) return 'Trùng giờ với lớp đang chọn';
 
   return null;
-}
-
-export function isThucHanhClass(candidate: ClassModel): boolean {
-  if (candidate.ThucHanh) return true;
-  const maLop = candidate.MaLop?.trim() || '';
-  return /\.\d+$/.test(maLop);
-}
-
-export function isTheoryClass(candidate: ClassModel): boolean {
-  return !isThucHanhClass(candidate);
-}
-
-export function getMatchingPracticeClasses(ltClass: ClassModel, allCandidates: ClassModel[]): ClassModel[] {
-  const ltCode = ltClass.MaLop?.trim() || '';
-  return allCandidates.filter((c) => {
-    if (c.MaMH !== ltClass.MaMH) return false;
-    const cCode = c.MaLop?.trim() || '';
-    return isThucHanhClass(c) && (cCode.startsWith(ltCode + '.') || cCode.startsWith(ltCode));
-  });
 }
 
 export type CandidateCourseGroup = {
@@ -238,7 +260,7 @@ export default function CoursePickerDialog({ target, onClose }: Props) {
         const candidateKey = getCandidateKey(candidate);
         setShakingKey(candidateKey);
         setTimeout(() => setShakingKey(null), 500);
-        enqueueSnackbar('⚠️ Bạn phải chọn lớp Lý thuyết trước khi chọn lớp Thực hành!', { variant: 'error' });
+        enqueueSnackbar('Bạn phải chọn lớp Lý thuyết trước khi chọn lớp Thực hành!', { variant: 'error' });
         return;
       }
     }
@@ -271,7 +293,7 @@ export default function CoursePickerDialog({ target, onClose }: Props) {
             setShakingKey(null);
           }, 500);
           enqueueSnackbar(
-            `🔴 Lớp Lý thuyết ${ltClass.MaLop} có bài Thực hành. Bạn chưa chọn lớp Thực hành đi kèm (${matchingTHOptions.map(c => c.MaLop).join(', ')})!`,
+            `Lớp Lý thuyết ${ltClass.MaLop} có bài Thực hành. Bạn chưa chọn lớp Thực hành đi kèm (${matchingTHOptions.map(c => c.MaLop).join(', ')})!`,
             { variant: 'error' }
           );
           return;
@@ -381,32 +403,31 @@ export default function CoursePickerDialog({ target, onClose }: Props) {
                       const conflictReason = conflictReasons.get(candidateKey);
                       const isTH = isThucHanhClass(candidate);
 
-                      const selectedLTInCourse = draftCandidates.find(
+                      const allSelectedLTInCourse = [...selectedClasses, ...draftCandidates].filter(
                         (c) => c.MaMH === candidate.MaMH && isTheoryClass(c)
                       );
-                      const hasSelectedLTInCourse = Boolean(selectedLTInCourse);
+                      const selectedLTForThisCandidate = allSelectedLTInCourse.find((lt) =>
+                        isPracticeOfTheory(candidate, lt)
+                      );
 
                       let isHighlightedTH = false;
                       let isDimmedByLTSelection = false;
 
-                      if (hasSelectedLTInCourse) {
+                      if (allSelectedLTInCourse.length > 0) {
                         if (isTH) {
-                          const ltCode = selectedLTInCourse!.MaLop?.trim() || '';
-                          const thCode = candidate.MaLop?.trim() || '';
-                          if (thCode.startsWith(ltCode + '.') || thCode.startsWith(ltCode)) {
+                          if (selectedLTForThisCandidate) {
                             isHighlightedTH = true;
                           } else {
                             isDimmedByLTSelection = true;
                           }
                         } else {
-                          isDimmedByLTSelection = true;
+                          if (draftCandidates.some((c) => c.MaMH === candidate.MaMH && isTheoryClass(c))) {
+                            isDimmedByLTSelection = true;
+                          }
                         }
                       }
 
-                      const isLockedTH =
-                        isTH &&
-                        !hasSelectedLTInCourse &&
-                        !selectedClasses.some((c) => c.MaMH === candidate.MaMH && isTheoryClass(c));
+                      const isLockedTH = isTH && !selectedLTForThisCandidate;
                       const isShaking = shakingKey === candidateKey;
 
                       return (
