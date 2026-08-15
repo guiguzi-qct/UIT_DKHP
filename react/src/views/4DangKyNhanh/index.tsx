@@ -274,35 +274,6 @@ ${codesIndent}
             Xuất danh sách mã lớp độc lập để copy-paste thủ công, chạy Script Auto-Tick hoặc đổi lớp khi hết slot.
           </Typography>
         </Box>
-
-        <Box className="dkn-plan-switcher">
-          <Typography className="dkn-plan-label">Đang chọn Plan:</Typography>
-          <Select
-            size="small"
-            value={activePlanId}
-            onChange={(e) => {
-              setActivePlanId(e.target.value);
-              setSelectedFullClassCode('');
-              setCheckedClassCodes({});
-            }}
-            className="dkn-plan-select"
-          >
-            {plans.map((p) => (
-              <MenuItem key={p.id} value={p.id}>
-                {p.name} ({p.selectedClasses.length} lớp)
-              </MenuItem>
-            ))}
-          </Select>
-
-          <Box className="dkn-stat-pills">
-            <span className="dkn-stat-pill">
-              <strong>{classCount}</strong> lớp
-            </span>
-            <span className="dkn-stat-pill">
-              <strong>{totalTc}</strong> tín chỉ
-            </span>
-          </Box>
-        </Box>
       </Card>
 
       {/* Main Content Grid */}
@@ -313,16 +284,38 @@ ${codesIndent}
             <Box className="dkn-section-title-wrap">
               <FormatListBulletedIcon className="dkn-section-icon" />
               <Typography className="dkn-section-title">Checklist mã lớp</Typography>
-              {classCount > 0 && (
-                <Chip
-                  size="small"
-                  className="dkn-checklist-progress-chip"
-                  label={`Đã chọn: ${checkedCount} / ${classCount}`}
-                />
-              )}
             </Box>
 
             <Box className="dkn-section-actions">
+              <Box className="dkn-plan-switcher">
+                <Typography className="dkn-plan-label">Đang chọn Plan:</Typography>
+                <Select
+                  size="small"
+                  value={activePlanId}
+                  onChange={(e) => {
+                    setActivePlanId(e.target.value);
+                    setSelectedFullClassCode('');
+                    setCheckedClassCodes({});
+                  }}
+                  className="dkn-plan-select"
+                >
+                  {plans.map((p) => (
+                    <MenuItem key={p.id} value={p.id}>
+                      {p.name} ({p.selectedClasses.length} lớp)
+                    </MenuItem>
+                  ))}
+                </Select>
+
+                <Box className="dkn-stat-pills">
+                  <span className="dkn-stat-pill">
+                    Đã ĐKMH: <strong>{checkedCount}/{classCount}</strong> lớp
+                  </span>
+                  <span className="dkn-stat-pill">
+                    <strong>{totalTc}</strong> tín chỉ
+                  </span>
+                </Box>
+              </Box>
+
               {checkedCount > 0 && (
                 <Button
                   variant="outlined"
@@ -403,7 +396,7 @@ ${codesIndent}
                         startIcon={isChecked ? <CheckIcon /> : null}
                         onClick={() => toggleCheckClassCode(code)}
                       >
-                        {isChecked ? 'Đã xong' : 'Đánh dấu'}
+                        {isChecked ? 'Thành công' : 'Đánh dấu'}
                       </Button>
                     </Box>
                   </Box>
