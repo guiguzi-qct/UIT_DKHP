@@ -338,7 +338,7 @@ export default function PlanSelectorBar() {
           },
         }}
       >
-        <DialogTitle fontWeight={800} style={{ display: 'flex', items: 'center', gap: 10, color: '#0E2128', fontSize: '20px' }}>
+        <DialogTitle fontWeight={800} style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#0E2128', fontSize: '20px' }}>
           <WarningAmberRoundedIcon style={{ fontSize: 32, color: '#d9534f' }} />
           Xác nhận xóa Plan
         </DialogTitle>
