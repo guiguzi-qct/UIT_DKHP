@@ -6,6 +6,7 @@ import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import EditIcon from '@mui/icons-material/Edit';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -324,16 +325,33 @@ export default function PlanSelectorBar() {
         </DialogActions>
       </Dialog>
 
-      <Dialog open={isConfirmDeleteDialogOpen} onClose={() => setIsConfirmDeleteDialogOpen(false)} maxWidth="xs" fullWidth>
-        <DialogTitle>Xác nhận xóa Plan</DialogTitle>
-        <DialogContent dividers>
-          <Typography variant="body2">
-            Bạn có chắc chắn muốn xóa <strong>{targetPlanToDelete?.name || 'Plan này'}</strong> không? Thao tác này không thể hoàn tác.
+      <Dialog
+        open={isConfirmDeleteDialogOpen}
+        onClose={() => setIsConfirmDeleteDialogOpen(false)}
+        maxWidth="xs"
+        fullWidth
+        PaperProps={{
+          style: {
+            borderRadius: 18,
+            border: '1.5px solid #0E2128',
+            padding: '8px 6px',
+          },
+        }}
+      >
+        <DialogTitle fontWeight={800} style={{ display: 'flex', items: 'center', gap: 10, color: '#0E2128', fontSize: '20px' }}>
+          <WarningAmberRoundedIcon style={{ fontSize: 32, color: '#d9534f' }} />
+          Xác nhận xóa Plan
+        </DialogTitle>
+        <DialogContent dividers style={{ borderColor: '#D5E0E8' }}>
+          <Typography variant="body2" style={{ color: '#0E2128', fontWeight: 600, fontSize: '14.5px', lineHeight: 1.5 }}>
+            Bạn có chắc chắn muốn xóa <strong style={{ color: '#d9534f' }}>{targetPlanToDelete?.name || 'Plan này'}</strong> không? Thao tác này không thể hoàn tác.
           </Typography>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setIsConfirmDeleteDialogOpen(false)}>Hủy</Button>
-          <Button color="error" variant="contained" onClick={handleConfirmDelete}>
+        <DialogActions style={{ padding: '8px 24px 16px' }}>
+          <Button onClick={() => setIsConfirmDeleteDialogOpen(false)} style={{ color: '#0E2128', fontWeight: 700 }}>
+            Hủy
+          </Button>
+          <Button color="error" variant="contained" style={{ fontWeight: 800, borderRadius: 10, padding: '8px 20px' }} onClick={handleConfirmDelete}>
             Xóa Plan
           </Button>
         </DialogActions>

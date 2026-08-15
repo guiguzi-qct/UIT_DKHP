@@ -71,13 +71,13 @@ function SelectExcelButton() {
       }}
     >
       <Box className="upload-icon"><CloudUploadOutlinedIcon /></Box>
-      <Typography variant="h5">Kéo thả file vào đây</Typography>
-      <Typography color="text.secondary">Hoặc chọn file Excel thời khóa biểu từ máy của bạn</Typography>
+      <Typography variant="h5" style={{ color: '#0E2128', fontWeight: 800 }}>Kéo thả file vào đây</Typography>
+      <Typography style={{ color: '#0E2128', fontWeight: 700 }}>Hoặc chọn file Excel thời khóa biểu từ máy của bạn</Typography>
       <Button variant="contained" size="large" onClick={() => inputRef.current?.click()} startIcon={<InsertDriveFileOutlinedIcon />}>
         {dataExcel ? 'Chọn file khác' : 'Chọn file Excel'}
       </Button>
       <input ref={inputRef} type="file" hidden accept={sheetJSFT} onChange={handleUpload} />
-      <Typography className="upload-format" variant="caption">Hỗ trợ .xlsx, .xls và .csv</Typography>
+      <Typography className="upload-format" variant="caption" style={{ color: '#0E2128', fontWeight: 800 }}>Hỗ trợ .xlsx, .xls và .csv</Typography>
       {dataExcel && (
         <Box className="current-file">
           <CheckCircleOutlineIcon color="success" />

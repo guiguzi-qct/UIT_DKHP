@@ -1,3 +1,4 @@
+import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
 import RotateLeftIcon from '@mui/icons-material/RotateLeft';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
@@ -52,7 +53,7 @@ const customTheme = createTheme({
     },
     text: {
       primary: '#040309',
-      secondary: '#59899D',
+      secondary: '#0E2128',
     },
   },
   typography: {
@@ -119,16 +120,31 @@ function HeaderActions() {
         </Button>
       </Tooltip>
 
-      <Dialog open={isResetConfirmOpen} onClose={() => setIsResetConfirmOpen(false)}>
-        <DialogTitle fontWeight={800}>Xác nhận đặt lại dữ liệu?</DialogTitle>
+      <Dialog
+        open={isResetConfirmOpen}
+        onClose={() => setIsResetConfirmOpen(false)}
+        PaperProps={{
+          style: {
+            borderRadius: 18,
+            border: '1.5px solid #0E2128',
+            padding: '8px 6px',
+          },
+        }}
+      >
+        <DialogTitle fontWeight={800} style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#0E2128', fontSize: '20px' }}>
+          <WarningAmberRoundedIcon style={{ fontSize: 32, color: '#d9534f' }} />
+          Xác nhận đặt lại dữ liệu?
+        </DialogTitle>
         <DialogContent>
-          <DialogContentText>
+          <DialogContentText style={{ color: '#0E2128', fontWeight: 600, fontSize: '14.5px', lineHeight: 1.5 }}>
             Tất cả file Excel đã tải, các môn đã chọn và các phương án xếp lịch của bạn sẽ bị xóa. Bạn có muốn tiếp tục không?
           </DialogContentText>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setIsResetConfirmOpen(false)}>Hủy</Button>
-          <Button variant="contained" color="error" onClick={handleConfirmReset} autoFocus>
+        <DialogActions style={{ padding: '8px 24px 16px' }}>
+          <Button onClick={() => setIsResetConfirmOpen(false)} style={{ color: '#0E2128', fontWeight: 700 }}>
+            Hủy
+          </Button>
+          <Button variant="contained" color="error" style={{ fontWeight: 800, borderRadius: 10, padding: '8px 20px' }} onClick={handleConfirmReset} autoFocus>
             Xác nhận xóa & làm lại
           </Button>
         </DialogActions>

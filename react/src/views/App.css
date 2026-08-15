@@ -276,7 +276,8 @@ body {
   font-size: 39px;
 }
 .upload-format {
-  color: #59899D;
+  color: #0E2128 !important;
+  font-weight: 800 !important;
 }
 .current-file {
   margin-top: 10px;
@@ -284,10 +285,10 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
-  border: 1px solid #ADBECC;
+  border: 1.5px solid #0E2128;
   border-radius: 12px;
   color: #0E2128;
-  background: #EBF1F5;
+  background: #D5E2EC;
 }
 .current-file span {
   display: flex;
@@ -296,7 +297,8 @@ body {
 }
 .current-file small {
   margin-top: 1px;
-  color: #59899D;
+  color: #0E2128 !important;
+  font-weight: 700 !important;
 }
 .import-summary {
   margin-top: 16px;
@@ -587,4 +589,35 @@ body {
   .timetable-card {
     padding: 10px;
   }
+}
+
+/* Global High-Contrast Dialog Overrides */
+.MuiDialog-paper {
+  border-radius: 18px !important;
+  border: 1.5px solid #0E2128 !important;
+  box-shadow: 0 16px 44px rgba(14, 33, 40, 0.25) !important;
+}
+
+.MuiDialogTitle-root {
+  color: #0E2128 !important;
+  font-weight: 800 !important;
+}
+
+.MuiDialogContentText-root,
+.MuiDialogContent-root p,
+.MuiDialogContent-root span {
+  color: #0E2128 !important;
+  font-weight: 600 !important;
+  font-size: 14.5px !important;
+  line-height: 1.5 !important;
+  opacity: 1 !important;
+}
+
+.MuiDialogContent-root {
+  color: #0E2128 !important;
+}
+
+.MuiDialogActions-root .MuiButton-text {
+  color: #0E2128 !important;
+  font-weight: 700 !important;
 }

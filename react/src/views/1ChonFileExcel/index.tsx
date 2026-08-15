@@ -24,7 +24,7 @@ function Index() {
       {dataExcel && (
         <Paper className="surface-card import-summary">
           <Box>
-            <Typography variant="overline" color="text.secondary">Dữ liệu sẵn sàng</Typography>
+            <Typography variant="overline" style={{ color: '#0E2128', fontWeight: 800, fontSize: '13px', letterSpacing: '0.05em' }}>Dữ liệu sẵn sàng</Typography>
             <Typography variant="h6">{dataExcel.fileName}</Typography>
             <Box className="summary-chips">
               <Chip label={`${totalClasses} lớp học phần`} color="primary" variant="outlined" />
