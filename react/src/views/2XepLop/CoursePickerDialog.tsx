@@ -103,6 +103,10 @@ export function getDraftConflictReason(
   selectedClasses: ClassModel[],
   draftCandidates: ClassModel[],
 ): string | null {
+  if (draftCandidates.some((draft) => isSameAgGridRowId(draft, candidate))) {
+    return null;
+  }
+
   const isTH = isThucHanhClass(candidate);
   if (draftCandidates.some((draft) => isSameCoursePart(draft, candidate))) {
     return isTH ? 'Đã chọn lớp Thực hành cho môn này' : 'Đã chọn lớp Lý thuyết cho môn này';
@@ -237,8 +241,7 @@ export default function CoursePickerDialog({ target, onClose }: Props) {
   const candidates = useMemo(() => {
     if (!target) return [];
     const normalizedSearch = search.trim().toLocaleLowerCase('vi');
-    let list = getCompatibleCandidates(data, selectedClasses, target)
-      .filter((candidate) => !draftCandidates.some((draft) => isSameAgGridRowId(draft, candidate)));
+    let list = getCompatibleCandidates(data, selectedClasses, target);
 
     if (target.kind === 'slot') {
       const activeLTs = [...selectedClasses, ...draftCandidates].filter(isTheoryClass);
@@ -250,7 +253,7 @@ export default function CoursePickerDialog({ target, onClose }: Props) {
 
       const listKeys = new Set(list.map(getCandidateKey));
       practiceClassesForActiveLTs.forEach((th) => {
-        if (!listKeys.has(getCandidateKey(th)) && !draftCandidates.some((d) => isSameAgGridRowId(d, th))) {
+        if (!listKeys.has(getCandidateKey(th))) {
           list.push(th);
         }
       });
@@ -303,12 +306,18 @@ export default function CoursePickerDialog({ target, onClose }: Props) {
   };
 
   const chooseCandidate = (candidate: ClassModel) => {
+    const isAlreadyDraft = draftCandidates.some((d) => isSameAgGridRowId(d, candidate));
+    if (isAlreadyDraft) {
+      setDraftCandidates((current) => current.filter((item) => !isSameAgGridRowId(item, candidate)));
+      return;
+    }
+
     const isTH = isThucHanhClass(candidate);
     if (isTH) {
-      const hasLTSelected = [...selectedClasses, ...draftCandidates].some(
-        (c) => c.MaMH === candidate.MaMH && isTheoryClass(c)
-      );
-      if (!hasLTSelected) {
+      const allSelectedLTs = [...selectedClasses, ...draftCandidates].filter(isTheoryClass);
+      const hasParentLTSelected = allSelectedLTs.some((lt) => isPracticeOfTheory(candidate, lt));
+
+      if (!hasParentLTSelected) {
         const candidateKey = getCandidateKey(candidate);
         setShakingKey(candidateKey);
         setTimeout(() => setShakingKey(null), 500);
@@ -316,6 +325,7 @@ export default function CoursePickerDialog({ target, onClose }: Props) {
         return;
       }
     }
+
     setDraftCandidates((current) => [...current, candidate]);
   };
 
@@ -535,7 +545,7 @@ export default function CoursePickerDialog({ target, onClose }: Props) {
                                           )}
                                           <Chip
                                             size="small"
-                                            color={isTHActive ? 'success' : isUnlockedTH ? 'success' : 'default'}
+                                            color={isTHActive ? 'primary' : isUnlockedTH ? 'primary' : 'default'}
                                             variant={isUnlockedTH ? 'outlined' : 'filled'}
                                             label={
                                               isTHActive
