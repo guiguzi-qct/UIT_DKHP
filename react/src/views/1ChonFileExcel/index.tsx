@@ -1,6 +1,4 @@
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Chip from '@mui/material/Chip';
@@ -53,10 +51,6 @@ function Index() {
           Dán mã lớp ngay
         </Button>
       </div>
-
-      <Alert className="privacy-alert" icon={<LockOutlinedIcon />} severity="info">
-        Dữ liệu chỉ được xử lý trên trình duyệt của bạn.
-      </Alert>
     </section>
   );
 }
