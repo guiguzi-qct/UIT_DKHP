@@ -129,7 +129,7 @@ export default function DanhSachLopInput({ header }: { header?: React.ReactNode 
               Chỉnh sửa
             </Button>
           )}
-          <Button variant="outlined" startIcon={<ContentCopyOutlinedIcon />} onClick={copyCodes}>
+          <Button variant="contained" startIcon={<ContentCopyOutlinedIcon />} onClick={copyCodes}>
             Sao chép mã lớp
           </Button>
         </div>

@@ -1,3 +1,5 @@
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import DownloadIcon from '@mui/icons-material/Download';
 import Button from '@mui/material/Button';
 import clsx from 'clsx';
 import { useLocation } from 'react-router-dom';
@@ -251,10 +253,10 @@ function Render({ interactive = false, onPickSlot }: InteractiveProps) {
               <small>Cuộn ngang để xem đầy đủ trên màn hình nhỏ</small>
             </div>
             <div className="timetable-actions">
-              <Button variant="outlined" onClick={copyTkbImageToClipboard}>
+              <Button variant="outlined" startIcon={<ContentCopyIcon />} onClick={copyTkbImageToClipboard}>
                 Sao chép ảnh
               </Button>
-              <Button variant="contained" onClick={saveTkbImageToComputer}>
+              <Button variant="contained" startIcon={<DownloadIcon />} onClick={saveTkbImageToComputer}>
                 Tải ảnh
               </Button>
             </div>
