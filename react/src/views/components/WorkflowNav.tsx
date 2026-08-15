@@ -6,7 +6,7 @@ const steps = [
   { ...ROUTES._1ChonFileExcel, shortName: 'Nhập dữ liệu', description: 'Chọn file Excel' },
   { ...ROUTES._2XepLop, shortName: 'Chọn lớp', description: 'Tìm và lọc lớp' },
   { ...ROUTES._3KetQua, shortName: 'Thời khóa biểu', description: 'Kiểm tra kết quả' },
-  { ...ROUTES._4DangKyNhanh, shortName: 'Đăng ký nhanh', description: 'Xuất mã & Script' },
+  { ...ROUTES._4DangKyNhanh, shortName: 'Hỗ trợ đăng ký', description: 'Xuất mã & Script' },
 ] as const;
 
 export default function WorkflowNav() {

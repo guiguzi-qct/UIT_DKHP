@@ -203,16 +203,24 @@ ${codesIndent}
     }).sort((a, b) => Number(a.isOverlap) - Number(b.isOverlap));
   }, [allData, selectedClasses, targetFullClass]);
 
+  const uncheckedClasses = useMemo(() => {
+    return selectedClasses.filter((c) => !checkedClassCodes[c.MaLop?.trim() || '']);
+  }, [selectedClasses, checkedClassCodes]);
+
   const toggleCheckClassCode = (code: string) => {
-    setCheckedClassCodes((prev) => ({
-      ...prev,
-      [code]: !prev[code],
-    }));
+    setCheckedClassCodes((prev) => {
+      const nextState = { ...prev, [code]: !prev[code] };
+      // If code is being checked, reset selectedFullClassCode if it matches
+      if (nextState[code] && selectedFullClassCode === code) {
+        setSelectedFullClassCode('');
+      }
+      return nextState;
+    });
   };
 
   const handleResetChecklist = () => {
     setCheckedClassCodes({});
-    enqueueSnackbar('Đã đặt lại trạng thái checklist mã lớp!', { variant: 'info' });
+    enqueueSnackbar('Đã Reset trạng thái checklist!', { variant: 'info' });
   };
 
   const handleSwapClass = (oldClass: ClassModel, newClass: ClassModel) => {
@@ -261,7 +269,7 @@ ${codesIndent}
       {/* Header Toolbar */}
       <Card className="dkn-header-card" elevation={0}>
         <Box className="dkn-header-left">
-          <Typography className="dkn-header-title">Đăng ký nhanh & Xuất Script</Typography>
+          <Typography className="dkn-header-title">Hỗ trợ đăng ký</Typography>
           <Typography className="dkn-header-desc">
             Xuất danh sách mã lớp độc lập để copy-paste thủ công, chạy Script Auto-Tick hoặc đổi lớp khi hết slot.
           </Typography>
@@ -304,7 +312,7 @@ ${codesIndent}
           <Box className="dkn-section-header">
             <Box className="dkn-section-title-wrap">
               <FormatListBulletedIcon className="dkn-section-icon" />
-              <Typography className="dkn-section-title">Checklist mã lớp &amp; Copy nhanh</Typography>
+              <Typography className="dkn-section-title">Checklist mã lớp</Typography>
               {classCount > 0 && (
                 <Chip
                   size="small"
@@ -323,7 +331,7 @@ ${codesIndent}
                   onClick={handleResetChecklist}
                   className="dkn-reset-checklist-btn"
                 >
-                  Đặt lại Checklist
+                  Reset
                 </Button>
               )}
               <Button
@@ -340,7 +348,7 @@ ${codesIndent}
           </Box>
 
           <Typography className="dkn-section-subtitle">
-            💡 Click vào thẻ mã lớp để đánh dấu là <strong>đã chọn / đã ĐKMH thành công</strong> trên web trường:
+            💡 Bấm nút <strong>"Sao chép"</strong> để chép mã hoặc bấm <strong>"Đánh dấu"</strong> bên dưới để theo dõi các môn đã ĐKMH thành công:
           </Typography>
 
           {classCount === 0 ? (
@@ -360,15 +368,9 @@ ${codesIndent}
                   <Box
                     className={`dkn-code-card ${isChecked ? 'is-checked' : ''}`}
                     key={`${code}-${item.Thu}-${item.Tiet}`}
-                    onClick={() => toggleCheckClassCode(code)}
                   >
                     <Box className="dkn-code-info">
-                      <Box className="dkn-code-title-wrap">
-                        <Typography className="dkn-code-title">{code}</Typography>
-                        {isChecked && (
-                          <Chip size="small" color="success" label="✓ Đã chọn" className="dkn-checked-badge" />
-                        )}
-                      </Box>
+                      <Typography className="dkn-code-title">{code}</Typography>
                       <Typography className="dkn-code-sub">{item.TenMH}</Typography>
                       <Box className="dkn-code-chips">
                         <Chip size="small" variant="outlined" label={`${item.SoTc} tín chỉ`} />
@@ -379,21 +381,31 @@ ${codesIndent}
                         />
                       </Box>
                     </Box>
-                    <Tooltip title={isCopied ? 'Đã copy!' : 'Sao chép mã lớp'}>
+
+                    <Box className="dkn-card-actions-right">
+                      <Tooltip title={isCopied ? 'Đã copy!' : 'Sao chép mã lớp'}>
+                        <Button
+                          size="small"
+                          variant={isCopied ? 'contained' : 'outlined'}
+                          color={isCopied ? 'success' : 'primary'}
+                          className="dkn-copy-single-btn"
+                          startIcon={isCopied ? <CheckIcon /> : <ContentCopyIcon />}
+                          onClick={() => handleCopySingleCode(code)}
+                        >
+                          {isCopied ? 'Đã chép' : 'Sao chép'}
+                        </Button>
+                      </Tooltip>
+
                       <Button
                         size="small"
-                        variant={isCopied ? 'contained' : 'outlined'}
-                        color={isCopied ? 'success' : 'primary'}
-                        className="dkn-copy-single-btn"
-                        startIcon={isCopied ? <CheckIcon /> : <ContentCopyIcon />}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleCopySingleCode(code);
-                        }}
+                        variant={isChecked ? 'contained' : 'outlined'}
+                        className={`dkn-toggle-check-btn ${isChecked ? 'is-checked-btn' : ''}`}
+                        startIcon={isChecked ? <CheckIcon /> : null}
+                        onClick={() => toggleCheckClassCode(code)}
                       >
-                        {isCopied ? 'Đã chép' : 'Sao chép'}
+                        {isChecked ? 'Đã xong' : 'Đánh dấu'}
                       </Button>
-                    </Tooltip>
+                    </Box>
                   </Box>
                 );
               })}
@@ -406,7 +418,7 @@ ${codesIndent}
           <Box className="dkn-section-header">
             <Box className="dkn-section-title-wrap">
               <SwapHorizIcon className="dkn-section-icon" />
-              <Typography className="dkn-section-title">Xử lý Hết Slot · Đề xuất lớp thay thế</Typography>
+              <Typography className="dkn-section-title">Hỗ trợ xử lý hết slot</Typography>
             </Box>
           </Box>
 
@@ -424,9 +436,11 @@ ${codesIndent}
               displayEmpty
             >
               <MenuItem value="" disabled>
-                -- Chọn lớp trong {currentPlan?.name} bị hết slot --
+                {uncheckedClasses.length === 0
+                  ? `Tất cả các lớp trong ${currentPlan?.name} đã được chọn xong!`
+                  : `-- Chọn lớp trong ${currentPlan?.name} bị hết slot --`}
               </MenuItem>
-              {selectedClasses.map((item) => (
+              {uncheckedClasses.map((item) => (
                 <MenuItem key={`${item.MaLop}-${item.Thu}-${item.Tiet}`} value={item.MaLop}>
                   {item.MaLop} - {item.TenMH} ({item.ThucHanh ? 'Thực hành' : 'Lý thuyết'})
                 </MenuItem>
@@ -494,7 +508,7 @@ ${codesIndent}
           <Box className="dkn-section-header">
             <Box className="dkn-section-title-wrap">
               <CodeIcon className="dkn-section-icon" />
-              <Typography className="dkn-section-title">Script Auto-Tick Checkbox</Typography>
+              <Typography className="dkn-section-title">Script hỗ trợ nhanh</Typography>
             </Box>
             <Button
               variant="contained"

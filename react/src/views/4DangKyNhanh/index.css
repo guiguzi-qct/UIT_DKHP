@@ -170,19 +170,21 @@
 }
 
 .dkn-reset-checklist-btn {
-  border-color: #D5E0E8 !important;
-  color: #59899D !important;
+  background: #FEF3C7 !important;
+  color: #92400E !important;
+  border: 1px solid #FCD34D !important;
   border-radius: 10px !important;
   text-transform: none !important;
-  font-weight: 700 !important;
-  font-size: 13px !important;
-  padding: 5px 14px !important;
+  font-weight: 800 !important;
+  font-size: 13.5px !important;
+  padding: 6px 16px !important;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.15) !important;
 }
 
 .dkn-reset-checklist-btn:hover {
-  border-color: #0E2128 !important;
-  color: #0E2128 !important;
-  background: #F4F7F9 !important;
+  background: #FDE68A !important;
+  border-color: #F59E0B !important;
+  color: #78350F !important;
 }
 
 .dkn-section-subtitle {
@@ -204,7 +206,7 @@
 /* Single Codes Grid */
 .dkn-codes-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 14px;
 }
 
@@ -212,13 +214,15 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 18px;
+  gap: 14px;
+  padding: 14px 16px;
   background: #F4F7F9;
   border: 1px solid #D5E0E8;
   border-radius: 14px;
   transition: all 180ms ease;
-  cursor: pointer;
-  user-select: none;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .dkn-code-card:hover {
@@ -244,18 +248,12 @@
   color: #94A3B8 !important;
 }
 
-.dkn-code-title-wrap {
+.dkn-code-info {
   display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.dkn-checked-badge {
-  font-size: 12px !important;
-  height: 22px !important;
-  font-weight: 800 !important;
-  background: #64748B !important;
-  color: #ffffff !important;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
 }
 
 .dkn-code-title {
@@ -266,14 +264,13 @@
 }
 
 .dkn-code-sub {
-  font-size: 13.5px !important;
+  font-size: 13px !important;
   color: #59899D;
-  margin-top: 3px;
+  margin-top: 2px;
   font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 170px;
 }
 
 .dkn-code-chips {
@@ -283,13 +280,49 @@
   margin-top: 6px;
 }
 
+.dkn-card-actions-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
 .dkn-copy-single-btn {
   border-radius: 8px !important;
   font-weight: 700 !important;
-  font-size: 13px !important;
+  font-size: 12.5px !important;
   text-transform: none !important;
   white-space: nowrap;
-  padding: 5px 12px !important;
+  padding: 4px 10px !important;
+  min-width: 95px !important;
+  justify-content: center !important;
+}
+
+.dkn-toggle-check-btn {
+  border-radius: 8px !important;
+  font-weight: 700 !important;
+  font-size: 12.5px !important;
+  text-transform: none !important;
+  white-space: nowrap;
+  padding: 4px 10px !important;
+  min-width: 95px !important;
+  justify-content: center !important;
+  border-color: #CBD5E1 !important;
+  color: #59899D !important;
+  background: #ffffff !important;
+}
+
+.dkn-toggle-check-btn:hover {
+  border-color: #0E2128 !important;
+  color: #0E2128 !important;
+  background: #F4F7F9 !important;
+}
+
+.dkn-toggle-check-btn.is-checked-btn {
+  background: #64748B !important;
+  color: #ffffff !important;
+  border-color: #64748B !important;
 }
 
 /* User Guide Box */

@@ -13,6 +13,6 @@ export const ROUTES = {
   },
   _4DangKyNhanh: {
     path: '/dang-ky-nhanh',
-    name: '4. Đăng ký nhanh',
+    name: '4. Hỗ trợ đăng ký',
   },
 } as const;
