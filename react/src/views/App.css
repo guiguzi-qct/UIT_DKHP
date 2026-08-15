@@ -621,3 +621,32 @@ body {
   color: #0E2128 !important;
   font-weight: 700 !important;
 }
+
+/* Global Class Type Chips Styling */
+.chip-thuc-hanh,
+.MuiChip-root.chip-thuc-hanh {
+  background: #17333F !important;
+  color: #ffffff !important;
+  font-weight: 800 !important;
+  border: 1px solid #0E2128 !important;
+}
+
+.chip-thuc-hanh .MuiChip-label,
+.MuiChip-root.chip-thuc-hanh .MuiChip-label {
+  color: #ffffff !important;
+  font-weight: 800 !important;
+}
+
+.chip-ly-thuyet,
+.MuiChip-root.chip-ly-thuyet {
+  background: #ffffff !important;
+  color: #0E2128 !important;
+  font-weight: 800 !important;
+  border: 1.5px solid #0E2128 !important;
+}
+
+.chip-ly-thuyet .MuiChip-label,
+.MuiChip-root.chip-ly-thuyet .MuiChip-label {
+  color: #0E2128 !important;
+  font-weight: 800 !important;
+}

@@ -353,7 +353,7 @@ ${codesIndent}
                         <Chip size="small" variant="outlined" label={`${item.SoTc} tín chỉ`} />
                         <Chip
                           size="small"
-                          color={item.ThucHanh ? 'secondary' : 'primary'}
+                          className={item.ThucHanh ? 'chip-thuc-hanh' : 'chip-ly-thuyet'}
                           label={item.ThucHanh ? 'Thực hành' : 'Lý thuyết'}
                         />
                       </Box>
