@@ -549,13 +549,7 @@ export default function CoursePickerDialog({ target, onClose }: Props) {
                                             <Chip
                                               size="small"
                                               className={`chip-thuc-hanh ${isTHActive ? 'active' : ''}`}
-                                              label={
-                                                isTHActive
-                                                  ? 'Thực hành (Đã chọn)'
-                                                  : isUnlockedTH
-                                                  ? 'Thực hành (Sẵn sàng chọn)'
-                                                  : 'Thực hành (Khóa)'
-                                              }
+                                              label="Thực hành"
                                             />
                                           )}
                                         </div>

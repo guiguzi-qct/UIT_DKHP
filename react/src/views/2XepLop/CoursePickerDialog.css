@@ -410,33 +410,34 @@
 
 .course-option-active-lt {
   border: 2px solid #0E2128 !important;
-  background: #EBF1F5 !important;
-  box-shadow: 0 2px 8px rgba(14, 33, 40, 0.08) !important;
+  background: #D5E2EC !important;
+  box-shadow: 0 3px 10px rgba(14, 33, 40, 0.12) !important;
 }
 
 .course-option-practice {
-  background: #F4F7F9 !important;
-  border: 1px solid #D5E0E8 !important;
+  background: #ffffff !important;
+  border: 1.5px solid #0E2128 !important;
   border-radius: 12px !important;
   transition: all 180ms ease !important;
 }
 
 .course-option-locked-th {
-  opacity: 0.6 !important;
+  opacity: 0.65 !important;
   border: 1px dashed #ADBECC !important;
+  background: #F4F7F9 !important;
 }
 
 .course-option-unlocked-th {
   opacity: 1 !important;
-  border: 1.5px solid #59899D !important;
+  border: 1.5px solid #0E2128 !important;
   background: #ffffff !important;
-  box-shadow: 0 2px 8px rgba(89, 137, 157, 0.08) !important;
+  box-shadow: 0 2px 8px rgba(14, 33, 40, 0.06) !important;
 }
 
 .course-option-active-th {
   border: 2px solid #0E2128 !important;
-  background: #EBF1F5 !important;
-  box-shadow: 0 2px 8px rgba(14, 33, 40, 0.08) !important;
+  background: #D5E2EC !important;
+  box-shadow: 0 3px 10px rgba(14, 33, 40, 0.12) !important;
 }
 
 @keyframes shakeRed {
