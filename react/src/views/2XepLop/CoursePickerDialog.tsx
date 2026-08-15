@@ -475,9 +475,10 @@ export default function CoursePickerDialog({ target, onClose }: Props) {
                           <div className="theory-tree-node" key={ltKey}>
                             {/* Parent Theory Card */}
                             <ButtonBase
+                              disableRipple
                               className={`course-option course-option-theory${
                                 ltConflict ? ' course-option-conflict' : ''
-                              }${isLTDraftSelected ? ' course-option-active-lt' : ''}`}
+                              }${isLTActive ? ' course-option-active-lt' : ''}`}
                               disabled={!!ltConflict}
                               onClick={() => chooseCandidate(theory)}
                               aria-label={ltConflict || `Chọn lớp Lý thuyết ${theory.MaLop}`}
@@ -525,6 +526,7 @@ export default function CoursePickerDialog({ target, onClose }: Props) {
 
                                   return (
                                     <ButtonBase
+                                      disableRipple
                                       className={`course-option course-option-practice${
                                         effectiveTHConflict ? ' course-option-conflict' : ''
                                       }${isLockedTH ? ' course-option-locked-th' : ''}${
@@ -584,6 +586,7 @@ export default function CoursePickerDialog({ target, onClose }: Props) {
 
                         return (
                           <ButtonBase
+                            disableRipple
                             className={`course-option course-option-practice${
                               thConflict ? ' course-option-conflict' : ''
                             }${isTHActive ? ' course-option-active-th' : ''}${
