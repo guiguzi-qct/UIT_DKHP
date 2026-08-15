@@ -62,6 +62,16 @@ export default function DangKyNhanh() {
     return selectedClasses.filter((c) => Boolean(checkedClassCodes[c.MaLop?.trim() || ''])).length;
   }, [selectedClasses, checkedClassCodes]);
 
+  const sortedClasses = useMemo(() => {
+    return [...selectedClasses].sort((a, b) => {
+      const codeA = a.MaLop?.trim() || '';
+      const codeB = b.MaLop?.trim() || '';
+      const isCheckedA = Boolean(checkedClassCodes[codeA]);
+      const isCheckedB = Boolean(checkedClassCodes[codeB]);
+      return Number(isCheckedA) - Number(isCheckedB);
+    });
+  }, [selectedClasses, checkedClassCodes]);
+
   const rawCodesString = useMemo(() => {
     return selectedClasses.map((c) => c.MaLop?.trim()).filter(Boolean).join('\n');
   }, [selectedClasses]);
@@ -341,7 +351,7 @@ ${codesIndent}
             </Box>
           ) : (
             <Box className="dkn-codes-grid">
-              {selectedClasses.map((item) => {
+              {sortedClasses.map((item) => {
                 const code = item.MaLop?.trim() || '';
                 const isCopied = copiedCode === code;
                 const isChecked = Boolean(checkedClassCodes[code]);
