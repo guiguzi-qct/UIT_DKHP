@@ -210,14 +210,39 @@ export default function CoursePickerDialog({ target, onClose }: Props) {
   const candidates = useMemo(() => {
     if (!target) return [];
     const normalizedSearch = search.trim().toLocaleLowerCase('vi');
-    return getCompatibleCandidates(data, selectedClasses, target)
-      .filter((candidate) => !draftCandidates.some((draft) => isSameAgGridRowId(draft, candidate)))
-      .filter((candidate) => {
-        if (!normalizedSearch) return true;
-        return [candidate.TenMH, candidate.MaMH, candidate.MaLop, candidate.TenGV, candidate.PhongHoc]
-          .filter(Boolean)
-          .some((value) => String(value).toLocaleLowerCase('vi').includes(normalizedSearch));
+    let list = getCompatibleCandidates(data, selectedClasses, target)
+      .filter((candidate) => !draftCandidates.some((draft) => isSameAgGridRowId(draft, candidate)));
+
+    if (target.kind === 'slot') {
+      const activeLTs = [...selectedClasses, ...draftCandidates].filter(isTheoryClass);
+      
+      // Collect all practice classes belonging to currently active LTs
+      const practiceClassesForActiveLTs = data.filter((c) =>
+        isThucHanhClass(c) && activeLTs.some((lt) => isPracticeOfTheory(c, lt))
+      );
+
+      const listKeys = new Set(list.map(getCandidateKey));
+      practiceClassesForActiveLTs.forEach((th) => {
+        if (!listKeys.has(getCandidateKey(th)) && !draftCandidates.some((d) => isSameAgGridRowId(d, th))) {
+          list.push(th);
+        }
       });
+
+      // Filter: only show theory classes fitting slot OR practice classes matching active LTs
+      list = list.filter((c) => {
+        if (isThucHanhClass(c)) {
+          return activeLTs.some((lt) => isPracticeOfTheory(c, lt));
+        }
+        return true;
+      });
+    }
+
+    return list.filter((candidate) => {
+      if (!normalizedSearch) return true;
+      return [candidate.TenMH, candidate.MaMH, candidate.MaLop, candidate.TenGV, candidate.PhongHoc]
+        .filter(Boolean)
+        .some((value) => String(value).toLocaleLowerCase('vi').includes(normalizedSearch));
+    });
   }, [data, draftCandidates, search, selectedClasses, target]);
 
   const conflictReasons = useMemo(() => {
