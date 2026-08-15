@@ -35,6 +35,10 @@
   margin-top: 4px;
 }
 
+.dkn-header-left {
+  flex: 1 1 360px;
+}
+
 .dkn-plan-switcher {
   display: flex;
   align-items: center;
@@ -43,12 +47,14 @@
   padding: 8px 14px;
   border-radius: 14px;
   border: 1px solid #D5E0E8;
+  flex-wrap: wrap;
 }
 
 .dkn-plan-label {
   font-size: 14px;
   font-weight: 700;
   color: #0E2128;
+  white-space: nowrap;
 }
 
 .dkn-plan-select {
@@ -66,16 +72,21 @@
 }
 
 .dkn-stat-pill {
-  padding: 6px 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 14px;
   border-radius: 20px;
   background: #0E2128;
-  color: #ffffff;
+  color: #ADBECC;
   font-size: 13px;
   font-weight: 700;
+  white-space: nowrap;
 }
 
 .dkn-stat-pill strong {
-  color: #59899D;
+  color: #ffffff !important;
+  font-weight: 800;
 }
 
 /* Content Grid */
@@ -211,9 +222,8 @@
 .dkn-guide-box {
   background: #F4F7F9;
   border: 1px solid #D5E0E8;
-  border-left: 4px solid #0E2128;
-  border-radius: 14px;
-  padding: 16px 20px;
+  border-radius: 16px;
+  padding: 18px 22px;
   margin-bottom: 20px;
 }
 
@@ -224,30 +234,68 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  margin-bottom: 14px;
 }
 
 .dkn-guide-icon {
   color: #59899D;
 }
 
-.dkn-guide-list {
-  margin: 10px 0 0 20px;
-  padding: 0;
-  color: #0E2128;
-  font-size: 14px;
-  line-height: 1.6;
+.dkn-guide-steps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 14px;
 }
 
-.dkn-guide-list li {
-  margin-bottom: 6px;
-}
-
-.dkn-guide-list code {
+.dkn-guide-step-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
   background: #ffffff;
+  border: 1px solid #D5E0E8;
+  border-radius: 14px;
+  padding: 14px 16px;
+  box-shadow: 0 2px 6px rgba(14, 33, 40, 0.03);
+}
+
+.dkn-step-badge {
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+  border-radius: 50%;
+  background: #0E2128;
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 14px;
+  display: grid;
+  place-items: center;
+}
+
+.dkn-step-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dkn-step-body strong {
+  font-size: 14px;
+  color: #0E2128;
+}
+
+.dkn-step-body span {
+  font-size: 13px;
+  color: #59899D;
+  line-height: 1.45;
+}
+
+.dkn-step-body code {
+  background: #F4F7F9;
   padding: 2px 6px;
   border-radius: 6px;
   border: 1px solid #D5E0E8;
   font-weight: 700;
+  font-size: 12px;
+  color: #0E2128;
   font-family: monospace;
 }
 

@@ -50,192 +50,75 @@ export default function DangKyNhanh() {
       .join('\n');
 
     return `(() => {
-  const START = performance.now();
+  const t0 = performance.now();
 
-  // =========================
   // DANH SÁCH MÃ LỚP (${planName})
-  // =========================
   const RAW_CODES = \`
 ${codesIndent}
   \`;
 
-  const normalize = (s) =>
-    String(s ?? "")
-      .replace(/\\s+/g, " ")
-      .trim()
-      .toUpperCase();
+  const norm = (s) => String(s ?? "").replace(/[\\s\\u00A0]+/g, " ").trim().toUpperCase();
+  const targets = new Set(RAW_CODES.split(/[\\s,;]+/).map(norm).filter(Boolean));
 
-  // Nhận xuống dòng, dấu phẩy, dấu ; hoặc khoảng trắng
-  const wanted = new Set(
-    RAW_CODES
-      .split(/[\\s,;]+/)
-      .map(normalize)
-      .filter(Boolean)
-  );
+  if (!targets.size) return console.error("[Guiguzi] Không có mã lớp.");
 
-  if (!wanted.size) {
-    console.error("Guiguzi: Không có mã lớp.");
-    return;
-  }
-
-  // =========================
-  // TÌM ĐÚNG TABLE + CỘT MÃ LỚP
-  // =========================
-  function detectTable() {
-    const tables = [...document.querySelectorAll("table")];
-
-    for (const table of tables) {
-      const rows = [...table.rows];
-
-      for (let r = 0; r < Math.min(rows.length, 5); r++) {
-        const cells = [...rows[r].cells];
-
-        const codeColumn = cells.findIndex((cell) => {
-          const text = normalize(cell.textContent);
-          return text === "MÃ LỚP" || text === "MA LOP";
-        });
-
-        if (codeColumn !== -1) {
-          return {
-            table,
-            codeColumn,
-            headerRowIndex: r,
-          };
-        }
-      }
+  let table = null, colIdx = -1, startRow = 0;
+  for (const t of document.querySelectorAll("table")) {
+    for (let r = 0; r < Math.min(t.rows.length, 5); r++) {
+      const idx = [...t.rows[r].cells].findIndex(c => ["MÃ LỚP", "MA LOP"].includes(norm(c.textContent)));
+      if (idx !== -1) { table = t; colIdx = idx; startRow = r + 1; break; }
     }
-
-    return null;
+    if (table) break;
   }
 
-  const detected = detectTable();
+  if (!table) return console.error('[Guiguzi] Không tìm thấy cột "Mã lớp".');
 
-  if (!detected) {
-    console.error(
-      'Guiguzi: Không tìm thấy bảng có cột "Mã lớp". Dừng để tránh chọn nhầm.'
-    );
-    return;
-  }
-
-  const { table, codeColumn, headerRowIndex } = detected;
-
-  // =========================
-  // QUÉT + TICK
-  // =========================
+  const res = [];
   const found = new Set();
 
-  const selected = [];
-  const already = [];
-  const disabled = [];
-  const noCheckbox = [];
+  for (let i = startRow; i < table.rows.length; i++) {
+    const row = table.rows[i];
+    if (!row.cells || row.cells.length <= colIdx) continue;
 
-  const rows = [...table.rows];
-
-  for (let i = headerRowIndex + 1; i < rows.length; i++) {
-    const row = rows[i];
-
-    if (!row.cells || row.cells.length <= codeColumn) continue;
-
-    const code = normalize(row.cells[codeColumn].textContent);
-
-    if (!wanted.has(code)) continue;
+    const code = norm(row.cells[colIdx].textContent);
+    if (!targets.has(code)) continue;
 
     found.add(code);
+    const cb = row.querySelector('input[type="checkbox"]');
 
-    const checkbox = row.querySelector('input[type="checkbox"]');
-
-    if (!checkbox) {
-      noCheckbox.push(code);
-      continue;
+    if (!cb) {
+      res.push({ "Mã lớp": code, "Trạng thái": "⚠ Không có checkbox" });
+    } else if (cb.disabled) {
+      res.push({ "Mã lớp": code, "Trạng thái": "⚠ Bị khóa" });
+    } else if (cb.checked) {
+      res.push({ "Mã lớp": code, "Trạng thái": "○ Đã chọn trước" });
+    } else {
+      cb.click();
+      cb.dispatchEvent(new Event("change", { bubbles: true }));
+      row.style.background = "#e6fffa";
+      res.push({ "Mã lớp": code, "Trạng thái": "✓ Đã tick mới" });
     }
 
-    if (checkbox.disabled) {
-      disabled.push(code);
-      continue;
-    }
-
-    // Quan trọng: không click lại checkbox đã tick
-    if (checkbox.checked) {
-      already.push(code);
-      continue;
-    }
-
-    checkbox.click();
-    selected.push(code);
-
-    // Tìm đủ toàn bộ mã thì dừng quét ngay
-    if (found.size === wanted.size) break;
+    if (found.size === targets.size) break;
   }
 
-  const missing = [...wanted].filter((code) => !found.has(code));
+  [...targets].forEach(code => {
+    if (!found.has(code)) res.push({ "Mã lớp": code, "Trạng thái": "✕ Không tìm thấy" });
+  });
 
-  // =========================
-  // KẾT QUẢ
-  // =========================
-  const result = [];
+  const ms = (performance.now() - t0).toFixed(2);
+  console.log("%c⚡ Guiguzi Quick Select", "font-weight:bold;font-size:14px;color:#0e2128");
+  console.table(res);
 
-  selected.forEach((code) =>
-    result.push({
-      "Mã lớp": code,
-      "Trạng thái": "✓ Đã tick",
-    })
-  );
+  const newlyTicked = res.filter(r => r["Trạng thái"] === "✓ Đã tick mới").length;
+  console.log(\`Yêu cầu: \${targets.size} | Tick mới: \${newlyTicked} | Thời gian: \${ms}ms\`);
 
-  already.forEach((code) =>
-    result.push({
-      "Mã lớp": code,
-      "Trạng thái": "○ Đã chọn trước",
-    })
-  );
-
-  disabled.forEach((code) =>
-    result.push({
-      "Mã lớp": code,
-      "Trạng thái": "⚠ Bị khóa",
-    })
-  );
-
-  noCheckbox.forEach((code) =>
-    result.push({
-      "Mã lớp": code,
-      "Trạng thái": "⚠ Không có checkbox",
-    })
-  );
-
-  missing.forEach((code) =>
-    result.push({
-      "Mã lớp": code,
-      "Trạng thái": "✕ Không tìm thấy",
-    })
-  );
-
-  const elapsed = performance.now() - START;
-
-  console.log(
-    \`%c⚡ Guiguzi Quick Select\`,
-    "font-weight:bold;font-size:15px"
-  );
-
-  console.table(result);
-
-  console.log(
-    [
-      \`Yêu cầu: \${wanted.size}\`,
-      \`Tick mới: \${selected.length}\`,
-      \`Đã có: \${already.length}\`,
-      \`Bị khóa: \${disabled.length}\`,
-      \`Không thấy: \${missing.length}\`,
-      \`Thời gian: \${elapsed.toFixed(2)} ms\`,
-    ].join(" | ")
-  );
-
-  if (missing.length) {
-    console.warn("Mã không tìm thấy:", missing.join(", "));
-  }
-
-  console.log(
-    "Guiguzi chỉ tick checkbox. Hãy kiểm tra lại trước khi bấm Đăng ký."
-  );
+  // Hiển thị Banner kết quả trực quan trên trang Web UIT
+  const toast = document.createElement("div");
+  toast.style.cssText = "position:fixed;bottom:24px;right:24px;z-index:999999;background:#0e2128;color:#fff;padding:12px 20px;border-radius:12px;font-family:sans-serif;font-size:14px;box-shadow:0 4px 20px rgba(0,0,0,0.3);border:1px solid #59899d";
+  toast.innerHTML = \`⚡ <b>Guiguzi Auto-Tick:</b> Đã tick mới <b>\${newlyTicked}/\${targets.size}</b> lớp (\${ms}ms)\`;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 4500);
 })();`;
   }, [currentPlan, selectedClasses]);
 
@@ -398,19 +281,33 @@ ${codesIndent}
           {/* User Guide Card */}
           <Box className="dkn-guide-box">
             <Typography className="dkn-guide-header">
-              <HelpOutlineIcon className="dkn-guide-icon" /> Hướng dẫn sử dụng Script 3 bước siêu nhanh:
+              <HelpOutlineIcon className="dkn-guide-icon" /> Hướng dẫn sử dụng 3 bước siêu nhanh:
             </Typography>
-            <ol className="dkn-guide-list">
-              <li>
-                Bấm nút <strong>"Copy Script Auto-Tick"</strong> ở trên.
-              </li>
-              <li>
-                Mở trang Đăng ký môn học của trường (UIT Portal) ➔ Nhấn phím <code>F12</code> (hoặc Chuột phải ➔ <i>Kiểm tra / Inspect</i>) ➔ Chọn tab <strong>Console</strong>.
-              </li>
-              <li>
-                Nhấn <code>Ctrl + V</code> dán đoạn script vào rồi bấm <code>Enter</code>. Hệ thống sẽ tự động tìm bảng và tick chọn toàn bộ các lớp của <strong>{currentPlan?.name}</strong> trong <strong>0.1 giây</strong>!
-              </li>
-            </ol>
+            <Box className="dkn-guide-steps-grid">
+              <Box className="dkn-guide-step-card">
+                <span className="dkn-step-badge">1</span>
+                <Box className="dkn-step-body">
+                  <strong>Sao chép Script</strong>
+                  <span>Bấm nút <code>Copy Script Auto-Tick (1-Click)</code> ở góc trên.</span>
+                </Box>
+              </Box>
+
+              <Box className="dkn-guide-step-card">
+                <span className="dkn-step-badge">2</span>
+                <Box className="dkn-step-body">
+                  <strong>Mở F12 Console</strong>
+                  <span>Mở trang ĐKMH UIT ➔ Nhấn <code>F12</code> ➔ Chọn tab <strong>Console</strong>.</span>
+                </Box>
+              </Box>
+
+              <Box className="dkn-guide-step-card">
+                <span className="dkn-step-badge">3</span>
+                <Box className="dkn-step-body">
+                  <strong>Dán &amp; Chạy</strong>
+                  <span>Nhấn <code>Ctrl + V</code> ➔ Bấm <code>Enter</code>. Tự động tick <strong>{currentPlan?.name}</strong> trong 0.1s!</span>
+                </Box>
+              </Box>
+            </Box>
           </Box>
 
           {/* Script Code Preview */}
