@@ -244,14 +244,14 @@ export const useTkbStore = create<TkbStore>()(
           textareaChiVeTkb: '',
           plans: [
             {
-              id: 'plan_a',
-              name: 'Phương án A',
+              id: 'plan_1',
+              name: 'Plan 1',
               selectedClasses: [],
               isChiVeTkb: false,
               textareaChiVeTkb: '',
             },
           ],
-          activePlanId: 'plan_a',
+          activePlanId: 'plan_1',
         });
       },
     }),
@@ -311,8 +311,15 @@ export const selectPhanLoaiHocTrenTruong = memoize((state: TkbStore): [ClassMode
 });
 
 export const selectPlans = (state: TkbStore): TimetablePlan[] => {
-  if (state.plans && state.plans.length > 0) return state.plans;
-  return getDefaultPlans(state);
+  const rawPlans = state.plans && state.plans.length > 0 ? state.plans : getDefaultPlans(state);
+  return rawPlans.map((p, index) => {
+    let name = p.name || `Plan ${index + 1}`;
+    if (name.startsWith('Phương án')) {
+      const suffix = name.replace(/^Phương án\s*/i, '').trim();
+      name = suffix ? `Plan ${suffix}` : `Plan ${index + 1}`;
+    }
+    return { ...p, name };
+  });
 };
 
 export const selectActivePlanId = (state: TkbStore): string => {
