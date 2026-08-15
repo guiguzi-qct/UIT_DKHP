@@ -16,23 +16,24 @@
   flex-wrap: wrap;
   gap: 16px;
   padding: 20px 24px;
-  border-radius: 18px;
+  border-radius: 16px;
   background: #ffffff;
   border: 1px solid #D5E0E8;
   box-shadow: 0 4px 16px rgba(14, 33, 40, 0.04);
 }
 
 .dkn-header-title {
-  font-size: 24px;
-  font-weight: 800;
+  font-size: 20px !important;
+  font-weight: 800 !important;
   color: #0E2128;
-  letter-spacing: -0.5px;
+  letter-spacing: -0.3px;
 }
 
 .dkn-header-desc {
-  font-size: 14px;
+  font-size: 13px !important;
   color: #59899D;
   margin-top: 4px;
+  font-weight: 500;
 }
 
 .dkn-header-left {
@@ -51,8 +52,8 @@
 }
 
 .dkn-plan-label {
-  font-size: 14px;
-  font-weight: 700;
+  font-size: 13px !important;
+  font-weight: 700 !important;
   color: #0E2128;
   white-space: nowrap;
 }
@@ -61,6 +62,7 @@
   background: #ffffff;
   border-radius: 10px;
   font-weight: 700;
+  font-size: 13px !important;
   color: #0E2128;
   min-width: 160px;
 }
@@ -75,11 +77,11 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 6px 14px;
+  padding: 6px 12px;
   border-radius: 20px;
   background: #0E2128;
   color: #ADBECC;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   white-space: nowrap;
 }
@@ -93,12 +95,12 @@
 .dkn-content-grid {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
 }
 
 .dkn-section-card {
-  padding: 24px;
-  border-radius: 18px;
+  padding: 22px 24px;
+  border-radius: 16px;
   background: #ffffff;
   border: 1px solid #D5E0E8;
   box-shadow: 0 4px 16px rgba(14, 33, 40, 0.04);
@@ -109,8 +111,8 @@
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 16px;
-  margin-bottom: 20px;
+  gap: 14px;
+  margin-bottom: 18px;
   padding-bottom: 14px;
   border-bottom: 1px solid #EBF1F5;
 }
@@ -122,39 +124,40 @@
 }
 
 .dkn-section-icon {
-  font-size: 26px !important;
+  font-size: 22px !important;
   color: #0E2128;
 }
 
 .dkn-section-title {
-  font-size: 19px;
-  font-weight: 800;
+  font-size: 16px !important;
+  font-weight: 800 !important;
   color: #0E2128;
 }
 
 .dkn-copy-all-btn {
   background: #0E2128 !important;
   color: #ffffff !important;
-  border-radius: 12px !important;
+  border-radius: 10px !important;
   text-transform: none !important;
   font-weight: 700 !important;
-  padding: 8px 16px !important;
+  font-size: 13px !important;
+  padding: 6px 14px !important;
 }
 
 .dkn-copy-script-btn {
   background: #0E2128 !important;
   color: #ffffff !important;
-  border-radius: 12px !important;
+  border-radius: 10px !important;
   text-transform: none !important;
   font-weight: 800 !important;
-  padding: 10px 22px !important;
-  font-size: 15px !important;
-  box-shadow: 0 4px 14px rgba(14, 33, 40, 0.2) !important;
+  padding: 8px 18px !important;
+  font-size: 13px !important;
+  box-shadow: 0 4px 12px rgba(14, 33, 40, 0.15) !important;
 }
 
 /* Empty state */
 .dkn-empty-state {
-  padding: 36px 20px;
+  padding: 30px 20px;
   text-align: center;
   background: #F4F7F9;
   border-radius: 14px;
@@ -164,18 +167,18 @@
 /* Single Codes Grid */
 .dkn-codes-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+  gap: 12px;
 }
 
 .dkn-code-card {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 18px;
+  padding: 12px 16px;
   background: #F4F7F9;
   border: 1px solid #D5E0E8;
-  border-radius: 14px;
+  border-radius: 12px;
   transition: all 180ms ease;
 }
 
@@ -186,87 +189,89 @@
 }
 
 .dkn-code-title {
-  font-size: 16px;
-  font-weight: 800;
+  font-size: 14px !important;
+  font-weight: 800 !important;
   color: #0E2128;
   font-family: monospace, monospace;
-  letter-spacing: -0.2px;
 }
 
 .dkn-code-sub {
-  font-size: 13px;
+  font-size: 12px !important;
   color: #59899D;
   margin-top: 2px;
   font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 170px;
+  max-width: 160px;
 }
 
 .dkn-code-chips {
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-top: 8px;
+  margin-top: 6px;
 }
 
 .dkn-copy-single-btn {
-  border-radius: 10px !important;
+  border-radius: 8px !important;
   font-weight: 700 !important;
+  font-size: 12px !important;
   text-transform: none !important;
   white-space: nowrap;
+  padding: 4px 10px !important;
 }
 
 /* User Guide Box */
 .dkn-guide-box {
   background: #F4F7F9;
   border: 1px solid #D5E0E8;
-  border-radius: 16px;
-  padding: 18px 22px;
-  margin-bottom: 20px;
+  border-radius: 14px;
+  padding: 16px 20px;
+  margin-bottom: 16px;
 }
 
 .dkn-guide-header {
-  font-size: 15px;
-  font-weight: 800;
+  font-size: 14px !important;
+  font-weight: 800 !important;
   color: #0E2128;
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 }
 
 .dkn-guide-icon {
   color: #59899D;
+  font-size: 20px !important;
 }
 
 .dkn-guide-steps-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 12px;
 }
 
 .dkn-guide-step-card {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
+  gap: 10px;
   background: #ffffff;
   border: 1px solid #D5E0E8;
-  border-radius: 14px;
-  padding: 14px 16px;
+  border-radius: 12px;
+  padding: 12px 14px;
   box-shadow: 0 2px 6px rgba(14, 33, 40, 0.03);
 }
 
 .dkn-step-badge {
-  width: 30px;
-  height: 30px;
-  flex: 0 0 30px;
+  width: 26px;
+  height: 26px;
+  flex: 0 0 26px;
   border-radius: 50%;
   background: #0E2128;
   color: #ffffff;
   font-weight: 800;
-  font-size: 14px;
+  font-size: 13px;
   display: grid;
   place-items: center;
 }
@@ -274,18 +279,18 @@
 .dkn-step-body {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
 }
 
 .dkn-step-body strong {
-  font-size: 14px;
+  font-size: 13px;
   color: #0E2128;
 }
 
 .dkn-step-body span {
-  font-size: 13px;
+  font-size: 12px;
   color: #59899D;
-  line-height: 1.45;
+  line-height: 1.4;
 }
 
 .dkn-step-body code {
@@ -294,7 +299,7 @@
   border-radius: 6px;
   border: 1px solid #D5E0E8;
   font-weight: 700;
-  font-size: 12px;
+  font-size: 11px;
   color: #0E2128;
   font-family: monospace;
 }
@@ -302,19 +307,20 @@
 /* Script Code Preview */
 .dkn-script-preview-container {
   border: 1px solid #0E2128;
-  border-radius: 14px;
+  border-radius: 12px;
   overflow: hidden;
   background: #0E2128;
+  margin-top: 12px;
 }
 
 .dkn-script-preview-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 16px;
+  padding: 8px 14px;
   background: #040309;
   color: #ADBECC;
-  font-size: 13px;
+  font-size: 12px;
   font-family: monospace;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
@@ -325,7 +331,7 @@
   border: 0;
   padding: 4px 10px;
   border-radius: 6px;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   cursor: pointer;
   transition: all 150ms ease;
@@ -337,12 +343,12 @@
 
 .dkn-script-preview-code {
   margin: 0;
-  padding: 16px 20px;
-  max-height: 380px;
+  padding: 14px 18px;
+  max-height: 350px;
   overflow-y: auto;
   color: #EBF1F5;
   font-family: 'Consolas', 'Fira Code', Monaco, monospace;
-  font-size: 13px;
+  font-size: 12px;
   line-height: 1.5;
   white-space: pre-wrap;
   word-break: break-word;
@@ -352,12 +358,13 @@
 .dkn-script-toggle-wrap {
   display: flex;
   justify-content: center;
-  margin: 14px 0 0 0;
+  margin-top: 4px;
 }
 
 .dkn-toggle-code-btn {
-  border-radius: 10px !important;
+  border-radius: 8px !important;
   font-weight: 700 !important;
+  font-size: 12px !important;
   text-transform: none !important;
   color: #59899D !important;
   border-color: #D5E0E8 !important;
@@ -369,40 +376,41 @@
   background: #F4F7F9 !important;
 }
 
-/* Section 3: Slot Full Backup Suggester */
+/* Section 1: Slot Full Backup Suggester */
 .dkn-full-slot-picker-wrap {
   display: flex;
   flex-direction: column;
   gap: 10px;
   background: #F4F7F9;
-  padding: 16px 20px;
-  border-radius: 14px;
+  padding: 14px 18px;
+  border-radius: 12px;
   border: 1px solid #D5E0E8;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 
 .dkn-full-slot-label {
-  font-size: 14px;
-  font-weight: 700;
+  font-size: 13px !important;
+  font-weight: 700 !important;
   color: #0E2128;
 }
 
 .dkn-full-class-select {
   background: #ffffff;
-  border-radius: 10px;
+  border-radius: 8px;
   font-weight: 700;
+  font-size: 13px !important;
   color: #0E2128;
 }
 
 .dkn-replacements-list {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
 }
 
 .dkn-replacements-title {
-  font-size: 15px;
-  font-weight: 700;
+  font-size: 14px !important;
+  font-weight: 700 !important;
   color: #0E2128;
 }
 
@@ -417,11 +425,14 @@
   align-items: center;
   justify-content: space-between;
   gap: 14px;
-  padding: 16px;
+  padding: 14px 16px;
   border-radius: 14px;
   border: 1.5px solid #D5E0E8;
   background: #ffffff;
   transition: all 180ms ease;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .dkn-replacement-card.is-feasible {
@@ -430,34 +441,40 @@
 }
 
 .dkn-replacement-card.is-overlap {
-  background: #fef2f2;
+  background: #fff5f5;
   border-color: #fca5a5;
-  opacity: 0.75;
+  opacity: 0.8;
 }
 
 .dkn-rep-main {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  flex: 1;
+  min-width: 0;
 }
 
 .dkn-rep-header {
   display: flex;
   align-items: center;
-  gap: 10px;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .dkn-rep-header strong {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 800;
   color: #0E2128;
   font-family: monospace;
 }
 
 .dkn-rep-sub {
-  font-size: 13px;
+  font-size: 12px !important;
   color: #59899D;
   font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .dkn-rep-chips {
@@ -467,9 +484,28 @@
   margin-top: 4px;
 }
 
+.dkn-chip-feasible {
+  background: #EAF4F4 !important;
+  color: #0F5257 !important;
+  border: 1px solid #BEE1E3 !important;
+  font-weight: 700 !important;
+  font-size: 11px !important;
+}
+
+.dkn-chip-overlap {
+  background: #FEE2E2 !important;
+  color: #991B1B !important;
+  border: 1px solid #FCA5A5 !important;
+  font-weight: 700 !important;
+  font-size: 11px !important;
+}
+
 .dkn-swap-btn {
-  border-radius: 10px !important;
+  border-radius: 8px !important;
   font-weight: 800 !important;
+  font-size: 12px !important;
   text-transform: none !important;
   white-space: nowrap;
+  flex-shrink: 0;
+  padding: 6px 14px !important;
 }

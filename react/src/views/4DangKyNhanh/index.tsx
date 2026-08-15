@@ -270,70 +270,95 @@ ${codesIndent}
 
       {/* Main Content Grid */}
       <Box className="dkn-content-grid">
-        {/* Section 1: Single Class Codes (Copy 1-Click) */}
+        {/* SECTION 1 (TOP): Slot Full Backup Class Suggester */}
         <Card className="dkn-section-card" elevation={0}>
           <Box className="dkn-section-header">
             <Box className="dkn-section-title-wrap">
-              <FormatListBulletedIcon className="dkn-section-icon" />
-              <Typography className="dkn-section-title">Danh sách mã lớp độc lập</Typography>
+              <SwapHorizIcon className="dkn-section-icon" />
+              <Typography className="dkn-section-title">Xử lý Hết Slot · Đề xuất lớp thay thế</Typography>
             </Box>
-            <Button
-              variant="contained"
-              size="small"
-              className="dkn-copy-all-btn"
-              startIcon={copiedAllCodes ? <CheckIcon /> : <ContentCopyIcon />}
-              onClick={handleCopyAllCodes}
-              disabled={classCount === 0}
-            >
-              {copiedAllCodes ? 'Đã sao chép tất cả!' : 'Copy Tất Cả Mã Lớp'}
-            </Button>
           </Box>
 
-          {classCount === 0 ? (
-            <Box className="dkn-empty-state">
-              <Typography color="text.secondary">
-                Chưa có lớp nào trong <strong>{currentPlan?.name}</strong>. Hãy qua bước <strong>2. Chọn lớp</strong> để xếp thời khóa biểu trước!
+          <Box className="dkn-full-slot-picker-wrap">
+            <Typography className="dkn-full-slot-label">
+              Nếu một lớp trong Plan bị hết chỗ (hết slot) khi đăng ký trên web trường, hãy chọn lớp đó dưới đây để hệ thống gợi ý lớp thay thế:
+            </Typography>
+
+            <Select
+              fullWidth
+              size="small"
+              value={selectedFullClassCode}
+              onChange={(e) => setSelectedFullClassCode(e.target.value)}
+              className="dkn-full-class-select"
+              displayEmpty
+            >
+              <MenuItem value="" disabled>
+                -- Chọn lớp trong {currentPlan?.name} bị hết slot --
+              </MenuItem>
+              {selectedClasses.map((item) => (
+                <MenuItem key={`${item.MaLop}-${item.Thu}-${item.Tiet}`} value={item.MaLop}>
+                  {item.MaLop} - {item.TenMH} ({item.ThucHanh ? 'Thực hành' : 'Lý thuyết'})
+                </MenuItem>
+              ))}
+            </Select>
+          </Box>
+
+          {selectedFullClassCode && (
+            <Box className="dkn-replacements-list">
+              <Typography className="dkn-replacements-title">
+                Lớp thay thế khả thi cho môn <strong>{targetFullClass?.TenMH}</strong> ({targetFullClass?.MaMH}):
               </Typography>
-            </Box>
-          ) : (
-            <Box className="dkn-codes-grid">
-              {selectedClasses.map((item) => {
-                const code = item.MaLop?.trim() || '';
-                const isCopied = copiedCode === code;
-                return (
-                  <Box className="dkn-code-card" key={`${code}-${item.Thu}-${item.Tiet}`}>
-                    <Box className="dkn-code-info">
-                      <Typography className="dkn-code-title">{code}</Typography>
-                      <Typography className="dkn-code-sub">{item.TenMH}</Typography>
-                      <Box className="dkn-code-chips">
-                        <Chip size="small" variant="outlined" label={`${item.SoTc} tín chỉ`} />
-                        <Chip
-                          size="small"
-                          color={item.ThucHanh ? 'secondary' : 'primary'}
-                          label={item.ThucHanh ? 'Thực hành' : 'Lý thuyết'}
-                        />
+
+              {replacementCandidates.length === 0 ? (
+                <Box className="dkn-empty-state">
+                  <Typography color="text.secondary">
+                    Không tìm thấy lớp nào khác cho môn <strong>{targetFullClass?.TenMH}</strong> trong dữ liệu Excel.
+                  </Typography>
+                </Box>
+              ) : (
+                <Box className="dkn-replacement-cards-grid">
+                  {replacementCandidates.map(({ candidate, isOverlap, overlapClass }) => (
+                    <Box
+                      key={`${candidate.MaLop}-${candidate.Thu}-${candidate.Tiet}`}
+                      className={`dkn-replacement-card ${isOverlap ? 'is-overlap' : 'is-feasible'}`}
+                    >
+                      <Box className="dkn-rep-main">
+                        <Box className="dkn-rep-header">
+                          <strong>{candidate.MaLop}</strong>
+                          <Chip
+                            size="small"
+                            className={isOverlap ? 'dkn-chip-overlap' : 'dkn-chip-feasible'}
+                            label={isOverlap ? `Trùng lịch (${overlapClass?.MaLop})` : 'Khả thi (Không trùng)'}
+                          />
+                        </Box>
+                        <Typography className="dkn-rep-sub">
+                          {candidate.TenGV || 'Chưa có giảng viên'} · {formatSchedule(candidate)}
+                        </Typography>
+                        <Box className="dkn-rep-chips">
+                          <Chip size="small" variant="outlined" label={`${candidate.SoTc} tín chỉ`} />
+                          {candidate.PhongHoc && <Chip size="small" variant="outlined" label={candidate.PhongHoc} />}
+                        </Box>
                       </Box>
-                    </Box>
-                    <Tooltip title={isCopied ? 'Đã copy!' : 'Sao chép mã lớp'}>
+
                       <Button
+                        variant={isOverlap ? 'outlined' : 'contained'}
+                        color={isOverlap ? 'inherit' : 'primary'}
                         size="small"
-                        variant={isCopied ? 'contained' : 'outlined'}
-                        color={isCopied ? 'success' : 'primary'}
-                        className="dkn-copy-single-btn"
-                        startIcon={isCopied ? <CheckIcon /> : <ContentCopyIcon />}
-                        onClick={() => handleCopySingleCode(code)}
+                        disabled={isOverlap}
+                        onClick={() => handleSwapClass(targetFullClass!, candidate)}
+                        className="dkn-swap-btn"
                       >
-                        {isCopied ? 'Đã chép' : 'Sao chép'}
+                        {isOverlap ? 'Bị trùng lịch' : 'Đổi sang lớp này'}
                       </Button>
-                    </Tooltip>
-                  </Box>
-                );
-              })}
+                    </Box>
+                  ))}
+                </Box>
+              )}
             </Box>
           )}
         </Card>
 
-        {/* Section 2: Auto-Tick Console Script */}
+        {/* SECTION 2 (MIDDLE): Auto-Tick Console Script */}
         <Card className="dkn-section-card" elevation={0}>
           <Box className="dkn-section-header">
             <Box className="dkn-section-title-wrap">
@@ -413,91 +438,65 @@ ${codesIndent}
           )}
         </Card>
 
-        {/* Section 3: Slot Full Backup Class Suggester */}
+        {/* SECTION 3 (BOTTOM): Single Class Codes (Copy 1-Click) */}
         <Card className="dkn-section-card" elevation={0}>
           <Box className="dkn-section-header">
             <Box className="dkn-section-title-wrap">
-              <SwapHorizIcon className="dkn-section-icon" />
-              <Typography className="dkn-section-title">Xử lý Hết Slot · Đề xuất lớp thay thế</Typography>
+              <FormatListBulletedIcon className="dkn-section-icon" />
+              <Typography className="dkn-section-title">Danh sách mã lớp độc lập</Typography>
             </Box>
-          </Box>
-
-          <Box className="dkn-full-slot-picker-wrap">
-            <Typography className="dkn-full-slot-label">
-              Nếu một lớp trong Plan bị hết chỗ (hết slot) khi đăng ký trên web trường, hãy chọn lớp đó dưới đây để hệ thống gợi ý lớp thay thế:
-            </Typography>
-
-            <Select
-              fullWidth
+            <Button
+              variant="contained"
               size="small"
-              value={selectedFullClassCode}
-              onChange={(e) => setSelectedFullClassCode(e.target.value)}
-              className="dkn-full-class-select"
-              displayEmpty
+              className="dkn-copy-all-btn"
+              startIcon={copiedAllCodes ? <CheckIcon /> : <ContentCopyIcon />}
+              onClick={handleCopyAllCodes}
+              disabled={classCount === 0}
             >
-              <MenuItem value="" disabled>
-                -- Chọn lớp trong {currentPlan?.name} bị hết slot --
-              </MenuItem>
-              {selectedClasses.map((item) => (
-                <MenuItem key={`${item.MaLop}-${item.Thu}-${item.Tiet}`} value={item.MaLop}>
-                  {item.MaLop} - {item.TenMH} ({item.ThucHanh ? 'Thực hành' : 'Lý thuyết'})
-                </MenuItem>
-              ))}
-            </Select>
+              {copiedAllCodes ? 'Đã sao chép tất cả!' : 'Copy Tất Cả Mã Lớp'}
+            </Button>
           </Box>
 
-          {selectedFullClassCode && (
-            <Box className="dkn-replacements-list">
-              <Typography className="dkn-replacements-title">
-                Lớp thay thế khả thi cho môn <strong>{targetFullClass?.TenMH}</strong> ({targetFullClass?.MaMH}):
+          {classCount === 0 ? (
+            <Box className="dkn-empty-state">
+              <Typography color="text.secondary">
+                Chưa có lớp nào trong <strong>{currentPlan?.name}</strong>. Hãy qua bước <strong>2. Chọn lớp</strong> để xếp thời khóa biểu trước!
               </Typography>
-
-              {replacementCandidates.length === 0 ? (
-                <Box className="dkn-empty-state">
-                  <Typography color="text.secondary">
-                    Không tìm thấy lớp nào khác cho môn <strong>{targetFullClass?.TenMH}</strong> trong dữ liệu Excel.
-                  </Typography>
-                </Box>
-              ) : (
-                <Box className="dkn-replacement-cards-grid">
-                  {replacementCandidates.map(({ candidate, isOverlap, overlapClass }) => (
-                    <Box
-                      key={`${candidate.MaLop}-${candidate.Thu}-${candidate.Tiet}`}
-                      className={`dkn-replacement-card ${isOverlap ? 'is-overlap' : 'is-feasible'}`}
-                    >
-                      <Box className="dkn-rep-main">
-                        <Box className="dkn-rep-header">
-                          <strong>{candidate.MaLop}</strong>
-                          <Chip
-                            size="small"
-                            color={isOverlap ? 'error' : 'success'}
-                            variant={isOverlap ? 'outlined' : 'filled'}
-                            label={isOverlap ? `Trùng lịch (${overlapClass?.MaLop})` : 'Khả thi (Không trùng)'}
-                          />
-                        </Box>
-                        <Typography className="dkn-rep-sub">
-                          {candidate.TenGV || 'Chưa có giảng viên'} · {formatSchedule(candidate)}
-                        </Typography>
-                        <Box className="dkn-rep-chips">
-                          <Chip size="small" variant="outlined" label={`${candidate.SoTc} tín chỉ`} />
-                          {candidate.PhongHoc && <Chip size="small" variant="outlined" label={candidate.PhongHoc} />}
-                        </Box>
+            </Box>
+          ) : (
+            <Box className="dkn-codes-grid">
+              {selectedClasses.map((item) => {
+                const code = item.MaLop?.trim() || '';
+                const isCopied = copiedCode === code;
+                return (
+                  <Box className="dkn-code-card" key={`${code}-${item.Thu}-${item.Tiet}`}>
+                    <Box className="dkn-code-info">
+                      <Typography className="dkn-code-title">{code}</Typography>
+                      <Typography className="dkn-code-sub">{item.TenMH}</Typography>
+                      <Box className="dkn-code-chips">
+                        <Chip size="small" variant="outlined" label={`${item.SoTc} tín chỉ`} />
+                        <Chip
+                          size="small"
+                          color={item.ThucHanh ? 'secondary' : 'primary'}
+                          label={item.ThucHanh ? 'Thực hành' : 'Lý thuyết'}
+                        />
                       </Box>
-
-                      <Button
-                        variant={isOverlap ? 'outlined' : 'contained'}
-                        color={isOverlap ? 'inherit' : 'primary'}
-                        size="small"
-                        disabled={isOverlap}
-                        onClick={() => handleSwapClass(targetFullClass!, candidate)}
-                        className="dkn-swap-btn"
-                      >
-                        {isOverlap ? 'Bị trùng lịch' : 'Đổi sang lớp này'}
-                      </Button>
                     </Box>
-                  ))}
-                </Box>
-              )}
+                    <Tooltip title={isCopied ? 'Đã copy!' : 'Sao chép mã lớp'}>
+                      <Button
+                        size="small"
+                        variant={isCopied ? 'contained' : 'outlined'}
+                        color={isCopied ? 'success' : 'primary'}
+                        className="dkn-copy-single-btn"
+                        startIcon={isCopied ? <CheckIcon /> : <ContentCopyIcon />}
+                        onClick={() => handleCopySingleCode(code)}
+                      >
+                        {isCopied ? 'Đã chép' : 'Sao chép'}
+                      </Button>
+                    </Tooltip>
+                  </Box>
+                );
+              })}
             </Box>
           )}
         </Card>
