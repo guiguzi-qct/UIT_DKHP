@@ -80,6 +80,25 @@ export function getDraftConflictReason(
   return null;
 }
 
+export function isThucHanhClass(candidate: ClassModel): boolean {
+  if (candidate.ThucHanh) return true;
+  const maLop = candidate.MaLop?.trim() || '';
+  return /\.\d+$/.test(maLop);
+}
+
+export function isTheoryClass(candidate: ClassModel): boolean {
+  return !isThucHanhClass(candidate);
+}
+
+export function getMatchingPracticeClasses(ltClass: ClassModel, allCandidates: ClassModel[]): ClassModel[] {
+  const ltCode = ltClass.MaLop?.trim() || '';
+  return allCandidates.filter((c) => {
+    if (c.MaMH !== ltClass.MaMH) return false;
+    const cCode = c.MaLop?.trim() || '';
+    return isThucHanhClass(c) && (cCode.startsWith(ltCode + '.') || cCode.startsWith(ltCode));
+  });
+}
+
 export type CandidateCourseGroup = {
   key: string;
   name: string;
@@ -126,7 +145,7 @@ const getDialogCopy = (target: PickerTarget) => {
   if (target.kind === 'all') {
     return {
       title: 'Chọn môn học',
-      description: 'Có thể chọn nhiều lớp rồi bấm Thêm. Các phương án trùng sẽ được làm mờ và ghi rõ lý do.',
+      description: 'Chọn lớp Lý thuyết trước, hệ thống sẽ tự động chừa lại các lớp Thực hành đi kèm (như R11.1, R11.2) để chọn.',
     };
   }
   if (target.kind === 'replace') {
@@ -150,6 +169,10 @@ export default function CoursePickerDialog({ target, onClose }: Props) {
   const [search, setSearch] = useState('');
   const [draftCandidates, setDraftCandidates] = useState<ClassModel[]>([]);
   const [expandedCourseKey, setExpandedCourseKey] = useState<string | null>(null);
+
+  const [shakingKey, setShakingKey] = useState<string | null>(null);
+  const [shakingSubmit, setShakingSubmit] = useState(false);
+
   const data = useTkbStore(selectFinalDataTkb);
   const selectedClasses = useTkbStore(selectSelectedClassesBuoc3);
   const setSelectedClasses = useTkbStore((state) => state.setSelectedClasses);
@@ -158,6 +181,8 @@ export default function CoursePickerDialog({ target, onClose }: Props) {
     setSearch('');
     setDraftCandidates([]);
     setExpandedCourseKey(null);
+    setShakingKey(null);
+    setShakingSubmit(false);
   }, [target]);
 
   const candidates = useMemo(() => {
@@ -198,10 +223,25 @@ export default function CoursePickerDialog({ target, onClose }: Props) {
     setSearch('');
     setDraftCandidates([]);
     setExpandedCourseKey(null);
+    setShakingKey(null);
+    setShakingSubmit(false);
     onClose();
   };
 
   const chooseCandidate = (candidate: ClassModel) => {
+    const isTH = isThucHanhClass(candidate);
+    if (isTH) {
+      const hasLTSelected = [...selectedClasses, ...draftCandidates].some(
+        (c) => c.MaMH === candidate.MaMH && isTheoryClass(c)
+      );
+      if (!hasLTSelected) {
+        const candidateKey = getCandidateKey(candidate);
+        setShakingKey(candidateKey);
+        setTimeout(() => setShakingKey(null), 500);
+        enqueueSnackbar('⚠️ Bạn phải chọn lớp Lý thuyết trước khi chọn lớp Thực hành!', { variant: 'error' });
+        return;
+      }
+    }
     setDraftCandidates((current) => [...current, candidate]);
   };
 
@@ -211,6 +251,34 @@ export default function CoursePickerDialog({ target, onClose }: Props) {
 
   const commitDraftCandidates = () => {
     if (!draftCandidates.length) return;
+
+    const allCurrentClasses = [...selectedClasses, ...draftCandidates];
+    const draftLTClasses = draftCandidates.filter(isTheoryClass);
+
+    for (const ltClass of draftLTClasses) {
+      const matchingTHOptions = getMatchingPracticeClasses(ltClass, data);
+      if (matchingTHOptions.length > 0) {
+        const hasMatchingTHSelected = allCurrentClasses.some((c) =>
+          isThucHanhClass(c) && matchingTHOptions.some((thOpt) => isSameAgGridRowId(thOpt, c))
+        );
+
+        if (!hasMatchingTHSelected) {
+          setShakingSubmit(true);
+          const ltKey = getCandidateKey(ltClass);
+          setShakingKey(ltKey);
+          setTimeout(() => {
+            setShakingSubmit(false);
+            setShakingKey(null);
+          }, 500);
+          enqueueSnackbar(
+            `🔴 Lớp Lý thuyết ${ltClass.MaLop} có bài Thực hành. Bạn chưa chọn lớp Thực hành đi kèm (${matchingTHOptions.map(c => c.MaLop).join(', ')})!`,
+            { variant: 'error' }
+          );
+          return;
+        }
+      }
+    }
+
     setSelectedClasses(applyCandidateBatch(selectedClasses, draftCandidates));
     enqueueSnackbar(`Đã thêm ${draftCandidates.length} lớp vào thời khóa biểu`, { variant: 'success' });
     closeDialog();
@@ -309,11 +377,46 @@ export default function CoursePickerDialog({ target, onClose }: Props) {
                 {isExpanded && (
                   <div className="course-option-list">
                     {group.candidates.map((candidate) => {
-                      const conflictReason = conflictReasons.get(getCandidateKey(candidate));
+                      const candidateKey = getCandidateKey(candidate);
+                      const conflictReason = conflictReasons.get(candidateKey);
+                      const isTH = isThucHanhClass(candidate);
+
+                      const selectedLTInCourse = draftCandidates.find(
+                        (c) => c.MaMH === candidate.MaMH && isTheoryClass(c)
+                      );
+                      const hasSelectedLTInCourse = Boolean(selectedLTInCourse);
+
+                      let isHighlightedTH = false;
+                      let isDimmedByLTSelection = false;
+
+                      if (hasSelectedLTInCourse) {
+                        if (isTH) {
+                          const ltCode = selectedLTInCourse!.MaLop?.trim() || '';
+                          const thCode = candidate.MaLop?.trim() || '';
+                          if (thCode.startsWith(ltCode + '.') || thCode.startsWith(ltCode)) {
+                            isHighlightedTH = true;
+                          } else {
+                            isDimmedByLTSelection = true;
+                          }
+                        } else {
+                          isDimmedByLTSelection = true;
+                        }
+                      }
+
+                      const isLockedTH =
+                        isTH &&
+                        !hasSelectedLTInCourse &&
+                        !selectedClasses.some((c) => c.MaMH === candidate.MaMH && isTheoryClass(c));
+                      const isShaking = shakingKey === candidateKey;
+
                       return (
                         <ButtonBase
-                          className={`course-option${conflictReason ? ' course-option-conflict' : ''}`}
-                          key={getCandidateKey(candidate)}
+                          className={`course-option${conflictReason ? ' course-option-conflict' : ''}${
+                            isLockedTH ? ' course-option-locked-th' : ''
+                          }${isHighlightedTH ? ' course-option-highlighted-th' : ''}${
+                            isDimmedByLTSelection ? ' course-option-dimmed' : ''
+                          }${isShaking ? ' shake-red-animation' : ''}`}
+                          key={candidateKey}
                           disabled={!!conflictReason}
                           onClick={() => chooseCandidate(candidate)}
                           aria-label={conflictReason || `Chọn lớp ${candidate.MaLop}`}
@@ -327,7 +430,15 @@ export default function CoursePickerDialog({ target, onClose }: Props) {
                               {candidate.PhongHoc && (
                                 <Chip size="small" variant="outlined" label={candidate.PhongHoc} />
                               )}
-                              {!!candidate.ThucHanh && <Chip size="small" variant="outlined" label="Thực hành" />}
+                              {isTH ? (
+                                <Chip
+                                  size="small"
+                                  color={isHighlightedTH ? 'success' : isLockedTH ? 'default' : 'primary'}
+                                  label={isHighlightedTH ? 'Thực hành (Đi kèm)' : isLockedTH ? 'Thực hành (Khóa)' : 'Thực hành'}
+                                />
+                              ) : (
+                                <Chip size="small" variant="outlined" label="Lý thuyết" />
+                              )}
                             </div>
                           </div>
                           <span
@@ -367,7 +478,12 @@ export default function CoursePickerDialog({ target, onClose }: Props) {
         <Button color="inherit" onClick={closeDialog}>
           Đóng
         </Button>
-        <Button variant="contained" disabled={!draftCandidates.length} onClick={commitDraftCandidates}>
+        <Button
+          variant="contained"
+          className={shakingSubmit ? 'shake-red-animation' : ''}
+          disabled={!draftCandidates.length}
+          onClick={commitDraftCandidates}
+        >
           {target.kind === 'replace'
             ? 'Đổi lớp'
             : draftCandidates.length

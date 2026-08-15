@@ -333,6 +333,37 @@
   margin-right: auto;
 }
 
+@keyframes shakeRed {
+  0% { transform: translateX(0); }
+  20% { transform: translateX(-8px); border-color: #ef4444 !important; background-color: #fef2f2 !important; box-shadow: 0 0 12px rgba(239, 68, 68, 0.4) !important; }
+  40% { transform: translateX(8px); border-color: #ef4444 !important; background-color: #fef2f2 !important; box-shadow: 0 0 12px rgba(239, 68, 68, 0.4) !important; }
+  60% { transform: translateX(-6px); border-color: #ef4444 !important; background-color: #fef2f2 !important; box-shadow: 0 0 12px rgba(239, 68, 68, 0.4) !important; }
+  80% { transform: translateX(6px); border-color: #ef4444 !important; background-color: #fef2f2 !important; box-shadow: 0 0 12px rgba(239, 68, 68, 0.4) !important; }
+  100% { transform: translateX(0); }
+}
+
+.shake-red-animation {
+  animation: shakeRed 480ms ease-in-out !important;
+  border: 2px solid #ef4444 !important;
+}
+
+.course-option-locked-th {
+  opacity: 0.65 !important;
+  border-style: dashed !important;
+  border-color: #ADBECC !important;
+}
+
+.course-option-highlighted-th {
+  border: 2px solid #10b981 !important;
+  background: #ecfdf5 !important;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15) !important;
+}
+
+.course-option-dimmed {
+  opacity: 0.35 !important;
+  filter: grayscale(40%) !important;
+}
+
 @keyframes course-picker-in {
   from {
     opacity: 0;

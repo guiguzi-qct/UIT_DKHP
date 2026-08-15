@@ -357,6 +357,39 @@ body {
   margin-bottom: 16px;
   padding: 16px 20px;
 }
+.class-source-header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.step3-stat-badges {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.step3-stat-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  border-radius: 20px;
+  background: #0E2128;
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(14, 33, 40, 0.12);
+}
+.step3-stat-num {
+  font-size: 15px;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1;
+}
+.step3-stat-txt {
+  font-size: 13px;
+  font-weight: 600;
+  color: #ADBECC;
+  line-height: 1;
+}
 .class-code-editor {
   width: 100%;
   display: flex;
