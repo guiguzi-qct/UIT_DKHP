@@ -288,10 +288,6 @@
   background: #ffffff !important;
   vertical-align: middle;
 }
-#thoi-khoa-bieu .online-row-cell:has(.online-classes-flex) {
-  padding: 8px !important;
-  background: #F4F7F9 !important;
-}
 #thoi-khoa-bieu .online-empty-static {
   width: 100%;
   height: 52px;
@@ -310,14 +306,18 @@
   display: flex;
   flex-wrap: wrap;
   align-items: stretch;
-  gap: 8px;
+  gap: 0;
   width: 100%;
+  padding: 0 !important;
+  background: #ffffff !important;
 }
 #thoi-khoa-bieu .online-classes-flex > .cell-class-wrapper,
 #thoi-khoa-bieu .online-classes-flex > td {
-  flex: 1 1 calc((100% - (var(--item-count, 1) - 1) * 8px) / var(--item-count, 1)) !important;
-  max-width: calc((100% - (var(--item-count, 1) - 1) * 8px) / var(--item-count, 1)) !important;
+  flex: 1 1 calc((100% - (var(--item-count, 1) - 1) * 0px) / var(--item-count, 1)) !important;
+  max-width: calc((100% - (var(--item-count, 1) - 1) * 0px) / var(--item-count, 1)) !important;
   box-sizing: border-box !important;
+  padding: 4px !important;
+  background: #ffffff !important;
 }
 #thoi-khoa-bieu .extra-classes-grid-row {
   margin-top: 12px;
