@@ -5,6 +5,7 @@ import CodeIcon from '@mui/icons-material/Code';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
+import RotateLeftIcon from '@mui/icons-material/RotateLeft';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import Box from '@mui/material/Box';
@@ -45,6 +46,7 @@ export default function DangKyNhanh() {
   const [copiedAllCodes, setCopiedAllCodes] = useState(false);
   const [showScriptPreview, setShowScriptPreview] = useState(false);
   const [selectedFullClassCode, setSelectedFullClassCode] = useState<string>('');
+  const [checkedClassCodes, setCheckedClassCodes] = useState<Record<string, boolean>>({});
 
   const currentPlan = useMemo(() => {
     return plans.find((p) => p.id === activePlanId) || plans[0];
@@ -55,6 +57,10 @@ export default function DangKyNhanh() {
   }, [currentPlan]);
   const classCount = selectedClasses.length;
   const totalTc = useMemo(() => calcTongSoTC(selectedClasses), [selectedClasses]);
+
+  const checkedCount = useMemo(() => {
+    return selectedClasses.filter((c) => Boolean(checkedClassCodes[c.MaLop?.trim() || ''])).length;
+  }, [selectedClasses, checkedClassCodes]);
 
   const rawCodesString = useMemo(() => {
     return selectedClasses.map((c) => c.MaLop?.trim()).filter(Boolean).join('\n');
@@ -187,6 +193,18 @@ ${codesIndent}
     }).sort((a, b) => Number(a.isOverlap) - Number(b.isOverlap));
   }, [allData, selectedClasses, targetFullClass]);
 
+  const toggleCheckClassCode = (code: string) => {
+    setCheckedClassCodes((prev) => ({
+      ...prev,
+      [code]: !prev[code],
+    }));
+  };
+
+  const handleResetChecklist = () => {
+    setCheckedClassCodes({});
+    enqueueSnackbar('Đã đặt lại trạng thái checklist mã lớp!', { variant: 'info' });
+  };
+
   const handleSwapClass = (oldClass: ClassModel, newClass: ClassModel) => {
     const updated = selectedClasses.map((c) => (isSameAgGridRowId(c, oldClass) ? newClass : c));
     setSelectedClasses(updated);
@@ -247,6 +265,7 @@ ${codesIndent}
             onChange={(e) => {
               setActivePlanId(e.target.value);
               setSelectedFullClassCode('');
+              setCheckedClassCodes({});
             }}
             className="dkn-plan-select"
           >
@@ -270,7 +289,109 @@ ${codesIndent}
 
       {/* Main Content Grid */}
       <Box className="dkn-content-grid">
-        {/* SECTION 1 (TOP): Slot Full Backup Class Suggester */}
+        {/* SECTION 1 (TOP): Single Class Codes Checklist & 1-Click Copy */}
+        <Card className="dkn-section-card" elevation={0}>
+          <Box className="dkn-section-header">
+            <Box className="dkn-section-title-wrap">
+              <FormatListBulletedIcon className="dkn-section-icon" />
+              <Typography className="dkn-section-title">Checklist mã lớp &amp; Copy nhanh</Typography>
+              {classCount > 0 && (
+                <Chip
+                  size="small"
+                  className="dkn-checklist-progress-chip"
+                  label={`Đã chọn: ${checkedCount} / ${classCount}`}
+                />
+              )}
+            </Box>
+
+            <Box className="dkn-section-actions">
+              {checkedCount > 0 && (
+                <Button
+                  variant="outlined"
+                  size="small"
+                  startIcon={<RotateLeftIcon />}
+                  onClick={handleResetChecklist}
+                  className="dkn-reset-checklist-btn"
+                >
+                  Đặt lại Checklist
+                </Button>
+              )}
+              <Button
+                variant="contained"
+                size="small"
+                className="dkn-copy-all-btn"
+                startIcon={copiedAllCodes ? <CheckIcon /> : <ContentCopyIcon />}
+                onClick={handleCopyAllCodes}
+                disabled={classCount === 0}
+              >
+                {copiedAllCodes ? 'Đã sao chép tất cả!' : 'Copy Tất Cả Mã Lớp'}
+              </Button>
+            </Box>
+          </Box>
+
+          <Typography className="dkn-section-subtitle">
+            💡 Click vào thẻ mã lớp để đánh dấu là <strong>đã chọn / đã ĐKMH thành công</strong> trên web trường:
+          </Typography>
+
+          {classCount === 0 ? (
+            <Box className="dkn-empty-state">
+              <Typography color="text.secondary">
+                Chưa có lớp nào trong <strong>{currentPlan?.name}</strong>. Hãy qua bước <strong>2. Chọn lớp</strong> để xếp thời khóa biểu trước!
+              </Typography>
+            </Box>
+          ) : (
+            <Box className="dkn-codes-grid">
+              {selectedClasses.map((item) => {
+                const code = item.MaLop?.trim() || '';
+                const isCopied = copiedCode === code;
+                const isChecked = Boolean(checkedClassCodes[code]);
+
+                return (
+                  <Box
+                    className={`dkn-code-card ${isChecked ? 'is-checked' : ''}`}
+                    key={`${code}-${item.Thu}-${item.Tiet}`}
+                    onClick={() => toggleCheckClassCode(code)}
+                  >
+                    <Box className="dkn-code-info">
+                      <Box className="dkn-code-title-wrap">
+                        <Typography className="dkn-code-title">{code}</Typography>
+                        {isChecked && (
+                          <Chip size="small" color="success" label="✓ Đã chọn" className="dkn-checked-badge" />
+                        )}
+                      </Box>
+                      <Typography className="dkn-code-sub">{item.TenMH}</Typography>
+                      <Box className="dkn-code-chips">
+                        <Chip size="small" variant="outlined" label={`${item.SoTc} tín chỉ`} />
+                        <Chip
+                          size="small"
+                          color={item.ThucHanh ? 'secondary' : 'primary'}
+                          label={item.ThucHanh ? 'Thực hành' : 'Lý thuyết'}
+                        />
+                      </Box>
+                    </Box>
+                    <Tooltip title={isCopied ? 'Đã copy!' : 'Sao chép mã lớp'}>
+                      <Button
+                        size="small"
+                        variant={isCopied ? 'contained' : 'outlined'}
+                        color={isCopied ? 'success' : 'primary'}
+                        className="dkn-copy-single-btn"
+                        startIcon={isCopied ? <CheckIcon /> : <ContentCopyIcon />}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleCopySingleCode(code);
+                        }}
+                      >
+                        {isCopied ? 'Đã chép' : 'Sao chép'}
+                      </Button>
+                    </Tooltip>
+                  </Box>
+                );
+              })}
+            </Box>
+          )}
+        </Card>
+
+        {/* SECTION 2 (MIDDLE): Slot Full Backup Class Suggester */}
         <Card className="dkn-section-card" elevation={0}>
           <Box className="dkn-section-header">
             <Box className="dkn-section-title-wrap">
@@ -358,7 +479,7 @@ ${codesIndent}
           )}
         </Card>
 
-        {/* SECTION 2 (MIDDLE): Auto-Tick Console Script */}
+        {/* SECTION 3 (BOTTOM): Auto-Tick Console Script */}
         <Card className="dkn-section-card" elevation={0}>
           <Box className="dkn-section-header">
             <Box className="dkn-section-title-wrap">
@@ -434,69 +555,6 @@ ${codesIndent}
               <pre className="dkn-script-preview-code">
                 <code>{scriptCode}</code>
               </pre>
-            </Box>
-          )}
-        </Card>
-
-        {/* SECTION 3 (BOTTOM): Single Class Codes (Copy 1-Click) */}
-        <Card className="dkn-section-card" elevation={0}>
-          <Box className="dkn-section-header">
-            <Box className="dkn-section-title-wrap">
-              <FormatListBulletedIcon className="dkn-section-icon" />
-              <Typography className="dkn-section-title">Danh sách mã lớp độc lập</Typography>
-            </Box>
-            <Button
-              variant="contained"
-              size="small"
-              className="dkn-copy-all-btn"
-              startIcon={copiedAllCodes ? <CheckIcon /> : <ContentCopyIcon />}
-              onClick={handleCopyAllCodes}
-              disabled={classCount === 0}
-            >
-              {copiedAllCodes ? 'Đã sao chép tất cả!' : 'Copy Tất Cả Mã Lớp'}
-            </Button>
-          </Box>
-
-          {classCount === 0 ? (
-            <Box className="dkn-empty-state">
-              <Typography color="text.secondary">
-                Chưa có lớp nào trong <strong>{currentPlan?.name}</strong>. Hãy qua bước <strong>2. Chọn lớp</strong> để xếp thời khóa biểu trước!
-              </Typography>
-            </Box>
-          ) : (
-            <Box className="dkn-codes-grid">
-              {selectedClasses.map((item) => {
-                const code = item.MaLop?.trim() || '';
-                const isCopied = copiedCode === code;
-                return (
-                  <Box className="dkn-code-card" key={`${code}-${item.Thu}-${item.Tiet}`}>
-                    <Box className="dkn-code-info">
-                      <Typography className="dkn-code-title">{code}</Typography>
-                      <Typography className="dkn-code-sub">{item.TenMH}</Typography>
-                      <Box className="dkn-code-chips">
-                        <Chip size="small" variant="outlined" label={`${item.SoTc} tín chỉ`} />
-                        <Chip
-                          size="small"
-                          color={item.ThucHanh ? 'secondary' : 'primary'}
-                          label={item.ThucHanh ? 'Thực hành' : 'Lý thuyết'}
-                        />
-                      </Box>
-                    </Box>
-                    <Tooltip title={isCopied ? 'Đã copy!' : 'Sao chép mã lớp'}>
-                      <Button
-                        size="small"
-                        variant={isCopied ? 'contained' : 'outlined'}
-                        color={isCopied ? 'success' : 'primary'}
-                        className="dkn-copy-single-btn"
-                        startIcon={isCopied ? <CheckIcon /> : <ContentCopyIcon />}
-                        onClick={() => handleCopySingleCode(code)}
-                      >
-                        {isCopied ? 'Đã chép' : 'Sao chép'}
-                      </Button>
-                    </Tooltip>
-                  </Box>
-                );
-              })}
             </Box>
           )}
         </Card>

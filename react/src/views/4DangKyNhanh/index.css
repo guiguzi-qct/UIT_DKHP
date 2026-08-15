@@ -155,6 +155,43 @@
   box-shadow: 0 4px 12px rgba(14, 33, 40, 0.15) !important;
 }
 
+.dkn-section-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dkn-checklist-progress-chip {
+  background: #EAF4F4 !important;
+  color: #0F5257 !important;
+  border: 1px solid #BEE1E3 !important;
+  font-weight: 800 !important;
+  font-size: 12px !important;
+}
+
+.dkn-reset-checklist-btn {
+  border-color: #D5E0E8 !important;
+  color: #59899D !important;
+  border-radius: 10px !important;
+  text-transform: none !important;
+  font-weight: 700 !important;
+  font-size: 12px !important;
+  padding: 4px 12px !important;
+}
+
+.dkn-reset-checklist-btn:hover {
+  border-color: #0E2128 !important;
+  color: #0E2128 !important;
+  background: #F4F7F9 !important;
+}
+
+.dkn-section-subtitle {
+  font-size: 13px !important;
+  color: #59899D;
+  margin-bottom: 16px;
+  font-weight: 500;
+}
+
 /* Empty state */
 .dkn-empty-state {
   padding: 30px 20px;
@@ -180,12 +217,34 @@
   border: 1px solid #D5E0E8;
   border-radius: 12px;
   transition: all 180ms ease;
+  cursor: pointer;
+  user-select: none;
 }
 
 .dkn-code-card:hover {
   background: #ffffff;
   border-color: #0E2128;
   box-shadow: 0 4px 12px rgba(14, 33, 40, 0.08);
+}
+
+.dkn-code-card.is-checked {
+  background: #EAF4F4;
+  border-color: #59899D;
+  box-shadow: 0 2px 8px rgba(15, 82, 87, 0.1);
+}
+
+.dkn-code-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dkn-checked-badge {
+  font-size: 11px !important;
+  height: 20px !important;
+  font-weight: 800 !important;
+  background: #0F5257 !important;
+  color: #ffffff !important;
 }
 
 .dkn-code-title {
