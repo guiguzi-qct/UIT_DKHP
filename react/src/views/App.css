@@ -12,12 +12,17 @@
   --text-xl: 20px;
 }
 html {
-  background: #F4F7F9;
+  background: #EBF1F5;
 }
 body {
   margin: 0;
   color: #040309;
-  background: #F4F7F9;
+  background-color: #EBF1F5;
+  background-image: linear-gradient(to bottom, rgba(235, 241, 245, 0.92), rgba(235, 241, 245, 0.96)), url('/uit-bg.png');
+  background-attachment: fixed;
+  background-size: cover;
+  background-position: center top;
+  background-repeat: no-repeat;
   font-family: 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
   font-size: var(--text-md);
   line-height: 1.5;
@@ -99,6 +104,19 @@ body {
   transform: translateY(-1px) !important;
 }
 
+.workflow-nav-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.workflow-nav-standalone {
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  border-radius: 14px;
+  background: #EBF1F5;
+  border: 1px solid #D5E0E8;
+}
 .workflow-nav {
   display: flex;
   align-items: center;
@@ -107,13 +125,6 @@ body {
   border-radius: 14px;
   background: #EBF1F5;
   border: 1px solid #D5E0E8;
-}
-.workflow-nav-divider {
-  width: 1px;
-  height: 20px;
-  background: #CBD5E1;
-  margin: 0 4px;
-  flex-shrink: 0;
 }
 .workflow-step {
   min-height: 40px;
@@ -192,9 +203,11 @@ body {
 }
 .surface-card {
   border-radius: 18px !important;
-  border: 1px solid #D5E0E8 !important;
-  background: #ffffff !important;
-  box-shadow: 0 4px 20px rgba(4, 3, 9, 0.04) !important;
+  border: 1px solid rgba(255, 255, 255, 0.8) !important;
+  background: rgba(255, 255, 255, 0.82) !important;
+  backdrop-filter: blur(20px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+  box-shadow: 0 8px 32px rgba(14, 33, 40, 0.08) !important;
 }
 
 .step1-guide-grid {
@@ -224,8 +237,10 @@ body {
   justify-content: space-between;
   gap: 12px;
   border-radius: 14px;
-  background: #EBF1F5;
-  border: 1px solid #D5E0E8;
+  background: rgba(235, 241, 245, 0.75) !important;
+  backdrop-filter: blur(16px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+  border: 1px solid rgba(213, 224, 232, 0.8) !important;
 }
 
 .upload-dropzone {
@@ -239,7 +254,9 @@ body {
   text-align: center;
   border: 2px dashed #ADBECC;
   border-radius: 18px;
-  background: #F4F7F9;
+  background: rgba(244, 247, 249, 0.65) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
   cursor: pointer;
   transition: all 180ms ease;
 }

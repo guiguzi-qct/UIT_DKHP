@@ -1,3 +1,4 @@
+import Box from '@mui/material/Box';
 import { NavLink, useLocation } from 'react-router-dom';
 import { ROUTES } from '../../constants';
 import { selectFinalDataTkb, useTkbStore } from '../../zus';
@@ -17,39 +18,41 @@ export default function WorkflowNav() {
   const isStep1Active = location.pathname === step1.path;
 
   return (
-    <nav className="workflow-nav" aria-label="Điều hướng các bước">
-      {/* Step 1 separated */}
-      <NavLink
-        className={`workflow-step ${isStep1Active ? 'active' : ''}`}
-        to={step1.path + location.search}
-      >
-        <span className="workflow-step-title">{step1.shortName}</span>
-      </NavLink>
+    <Box className="workflow-nav-wrapper">
+      {/* Standalone Step 1 Capsule */}
+      <Box className="workflow-nav-standalone">
+        <NavLink
+          className={`workflow-step ${isStep1Active ? 'active' : ''}`}
+          to={step1.path + location.search}
+        >
+          <span className="workflow-step-title">{step1.shortName}</span>
+        </NavLink>
+      </Box>
 
-      <span className="workflow-nav-divider" />
+      {/* Main Steps 2-4 Capsule */}
+      <nav className="workflow-nav" aria-label="Điều hướng các bước">
+        {steps24.map((step) => {
+          const isActive = location.pathname === step.path;
+          const isDisabled = data.length === 0;
+          const className = ['workflow-step', isActive ? 'active' : '', isDisabled ? 'disabled' : '']
+            .filter(Boolean)
+            .join(' ');
 
-      {/* Steps 2-4 */}
-      {steps24.map((step) => {
-        const isActive = location.pathname === step.path;
-        const isDisabled = data.length === 0;
-        const className = ['workflow-step', isActive ? 'active' : '', isDisabled ? 'disabled' : '']
-          .filter(Boolean)
-          .join(' ');
+          if (isDisabled) {
+            return (
+              <span className={className} aria-disabled="true" key={step.path}>
+                <span className="workflow-step-title">{step.shortName}</span>
+              </span>
+            );
+          }
 
-        if (isDisabled) {
           return (
-            <span className={className} aria-disabled="true" key={step.path}>
+            <NavLink className={className} to={step.path + location.search} key={step.path}>
               <span className="workflow-step-title">{step.shortName}</span>
-            </span>
+            </NavLink>
           );
-        }
-
-        return (
-          <NavLink className={className} to={step.path + location.search} key={step.path}>
-            <span className="workflow-step-title">{step.shortName}</span>
-          </NavLink>
-        );
-      })}
-    </nav>
+        })}
+      </nav>
+    </Box>
   );
 }

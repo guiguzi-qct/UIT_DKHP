@@ -5,7 +5,7 @@
   width: 100%;
   max-width: 1300px;
   margin: 0 auto;
-  padding-bottom: 60px;
+  padding: 24px 20px 60px 20px;
 }
 
 /* Header Card */
@@ -100,10 +100,12 @@
 
 .dkn-section-card {
   padding: 24px 26px;
-  border-radius: 16px;
-  background: #ffffff;
-  border: 1px solid #D5E0E8;
-  box-shadow: 0 4px 16px rgba(14, 33, 40, 0.04);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.82) !important;
+  backdrop-filter: blur(20px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.8) !important;
+  box-shadow: 0 8px 32px rgba(14, 33, 40, 0.08) !important;
 }
 
 .dkn-section-header {
