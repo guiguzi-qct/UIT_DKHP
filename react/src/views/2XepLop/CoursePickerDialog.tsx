@@ -499,7 +499,7 @@ export default function CoursePickerDialog({ target, onClose }: Props) {
 
                             {/* Nested Practice Children (Indented / Thụt vô 1 tí) */}
                             {practices.length > 0 && (
-                              <div className="practice-nested-container">
+                              <div className={`practice-nested-container${isLTActive ? ' active-branch' : ''}`}>
                                 {practices.map((practice) => {
                                   const thKey = getCandidateKey(practice);
                                   const thConflict = conflictReasons.get(thKey);
@@ -507,6 +507,7 @@ export default function CoursePickerDialog({ target, onClose }: Props) {
                                   const isTHTkbSelected = selectedClasses.some((s) => isSameAgGridRowId(s, practice));
                                   const isTHActive = isTHDraftSelected || isTHTkbSelected;
                                   const isLockedTH = !isLTActive;
+                                  const isUnlockedTH = isLTActive && !isTHActive;
                                   const isShaking = shakingKey === thKey;
 
                                   return (
@@ -514,8 +515,10 @@ export default function CoursePickerDialog({ target, onClose }: Props) {
                                       className={`course-option course-option-practice${
                                         thConflict ? ' course-option-conflict' : ''
                                       }${isLockedTH ? ' course-option-locked-th' : ''}${
-                                        isTHActive ? ' course-option-active-th' : ''
-                                      }${isShaking ? ' shake-red-animation' : ''}`}
+                                        isUnlockedTH ? ' course-option-unlocked-th' : ''
+                                      }${isTHActive ? ' course-option-active-th' : ''}${
+                                        isShaking ? ' shake-red-animation' : ''
+                                      }`}
                                       key={thKey}
                                       disabled={!!thConflict}
                                       onClick={() => chooseCandidate(practice)}
@@ -532,8 +535,15 @@ export default function CoursePickerDialog({ target, onClose }: Props) {
                                           )}
                                           <Chip
                                             size="small"
-                                            color={isTHActive ? 'success' : isLockedTH ? 'default' : 'secondary'}
-                                            label={isTHActive ? 'Thực hành (Đã chọn)' : isLockedTH ? 'Thực hành (Khóa)' : 'Thực hành (Đi kèm)'}
+                                            color={isTHActive ? 'success' : isUnlockedTH ? 'success' : 'default'}
+                                            variant={isUnlockedTH ? 'outlined' : 'filled'}
+                                            label={
+                                              isTHActive
+                                                ? 'Thực hành (Đã chọn)'
+                                                : isUnlockedTH
+                                                ? 'Thực hành (Sẵn sàng chọn)'
+                                                : 'Thực hành (Khóa)'
+                                            }
                                           />
                                         </div>
                                       </div>
