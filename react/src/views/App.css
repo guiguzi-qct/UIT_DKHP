@@ -104,27 +104,23 @@ body {
   transform: translateY(-1px) !important;
 }
 
-.workflow-nav-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.workflow-nav-standalone {
-  display: flex;
-  align-items: center;
-  padding: 4px;
-  border-radius: 14px;
-  background: #D5E2EC;
-  border: 1.5px solid #0E2128;
-}
 .workflow-nav {
   display: flex;
   align-items: center;
   gap: 4px;
   padding: 4px;
   border-radius: 14px;
-  background: #D5E2EC;
-  border: 1.5px solid #0E2128;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(213, 224, 232, 0.9);
+  box-shadow: 0 4px 16px rgba(14, 33, 40, 0.08);
+}
+.workflow-nav-divider {
+  width: 1px;
+  height: 20px;
+  background: #CBD5E1;
+  margin: 0 36px;
+  flex-shrink: 0;
 }
 .workflow-step {
   min-height: 38px;
@@ -132,28 +128,24 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
   border-radius: 10px;
-  color: #0E2128 !important;
+  color: #334155 !important;
   text-decoration: none;
   font-size: 14px;
   font-weight: 700 !important;
-  transition: all 160ms cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 180ms ease;
   white-space: nowrap;
-  opacity: 0.85;
 }
 .workflow-step:not(.disabled):hover {
   color: #0E2128 !important;
   background: rgba(255, 255, 255, 0.7);
-  opacity: 1;
 }
 .workflow-step.active {
   color: #0E2128 !important;
   background: #ffffff !important;
-  border: 1.5px solid #0E2128 !important;
+  border: 1px solid #D5E0E8 !important;
   font-weight: 800 !important;
-  opacity: 1 !important;
-  box-shadow: 0 3px 10px rgba(14, 33, 40, 0.12) !important;
+  box-shadow: 0 3px 12px rgba(14, 33, 40, 0.12) !important;
 }
 .workflow-step.disabled {
   opacity: 0.45;
