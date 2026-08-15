@@ -21,6 +21,7 @@ import { selectFinalDataTkb, selectIsChiVeTkb, selectTextareaChiVeTkb, useTkbSto
 import ChonFileExcel from './1ChonFileExcel';
 import XepLop from './2XepLop';
 import KetQua from './3KetQua';
+import DangKyNhanh from './4DangKyNhanh';
 import ErrorBoundary from './components/ErrorBoundary';
 import NeedStep1Warning from './components/NeedStep1';
 import ScrollToTop from './components/ScrollToTop';
@@ -86,6 +87,7 @@ function FallbackRoute() {
   if (location.pathname === '/1') return <Redirect to={ROUTES._1ChonFileExcel.path} />;
   if (location.pathname === '/2') return <Redirect to={ROUTES._2XepLop.path} />;
   if (location.pathname === '/3') return <Redirect to={ROUTES._3KetQua.path} />;
+  if (location.pathname === '/4') return <Redirect to={ROUTES._4DangKyNhanh.path} />;
   const hasAnyMatch = Object.values(ROUTES).some((route) => route.path === location.pathname);
   return hasAnyMatch ? null : <Redirect to={ROUTES._1ChonFileExcel.path} />;
 }
@@ -165,6 +167,7 @@ function App() {
                   <PersistedRoute path={ROUTES._1ChonFileExcel.path} component={ChonFileExcel} />
                   <PersistedRoute path={ROUTES._2XepLop.path} component={hasData ? XepLop : NeedStep1Warning} />
                   <PersistedRoute path={ROUTES._3KetQua.path} component={hasData ? KetQua : NeedStep1Warning} />
+                  <PersistedRoute path={ROUTES._4DangKyNhanh.path} component={hasData ? DangKyNhanh : NeedStep1Warning} />
                   <FallbackRoute />
                 </Suspense>
               </main>

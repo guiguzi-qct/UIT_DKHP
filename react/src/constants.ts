@@ -11,4 +11,8 @@ export const ROUTES = {
     path: '/ket-qua',
     name: '3. Xem thời khóa biểu',
   },
+  _4DangKyNhanh: {
+    path: '/dang-ky-nhanh',
+    name: '4. Đăng ký nhanh',
+  },
 } as const;
