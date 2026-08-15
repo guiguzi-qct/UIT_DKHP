@@ -153,6 +153,39 @@ export function groupCandidatesByCourseName(candidates: ClassModel[]): Candidate
   return [...groups.values()].sort((a, b) => a.name.localeCompare(b.name, 'vi', { sensitivity: 'base' }));
 }
 
+export type TheoryWithPracticeNode = {
+  theory: ClassModel;
+  practices: ClassModel[];
+};
+
+export function buildTheoryPracticeTree(candidates: ClassModel[]): {
+  theoryNodes: TheoryWithPracticeNode[];
+  standalonePractices: ClassModel[];
+} {
+  const theories = candidates.filter(isTheoryClass);
+  const practices = candidates.filter(isThucHanhClass);
+
+  const matchedPracticeKeys = new Set<string>();
+  const theoryNodes: TheoryWithPracticeNode[] = theories.map((lt) => {
+    const matchingPractices = practices.filter((th) => {
+      const isMatch = isPracticeOfTheory(th, lt);
+      if (isMatch) matchedPracticeKeys.add(getCandidateKey(th));
+      return isMatch;
+    });
+
+    return {
+      theory: lt,
+      practices: matchingPractices,
+    };
+  });
+
+  const standalonePractices = practices.filter(
+    (th) => !matchedPracticeKeys.has(getCandidateKey(th))
+  );
+
+  return { theoryNodes, standalonePractices };
+}
+
 const formatTiet = (tiet: string) =>
   getDanhSachTiet(tiet)
     .map((value) => (value === '0' ? '10' : value))
@@ -421,87 +454,158 @@ export default function CoursePickerDialog({ target, onClose }: Props) {
                   <span className="course-picker-visually-hidden">{isExpanded ? 'Thu gọn' : 'Xem lớp'}</span>
                 </button>
 
-                {isExpanded && (
-                  <div className="course-option-list">
-                    {group.candidates.map((candidate) => {
-                      const candidateKey = getCandidateKey(candidate);
-                      const conflictReason = conflictReasons.get(candidateKey);
-                      const isTH = isThucHanhClass(candidate);
+                {isExpanded && (() => {
+                  const { theoryNodes, standalonePractices } = buildTheoryPracticeTree(group.candidates);
 
-                      const allSelectedLTInCourse = [...selectedClasses, ...draftCandidates].filter(
-                        (c) => c.MaMH === candidate.MaMH && isTheoryClass(c)
-                      );
-                      const selectedLTForThisCandidate = allSelectedLTInCourse.find((lt) =>
-                        isPracticeOfTheory(candidate, lt)
-                      );
+                  return (
+                    <div className="course-option-list">
+                      {theoryNodes.map(({ theory, practices }) => {
+                        const ltKey = getCandidateKey(theory);
+                        const ltConflict = conflictReasons.get(ltKey);
+                        const isLTDraftSelected = draftCandidates.some((d) => isSameAgGridRowId(d, theory));
+                        const isLTTkbSelected = selectedClasses.some((s) => isSameAgGridRowId(s, theory));
+                        const isLTActive = isLTDraftSelected || isLTTkbSelected;
 
-                      let isHighlightedTH = false;
-                      let isDimmedByLTSelection = false;
+                        return (
+                          <div className="theory-tree-node" key={ltKey}>
+                            {/* Parent Theory Card */}
+                            <ButtonBase
+                              className={`course-option course-option-theory${
+                                ltConflict ? ' course-option-conflict' : ''
+                              }${isLTDraftSelected ? ' course-option-active-lt' : ''}`}
+                              disabled={!!ltConflict}
+                              onClick={() => chooseCandidate(theory)}
+                              aria-label={ltConflict || `Chọn lớp Lý thuyết ${theory.MaLop}`}
+                            >
+                              <div className="course-option-main">
+                                <strong>{theory.MaLop}</strong>
+                                <span>{theory.TenGV || 'Chưa có giảng viên'}</span>
+                                <div className="course-option-chips">
+                                  <Chip size="small" label={formatSchedule(theory)} />
+                                  <Chip size="small" variant="outlined" label={`${theory.SoTc} tín chỉ`} />
+                                  {theory.PhongHoc && (
+                                    <Chip size="small" variant="outlined" label={theory.PhongHoc} />
+                                  )}
+                                  <Chip size="small" color="primary" label="Lý thuyết" />
+                                </div>
+                              </div>
+                              <span
+                                className={`course-option-action${
+                                  ltConflict ? ' course-option-action-conflict' : ''
+                                }`}
+                              >
+                                {ltConflict || (
+                                  <>
+                                    <AddIcon aria-hidden="true" />
+                                    <span className="course-picker-visually-hidden">Chọn</span>
+                                  </>
+                                )}
+                              </span>
+                            </ButtonBase>
 
-                      if (allSelectedLTInCourse.length > 0) {
-                        if (isTH) {
-                          if (selectedLTForThisCandidate) {
-                            isHighlightedTH = true;
-                          } else {
-                            isDimmedByLTSelection = true;
-                          }
-                        } else {
-                          if (draftCandidates.some((c) => c.MaMH === candidate.MaMH && isTheoryClass(c))) {
-                            isDimmedByLTSelection = true;
-                          }
-                        }
-                      }
+                            {/* Nested Practice Children (Indented / Thụt vô 1 tí) */}
+                            {practices.length > 0 && (
+                              <div className="practice-nested-container">
+                                {practices.map((practice) => {
+                                  const thKey = getCandidateKey(practice);
+                                  const thConflict = conflictReasons.get(thKey);
+                                  const isTHDraftSelected = draftCandidates.some((d) => isSameAgGridRowId(d, practice));
+                                  const isTHTkbSelected = selectedClasses.some((s) => isSameAgGridRowId(s, practice));
+                                  const isTHActive = isTHDraftSelected || isTHTkbSelected;
+                                  const isLockedTH = !isLTActive;
+                                  const isShaking = shakingKey === thKey;
 
-                      const isLockedTH = isTH && !selectedLTForThisCandidate;
-                      const isShaking = shakingKey === candidateKey;
-
-                      return (
-                        <ButtonBase
-                          className={`course-option${conflictReason ? ' course-option-conflict' : ''}${
-                            isLockedTH ? ' course-option-locked-th' : ''
-                          }${isHighlightedTH ? ' course-option-highlighted-th' : ''}${
-                            isDimmedByLTSelection ? ' course-option-dimmed' : ''
-                          }${isShaking ? ' shake-red-animation' : ''}`}
-                          key={candidateKey}
-                          disabled={!!conflictReason}
-                          onClick={() => chooseCandidate(candidate)}
-                          aria-label={conflictReason || `Chọn lớp ${candidate.MaLop}`}
-                        >
-                          <div className="course-option-main">
-                            <strong>{candidate.MaLop}</strong>
-                            <span>{candidate.TenGV || 'Chưa có giảng viên'}</span>
-                            <div className="course-option-chips">
-                              <Chip size="small" label={formatSchedule(candidate)} />
-                              <Chip size="small" variant="outlined" label={`${candidate.SoTc} tín chỉ`} />
-                              {candidate.PhongHoc && (
-                                <Chip size="small" variant="outlined" label={candidate.PhongHoc} />
-                              )}
-                              {isTH ? (
-                                <Chip
-                                  size="small"
-                                  color={isHighlightedTH ? 'success' : isLockedTH ? 'default' : 'primary'}
-                                  label={isHighlightedTH ? 'Thực hành (Đi kèm)' : isLockedTH ? 'Thực hành (Khóa)' : 'Thực hành'}
-                                />
-                              ) : (
-                                <Chip size="small" variant="outlined" label="Lý thuyết" />
-                              )}
-                            </div>
-                          </div>
-                          <span
-                            className={`course-option-action${conflictReason ? ' course-option-action-conflict' : ''}`}
-                          >
-                            {conflictReason || (
-                              <>
-                                <AddIcon aria-hidden="true" />
-                                <span className="course-picker-visually-hidden">Chọn</span>
-                              </>
+                                  return (
+                                    <ButtonBase
+                                      className={`course-option course-option-practice${
+                                        thConflict ? ' course-option-conflict' : ''
+                                      }${isLockedTH ? ' course-option-locked-th' : ''}${
+                                        isTHActive ? ' course-option-active-th' : ''
+                                      }${isShaking ? ' shake-red-animation' : ''}`}
+                                      key={thKey}
+                                      disabled={!!thConflict}
+                                      onClick={() => chooseCandidate(practice)}
+                                      aria-label={thConflict || `Chọn lớp Thực hành ${practice.MaLop}`}
+                                    >
+                                      <div className="course-option-main">
+                                        <strong>{practice.MaLop}</strong>
+                                        <span>{practice.TenGV || 'Chưa có giảng viên'}</span>
+                                        <div className="course-option-chips">
+                                          <Chip size="small" label={formatSchedule(practice)} />
+                                          <Chip size="small" variant="outlined" label={`${practice.SoTc} tín chỉ`} />
+                                          {practice.PhongHoc && (
+                                            <Chip size="small" variant="outlined" label={practice.PhongHoc} />
+                                          )}
+                                          <Chip
+                                            size="small"
+                                            color={isTHActive ? 'success' : isLockedTH ? 'default' : 'secondary'}
+                                            label={isTHActive ? 'Thực hành (Đã chọn)' : isLockedTH ? 'Thực hành (Khóa)' : 'Thực hành (Đi kèm)'}
+                                          />
+                                        </div>
+                                      </div>
+                                      <span
+                                        className={`course-option-action${
+                                          thConflict ? ' course-option-action-conflict' : ''
+                                        }`}
+                                      >
+                                        {thConflict || (
+                                          <>
+                                            <AddIcon aria-hidden="true" />
+                                            <span className="course-picker-visually-hidden">Chọn</span>
+                                          </>
+                                        )}
+                                      </span>
+                                    </ButtonBase>
+                                  );
+                                })}
+                              </div>
                             )}
-                          </span>
-                        </ButtonBase>
-                      );
-                    })}
-                  </div>
-                )}
+                          </div>
+                        );
+                      })}
+
+                      {standalonePractices.map((practice) => {
+                        const thKey = getCandidateKey(practice);
+                        const thConflict = conflictReasons.get(thKey);
+                        const isTHActive = draftCandidates.some((d) => isSameAgGridRowId(d, practice)) || selectedClasses.some((s) => isSameAgGridRowId(s, practice));
+                        const isShaking = shakingKey === thKey;
+
+                        return (
+                          <ButtonBase
+                            className={`course-option course-option-practice${
+                              thConflict ? ' course-option-conflict' : ''
+                            }${isTHActive ? ' course-option-active-th' : ''}${
+                              isShaking ? ' shake-red-animation' : ''
+                            }`}
+                            key={thKey}
+                            disabled={!!thConflict}
+                            onClick={() => chooseCandidate(practice)}
+                          >
+                            <div className="course-option-main">
+                              <strong>{practice.MaLop}</strong>
+                              <span>{practice.TenGV || 'Chưa có giảng viên'}</span>
+                              <div className="course-option-chips">
+                                <Chip size="small" label={formatSchedule(practice)} />
+                                <Chip size="small" variant="outlined" label={`${practice.SoTc} tín chỉ`} />
+                                {practice.PhongHoc && (
+                                  <Chip size="small" variant="outlined" label={practice.PhongHoc} />
+                                )}
+                                <Chip size="small" color="secondary" label="Thực hành" />
+                              </div>
+                            </div>
+                            <span
+                              className={`course-option-action${
+                                thConflict ? ' course-option-action-conflict' : ''
+                              }`}
+                            >
+                              {thConflict || <AddIcon aria-hidden="true" />}
+                            </span>
+                          </ButtonBase>
+                        );
+                      })}
+                    </div>
+                  );
+                })()}
               </section>
             );
           })}

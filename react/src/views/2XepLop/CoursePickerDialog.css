@@ -333,6 +333,48 @@
   margin-right: auto;
 }
 
+.theory-tree-node {
+  margin-bottom: 12px;
+}
+
+.practice-nested-container {
+  position: relative;
+  margin-top: 8px;
+  margin-left: 28px;
+  padding-left: 14px;
+  border-left: 2.5px solid #59899D;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.course-option-theory {
+  border: 1.5px solid #0E2128 !important;
+  background: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(14, 33, 40, 0.06) !important;
+}
+
+.course-option-active-lt {
+  border: 2px solid #0E2128 !important;
+  background: #EBF1F5 !important;
+}
+
+.course-option-practice {
+  background: #F4F7F9 !important;
+  border: 1px solid #D5E0E8 !important;
+  border-radius: 12px !important;
+}
+
+.course-option-practice:hover:not(:disabled) {
+  background: #EBF1F5 !important;
+  border-color: #0E2128 !important;
+}
+
+.course-option-active-th {
+  border: 2px solid #10b981 !important;
+  background: #ecfdf5 !important;
+}
+
 @keyframes shakeRed {
   0% { transform: translateX(0); }
   20% { transform: translateX(-8px); border-color: #ef4444 !important; background-color: #fef2f2 !important; box-shadow: 0 0 12px rgba(239, 68, 68, 0.4) !important; }
