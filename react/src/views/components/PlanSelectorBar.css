@@ -1,0 +1,220 @@
+.floating-plan-fab-wrap {
+  position: fixed;
+  z-index: 1300;
+  right: 28px;
+  bottom: 62px;
+}
+
+.floating-plan-fab {
+  min-height: 52px !important;
+  height: 52px !important;
+  padding: 0 24px !important;
+  background: #0E2128 !important;
+  color: #ffffff !important;
+  border: 2px solid #59899D !important;
+  border-radius: 26px !important;
+  box-shadow: 0 10px 30px rgba(14, 33, 40, 0.35) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px !important;
+  transition: all 180ms ease !important;
+}
+
+.floating-plan-fab:hover {
+  background: #17333F !important;
+  border-color: #ffffff !important;
+  transform: translateY(-3px);
+  box-shadow: 0 14px 36px rgba(14, 33, 40, 0.45) !important;
+}
+
+.fab-plan-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: #ffffff !important;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.fab-plan-arrow-solid {
+  font-size: 28px !important;
+  color: #ADBECC !important;
+  margin-right: -4px;
+  transition: color 180ms ease !important;
+}
+
+.floating-plan-fab:hover .fab-plan-arrow-solid {
+  color: #ffffff !important;
+}
+
+.floating-plan-popover-paper {
+  width: 290px;
+  border-radius: 18px !important;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.98) !important;
+  backdrop-filter: blur(20px) !important;
+  border: 1px solid #D5E0E8 !important;
+  box-shadow: 0 18px 44px rgba(4, 3, 9, 0.14) !important;
+}
+
+.popover-plan-header {
+  padding: 4px 6px 12px;
+  border-bottom: 1px solid #EBF1F5;
+  color: #0E2128;
+}
+
+.popover-plan-list {
+  max-height: 260px;
+  overflow-y: auto;
+  margin: 8px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.popover-plan-item {
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 12px;
+  border: 1.5px solid #D5E0E8;
+  background: #ffffff;
+  cursor: pointer;
+  transition: all 140ms ease;
+}
+
+.popover-plan-item:hover {
+  background: #F4F7F9;
+  border-color: #8EA5B7;
+}
+
+.popover-plan-item.active {
+  background: #EBF1F5;
+  border: 1.5px solid #0E2128;
+  box-shadow: 0 2px 8px rgba(14, 33, 40, 0.08);
+}
+
+.plan-item-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.plan-item-badge {
+  min-width: 22px;
+  height: 22px;
+  padding: 0 4px;
+  border-radius: 6px;
+  background: #0E2128;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(14, 33, 40, 0.15);
+}
+
+.plan-check-icon {
+  width: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0E2128;
+}
+
+.plan-item-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.plan-item-info strong {
+  font-size: 14px;
+  font-weight: 800;
+  color: #0E2128;
+}
+
+.plan-item-info span {
+  margin-top: 2px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #3B6275;
+}
+
+.plan-item-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.plan-drag-handle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 24px;
+  color: #8EA5B7;
+  cursor: grab;
+  border-radius: 4px;
+  transition: all 140ms ease;
+  margin-right: -2px;
+}
+
+.plan-drag-handle:hover {
+  color: #0E2128;
+  background: #EBF1F5;
+}
+
+.plan-drag-handle:active {
+  cursor: grabbing;
+}
+
+.popover-plan-item.is-dragging {
+  opacity: 0.35;
+  border-style: dashed !important;
+  border-color: #0E2128 !important;
+}
+
+.popover-plan-item.is-drag-over {
+  border-color: #0E2128 !important;
+  background: #EBF1F5 !important;
+  transform: scale(1.02);
+}
+
+.plan-item-menu-btn {
+  opacity: 0.7;
+  color: #59899D;
+  transition: all 140ms ease !important;
+}
+
+.popover-plan-item:hover .plan-item-menu-btn {
+  opacity: 1;
+  color: #0E2128;
+}
+
+.popover-plan-footer {
+  padding-top: 10px;
+  border-top: 1px solid #D5E0E8;
+}
+
+.popover-plan-footer .MuiButton-root {
+  border: 1.5px solid #0E2128 !important;
+  color: #0E2128 !important;
+  font-weight: 800 !important;
+  border-radius: 12px !important;
+}
+
+.popover-plan-footer .MuiButton-root:hover {
+  background: #0E2128 !important;
+  color: #ffffff !important;
+}
+
+@media (max-width: 720px) {
+  .floating-plan-fab-wrap {
+    right: 14px;
+    bottom: 96px;
+  }
+}
