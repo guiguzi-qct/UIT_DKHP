@@ -95,9 +95,9 @@
 }
 #thoi-khoa-bieu .cell-class-wrapper {
   position: relative;
-  padding: 0 !important;
+  padding: 4px !important;
   vertical-align: middle;
-  background: transparent !important;
+  background: #ffffff !important;
 }
 #thoi-khoa-bieu .class-cell-card {
   position: relative;
@@ -110,17 +110,19 @@
   justify-content: center;
   align-items: center;
   text-align: center;
-  border-radius: 0 !important;
+  border-radius: 10px !important;
   color: #0E2128;
   background: #EBF1F5 !important;
-  border: 0 !important;
-  box-shadow: none;
+  border: 1.5px solid #0E2128 !important;
+  box-shadow: 0 2px 6px rgba(14, 33, 40, 0.06);
   box-sizing: border-box;
   overflow: hidden;
-  transition: background 140ms ease;
+  transition: all 140ms ease;
 }
 #thoi-khoa-bieu .cell-class-wrapper:hover .class-cell-card {
   background: #D5E2EC !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(14, 33, 40, 0.12);
 }
 #thoi-khoa-bieu .class-cell-content {
   padding: 4px;
@@ -233,9 +235,12 @@
   opacity: 1;
   transform: translateY(0);
 }
-#thoi-khoa-bieu .empty-slot-button:hover .empty-slot-label,
-#thoi-khoa-bieu .empty-slot-button:focus-visible .empty-slot-label {
-  color: #040309;
+#thoi-khoa-bieu .cell-class-wrapper {
+  position: relative;
+  z-index: 1;
+}
+#thoi-khoa-bieu .cell-class-wrapper:hover {
+  z-index: 10;
 }
 #thoi-khoa-bieu .cell-class-pickable {
   cursor: pointer;
@@ -243,26 +248,26 @@
 #thoi-khoa-bieu .cell-class-wrapper.cell-class-pickable:hover,
 #thoi-khoa-bieu .cell-class-wrapper.cell-class-pickable:focus-visible {
   outline: none;
-  box-shadow: inset 0 0 0 2px #000000 !important;
+  box-shadow: none !important;
 }
 #thoi-khoa-bieu .cell-picker-hint {
   position: absolute;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  width: 100%;
+  right: 5px;
+  bottom: 5px;
+  left: 5px;
+  width: calc(100% - 10px);
   z-index: 15;
-  padding: 6px 4px;
-  border-radius: 0;
+  padding: 5px 4px;
+  border-radius: 0 0 7px 7px;
   color: #ffffff;
   background: #0E2128;
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 12px;
+  font-weight: 800;
   text-align: center;
   opacity: 0;
-  transform: translateY(100%);
+  transform: translateY(4px);
   pointer-events: none;
-  transition: all 160ms cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 140ms ease;
 }
 #thoi-khoa-bieu .cell-class-wrapper:hover .cell-picker-hint,
 #thoi-khoa-bieu .cell-class-wrapper:focus-visible .cell-picker-hint {
