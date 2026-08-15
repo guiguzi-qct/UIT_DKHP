@@ -512,27 +512,29 @@ export default function CoursePickerDialog({ target, onClose }: Props) {
                               <div className={`practice-nested-container${isLTActive ? ' active-branch' : ''}`}>
                                 {practices.map((practice) => {
                                   const thKey = getCandidateKey(practice);
-                                  const thConflict = conflictReasons.get(thKey);
+                                  const thOwnConflict = conflictReasons.get(thKey);
+                                  const effectiveTHConflict = thOwnConflict || (ltConflict ? 'Lớp Lý thuyết đã bị trùng/khóa' : null);
+
                                   const isTHDraftSelected = draftCandidates.some((d) => isSameAgGridRowId(d, practice));
                                   const isTHTkbSelected = selectedClasses.some((s) => isSameAgGridRowId(s, practice));
                                   const isTHActive = isTHDraftSelected || isTHTkbSelected;
-                                  const isLockedTH = !isLTActive;
-                                  const isUnlockedTH = isLTActive && !isTHActive;
+                                  const isLockedTH = !isLTActive && !effectiveTHConflict;
+                                  const isUnlockedTH = isLTActive && !isTHActive && !effectiveTHConflict;
                                   const isShaking = shakingKey === thKey;
 
                                   return (
                                     <ButtonBase
                                       className={`course-option course-option-practice${
-                                        thConflict ? ' course-option-conflict' : ''
+                                        effectiveTHConflict ? ' course-option-conflict' : ''
                                       }${isLockedTH ? ' course-option-locked-th' : ''}${
                                         isUnlockedTH ? ' course-option-unlocked-th' : ''
                                       }${isTHActive ? ' course-option-active-th' : ''}${
                                         isShaking ? ' shake-red-animation' : ''
                                       }`}
                                       key={thKey}
-                                      disabled={!!thConflict}
+                                      disabled={!!effectiveTHConflict}
                                       onClick={() => chooseCandidate(practice)}
-                                      aria-label={thConflict || `Chọn lớp Thực hành ${practice.MaLop}`}
+                                      aria-label={effectiveTHConflict || `Chọn lớp Thực hành ${practice.MaLop}`}
                                     >
                                       <div className="course-option-main">
                                         <strong>{practice.MaLop}</strong>
@@ -543,26 +545,28 @@ export default function CoursePickerDialog({ target, onClose }: Props) {
                                           {practice.PhongHoc && (
                                             <Chip size="small" variant="outlined" label={practice.PhongHoc} />
                                           )}
-                                          <Chip
-                                            size="small"
-                                            color={isTHActive ? 'primary' : isUnlockedTH ? 'primary' : 'default'}
-                                            variant={isUnlockedTH ? 'outlined' : 'filled'}
-                                            label={
-                                              isTHActive
-                                                ? 'Thực hành (Đã chọn)'
-                                                : isUnlockedTH
-                                                ? 'Thực hành (Sẵn sàng chọn)'
-                                                : 'Thực hành (Khóa)'
-                                            }
-                                          />
+                                          {!effectiveTHConflict && (
+                                            <Chip
+                                              size="small"
+                                              color={isTHActive ? 'primary' : isUnlockedTH ? 'primary' : 'default'}
+                                              variant={isUnlockedTH ? 'outlined' : 'filled'}
+                                              label={
+                                                isTHActive
+                                                  ? 'Thực hành (Đã chọn)'
+                                                  : isUnlockedTH
+                                                  ? 'Thực hành (Sẵn sàng chọn)'
+                                                  : 'Thực hành (Khóa)'
+                                              }
+                                            />
+                                          )}
                                         </div>
                                       </div>
                                       <span
                                         className={`course-option-action${
-                                          thConflict ? ' course-option-action-conflict' : ''
+                                          effectiveTHConflict ? ' course-option-action-conflict' : ''
                                         }`}
                                       >
-                                        {thConflict || (
+                                        {effectiveTHConflict || (
                                           <>
                                             <AddIcon aria-hidden="true" />
                                             <span className="course-picker-visually-hidden">Chọn</span>
