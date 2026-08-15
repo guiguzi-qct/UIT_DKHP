@@ -136,6 +136,7 @@ export default function DanhSachLopInput({ header }: { header?: React.ReactNode 
       </div>
       <TextField
         label="Danh sách mã lớp"
+        InputLabelProps={{ shrink: true }}
         fullWidth
         size="small"
         multiline

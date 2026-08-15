@@ -307,6 +307,7 @@ export default function PlanSelectorBar() {
             fullWidth
             size="small"
             label="Tên Plan"
+            InputLabelProps={{ shrink: true }}
             value={renameInput}
             onChange={(e) => setRenameInput(e.target.value)}
             onKeyDown={(e) => {
@@ -314,6 +315,29 @@ export default function PlanSelectorBar() {
                 e.preventDefault();
                 handleSaveRename();
               }
+            }}
+            sx={{
+              marginTop: '6px',
+              '& .MuiInputLabel-root': {
+                color: '#0E2128',
+                fontWeight: 700,
+                background: '#ffffff',
+                padding: '0 6px',
+              },
+              '& .MuiOutlinedInput-root': {
+                borderRadius: '10px',
+                '& fieldset': {
+                  borderColor: '#0E2128',
+                  borderWidth: '1.5px',
+                },
+                '&:hover fieldset, &.Mui-focused fieldset': {
+                  borderColor: '#0E2128',
+                },
+              },
+              '& .MuiInputBase-input': {
+                color: '#0E2128',
+                fontWeight: 700,
+              },
             }}
           />
         </DialogContent>
