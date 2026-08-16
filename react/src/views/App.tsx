@@ -11,6 +11,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import LinearProgress from '@mui/material/LinearProgress';
+import Popover from '@mui/material/Popover';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Toolbar from '@mui/material/Toolbar';
 import Tooltip from '@mui/material/Tooltip';
@@ -160,7 +161,17 @@ function App() {
   const isChiVeTkb = useTkbStore(selectIsChiVeTkb);
   const textareaChiVeTkb = useTkbStore(selectTextareaChiVeTkb);
   const hasData = dataTkb.length > 0 || isChiVeTkb || textareaChiVeTkb.trim().length > 0;
-  const [isContactOpen, setIsContactOpen] = useState(false);
+  const [logoAnchorEl, setLogoAnchorEl] = useState<HTMLElement | null>(null);
+
+  const handleLogoClick = (event: React.MouseEvent<HTMLElement>) => {
+    setLogoAnchorEl(event.currentTarget);
+  };
+
+  const handleLogoClose = () => {
+    setLogoAnchorEl(null);
+  };
+
+  const isPopoverOpen = Boolean(logoAnchorEl);
 
   return (
     <ErrorBoundary>
@@ -173,7 +184,7 @@ function App() {
                 <Tooltip title="Bấm để xem thông tin ứng dụng & liên hệ">
                   <Box
                     className="brand-lockup"
-                    onClick={() => setIsContactOpen(true)}
+                    onClick={handleLogoClick}
                     style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12 }}
                   >
                     <img className="brand-mark" src={`${process.env.PUBLIC_URL}/logo.png`} alt="UIT no Jikan logo" />
@@ -198,92 +209,93 @@ function App() {
               </main>
             </Container>
 
-            {/* Contact Info Dialog on Logo Click */}
-            <Dialog
-              open={isContactOpen}
-              onClose={() => setIsContactOpen(false)}
-              maxWidth="xs"
-              fullWidth
+            {/* Top-Left Corner Popover on Logo Click */}
+            <Popover
+              open={isPopoverOpen}
+              anchorEl={logoAnchorEl}
+              onClose={handleLogoClose}
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'left',
+              }}
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'left',
+              }}
               PaperProps={{
                 style: {
-                  borderRadius: 18,
+                  marginTop: '10px',
+                  borderRadius: '16px',
                   border: '1.5px solid #0E2128',
-                  padding: '8px 6px',
+                  boxShadow: '0 12px 36px rgba(14, 33, 40, 0.16)',
+                  width: '310px',
+                  padding: '16px',
+                  background: '#ffffff',
                 },
               }}
             >
-              <DialogTitle fontWeight={800} style={{ color: '#0E2128', fontSize: '20px' }}>
-                UIT no Jikan 🚀
-              </DialogTitle>
-              <DialogContent dividers style={{ borderColor: '#D5E0E8' }}>
-                <Box style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                  <Typography variant="body2" style={{ color: '#0E2128', fontWeight: 600, lineHeight: 1.6 }}>
-                    Ứng dụng hỗ trợ lập kế hoạch & xếp thời khóa biểu tự động dành riêng cho sinh viên <strong>UIT (Trường Đại học Công nghệ Thông tin - ĐHQG-HCM)</strong>.
+              <Box style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12, paddingBottom: 10, borderBottom: '1px solid #EAEFEF' }}>
+                <img src={`${process.env.PUBLIC_URL}/logo.png`} alt="Logo" style={{ width: 36, height: 36, borderRadius: 10 }} />
+                <div>
+                  <Typography fontWeight={800} style={{ color: '#0E2128', fontSize: '15px', lineHeight: 1.2 }}>
+                    UIT no Jikan
                   </Typography>
+                  <Typography variant="caption" style={{ color: '#59899D', fontWeight: 600 }}>
+                    Xếp thời khóa biểu tự động
+                  </Typography>
+                </div>
+              </Box>
 
-                  <Box
-                    style={{
-                      background: '#F4F7F9',
-                      borderRadius: 12,
-                      padding: '14px',
-                      border: '1px solid #D5E0E8',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: 10,
-                    }}
-                  >
-                    <Typography variant="caption" style={{ color: '#59899D', fontWeight: 800, letterSpacing: '0.05em' }}>
-                      KÊNH THÔNG TIN & HỖ TRỢ
-                    </Typography>
+              <Typography variant="caption" style={{ color: '#59899D', fontWeight: 800, letterSpacing: '0.04em', display: 'block', marginBottom: 8 }}>
+                THÔNG TIN LIÊN HỆ
+              </Typography>
 
-                    <Button
-                      variant="contained"
-                      startIcon={<FacebookIcon />}
-                      component="a"
-                      href="https://www.facebook.com/profile.php?id=61589480516886"
-                      target="_blank"
-                      rel="noreferrer"
-                      style={{
-                        borderRadius: 10,
-                        fontWeight: 800,
-                        color: '#ffffff',
-                        background: '#1877F2',
-                        textTransform: 'none',
-                        boxShadow: 'none',
-                      }}
-                    >
-                      Facebook: Quỷ Cốc Tử
-                    </Button>
-
-                    <Button
-                      variant="outlined"
-                      startIcon={<EmailIcon />}
-                      component="a"
-                      href="mailto:quycoctu.tdm@gmail.com"
-                      style={{
-                        borderRadius: 10,
-                        fontWeight: 800,
-                        color: '#0E2128',
-                        borderColor: '#0E2128',
-                        background: '#ffffff',
-                        textTransform: 'none',
-                      }}
-                    >
-                      quycoctu.tdm@gmail.com
-                    </Button>
-                  </Box>
-                </Box>
-              </DialogContent>
-              <DialogActions style={{ padding: '8px 24px 16px' }}>
+              <Box style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 <Button
+                  fullWidth
                   variant="contained"
-                  onClick={() => setIsContactOpen(false)}
-                  style={{ fontWeight: 800, borderRadius: 10, padding: '8px 24px', background: '#0E2128', width: '100%' }}
+                  startIcon={<FacebookIcon />}
+                  component="a"
+                  href="https://www.facebook.com/profile.php?id=61589480516886"
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{
+                    borderRadius: 10,
+                    fontWeight: 800,
+                    color: '#ffffff',
+                    background: '#1877F2',
+                    textTransform: 'none',
+                    boxShadow: 'none',
+                    justifyContent: 'flex-start',
+                    padding: '8px 14px',
+                    fontSize: '13.5px',
+                  }}
                 >
-                  Đóng
+                  Facebook: Quỷ Cốc Tử
                 </Button>
-              </DialogActions>
-            </Dialog>
+
+                <Button
+                  fullWidth
+                  variant="outlined"
+                  startIcon={<EmailIcon />}
+                  component="a"
+                  href="mailto:quycoctu.tdm@gmail.com"
+                  style={{
+                    borderRadius: 10,
+                    fontWeight: 700,
+                    color: '#0E2128',
+                    borderColor: '#D5E0E8',
+                    background: '#F4F7F9',
+                    textTransform: 'none',
+                    justifyContent: 'flex-start',
+                    padding: '8px 14px',
+                    fontSize: '13px',
+                  }}
+                >
+                  quycoctu.tdm@gmail.com
+                </Button>
+              </Box>
+            </Popover>
           </Box>
         </BrowserRouter>
       </ThemeProvider>
