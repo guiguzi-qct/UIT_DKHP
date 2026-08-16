@@ -24,6 +24,7 @@ type TkbStore = {
 
   plans: TimetablePlan[];
   activePlanId: string;
+  diffComparePlanId: string | null;
 
   selectedClasses: ClassModel[];
   // in case Buoc 3 chi ve TKB chu khong dung Buoc 2 Xep Lop
@@ -38,6 +39,7 @@ type TkbStore = {
 
   // Plan management actions
   setActivePlanId: (id: string) => void;
+  setDiffComparePlanId: (id: string | null) => void;
   createPlan: (name?: string) => void;
   duplicatePlan: (id: string) => void;
   renamePlan: (id: string, name: string) => void;
@@ -71,6 +73,7 @@ export const useTkbStore = create<TkbStore>()(
         },
       ],
       activePlanId: 'plan_1',
+      diffComparePlanId: null,
 
       selectedClasses: [], // [{}, {}]
       isChiVeTkb: false,
@@ -151,8 +154,11 @@ export const useTkbStore = create<TkbStore>()(
           selectedClasses: targetPlan.selectedClasses || [],
           isChiVeTkb: targetPlan.isChiVeTkb || false,
           textareaChiVeTkb: targetPlan.textareaChiVeTkb || '',
+          diffComparePlanId: state.diffComparePlanId === id ? null : state.diffComparePlanId,
         });
       },
+
+      setDiffComparePlanId: (id) => set({ diffComparePlanId: id }),
 
       createPlan: (customName) => {
         const state = get();
@@ -295,12 +301,49 @@ export const selectSelectedClassesBuoc3 = memoize((state: TkbStore): ClassModel[
   const textareaChiVeTkb = selectTextareaChiVeTkb(state);
   const finalDataTkb = selectFinalDataTkb(state);
 
+  let baseClasses: ClassModel[] = [];
   if (isChiVeTkb) {
     const listMaLop = new Set(parseListMaLop(textareaChiVeTkb));
-    return finalDataTkb.filter((it) => listMaLop.has(String(it.MaLop).toUpperCase()));
+    baseClasses = finalDataTkb.filter((it) => listMaLop.has(String(it.MaLop).toUpperCase()));
   } else {
-    return selectSelectedClasses(state);
+    baseClasses = selectSelectedClasses(state);
   }
+
+  if (state.diffComparePlanId) {
+    const plans = selectPlans(state);
+    const comparePlan = plans.find((p) => p.id === state.diffComparePlanId);
+
+    if (comparePlan && comparePlan.id !== state.activePlanId) {
+      const planBClasses = comparePlan.selectedClasses || [];
+      const planBCodes = new Set(planBClasses.map((c) => c.MaLop?.trim()));
+      const planACodes = new Set(baseClasses.map((c) => c.MaLop?.trim()));
+
+      const merged: ClassModel[] = [];
+
+      baseClasses.forEach((cA) => {
+        const isMatched = planBCodes.has(cA.MaLop?.trim());
+        merged.push({
+          ...cA,
+          // @ts-ignore
+          diffTag: isMatched ? 'MATCHED' : 'PLAN_A',
+        });
+      });
+
+      planBClasses.forEach((cB) => {
+        if (!planACodes.has(cB.MaLop?.trim())) {
+          merged.push({
+            ...cB,
+            // @ts-ignore
+            diffTag: 'PLAN_B',
+          });
+        }
+      });
+
+      return merged;
+    }
+  }
+
+  return baseClasses;
 });
 export const selectTongSoTcSelected = (state: TkbStore) => calcTongSoTC(selectSelectedClasses(state));
 export const selectTongSoTcBuoc3 = (state: TkbStore) => calcTongSoTC(selectSelectedClassesBuoc3(state));

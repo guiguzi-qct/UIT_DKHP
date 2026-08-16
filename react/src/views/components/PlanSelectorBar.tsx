@@ -41,6 +41,9 @@ export default function PlanSelectorBar() {
   const deletePlan = useTkbStore((s) => s.deletePlan);
   const movePlan = useTkbStore((s) => s.movePlan);
 
+  const diffComparePlanId = useTkbStore((s) => s.diffComparePlanId);
+  const setDiffComparePlanId = useTkbStore((s) => s.setDiffComparePlanId);
+
   const activePlan = plans.find((p) => p.id === activePlanId) || plans[0];
   const activePlanIndex = plans.findIndex((p) => p.id === activePlanId);
   const displayPlanNumber = activePlanIndex >= 0 ? activePlanIndex + 1 : 1;
@@ -55,6 +58,8 @@ export default function PlanSelectorBar() {
   const [isRenameDialogOpen, setIsRenameDialogOpen] = useState(false);
   const [renameInput, setRenameInput] = useState('');
   const [isConfirmDeleteDialogOpen, setIsConfirmDeleteDialogOpen] = useState(false);
+  const [isCompareDialogOpen, setIsCompareDialogOpen] = useState(false);
+  const [targetComparePlanId, setTargetComparePlanId] = useState<string>('');
 
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
@@ -263,16 +268,30 @@ export default function PlanSelectorBar() {
           })}
         </div>
 
-        <div className="popover-plan-footer">
-          <Button
-            fullWidth
-            variant="outlined"
-            size="small"
-            startIcon={<AddIcon />}
-            onClick={handleCreate}
-          >
-            Thêm Plan mới
-          </Button>
+          <div style={{ display: 'grid', gridTemplateColumns: plans.length > 1 ? '1fr 1fr' : '1fr', gap: 6 }}>
+            <Button
+              fullWidth
+              variant="outlined"
+              size="small"
+              startIcon={<AddIcon />}
+              onClick={handleCreate}
+            >
+              Thêm Plan
+            </Button>
+            {plans.length > 1 && (
+              <Button
+                fullWidth
+                variant="outlined"
+                size="small"
+                onClick={() => {
+                  handleClosePopover();
+                  setIsCompareDialogOpen(true);
+                }}
+              >
+                So sánh Plan
+              </Button>
+            )}
+          </div>
         </div>
       </Popover>
 
@@ -377,6 +396,67 @@ export default function PlanSelectorBar() {
           </Button>
           <Button color="error" variant="contained" style={{ fontWeight: 800, borderRadius: 10, padding: '8px 20px' }} onClick={handleConfirmDelete}>
             Xóa Plan
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={isCompareDialogOpen}
+        onClose={() => setIsCompareDialogOpen(false)}
+        maxWidth="xs"
+        fullWidth
+        PaperProps={{
+          style: {
+            borderRadius: 18,
+            border: '1.5px solid #0E2128',
+            padding: '8px 6px',
+          },
+        }}
+      >
+        <DialogTitle fontWeight={800} style={{ color: '#0E2128', fontSize: '20px' }}>
+          So sánh Plan
+        </DialogTitle>
+        <DialogContent dividers style={{ borderColor: '#D5E0E8' }}>
+          <Typography variant="body2" style={{ color: '#0E2128', fontWeight: 600, marginBottom: 12 }}>
+            Đang chọn Plan gốc: <strong>{activePlan.name}</strong>. Chọn Plan để đặt lên bàn cân so sánh:
+          </Typography>
+          <TextField
+            select
+            fullWidth
+            size="small"
+            label="Chọn Plan so sánh"
+            value={targetComparePlanId || plans.find((p) => p.id !== activePlanId)?.id || ''}
+            onChange={(e) => setTargetComparePlanId(e.target.value)}
+          >
+            {plans
+              .filter((p) => p.id !== activePlanId)
+              .map((p) => (
+                <MenuItem key={p.id} value={p.id}>
+                  {p.name} ({p.selectedClasses.length} lớp)
+                </MenuItem>
+              ))}
+          </TextField>
+        </DialogContent>
+        <DialogActions style={{ padding: '8px 24px 16px' }}>
+          <Button onClick={() => setIsCompareDialogOpen(false)} style={{ color: '#0E2128', fontWeight: 700 }}>
+            Hủy
+          </Button>
+          <Button
+            variant="contained"
+            style={{ fontWeight: 800, borderRadius: 10, padding: '8px 20px' }}
+            onClick={() => {
+              const selectedId = targetComparePlanId || plans.find((p) => p.id !== activePlanId)?.id;
+              if (selectedId) {
+                setDiffComparePlanId(selectedId);
+                const compareTarget = plans.find((p) => p.id === selectedId);
+                enqueueSnackbar(`Đã bật so sánh: ${activePlan.name} vs ${compareTarget?.name || 'Plan'}`, {
+                  variant: 'info',
+                });
+              }
+              setIsCompareDialogOpen(false);
+            }}
+          >
+            Bật so sánh
           </Button>
         </DialogActions>
       </Dialog>
