@@ -78,7 +78,7 @@ const GetCell = ({
   interactive,
   onPickSlot,
 }: {
-  data: CellData;
+  data: any;
   thu: number;
   tiets: string[];
   label: string;
