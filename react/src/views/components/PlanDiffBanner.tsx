@@ -1,6 +1,6 @@
 import Button from '@mui/material/Button';
 import React, { useMemo } from 'react';
-import { calcTongSoTC, getDanhSachTiet } from '../../utils';
+import { calcTongSoTC } from '../../utils';
 import { selectActivePlanId, selectPlans, useTkbStore } from '../../zus';
 import './PlanDiffBanner.css';
 
@@ -31,23 +31,8 @@ export default function PlanDiffBanner() {
     return days.size;
   };
 
-  const getMorningPeriodsCount = (classes: typeof activePlan.selectedClasses) => {
-    let count = 0;
-    classes.forEach((c) => {
-      const tiets = getDanhSachTiet(c.Tiet);
-      tiets.forEach((t) => {
-        const num = Number(t === '0' ? 10 : t);
-        if (num >= 1 && num <= 5) count++;
-      });
-    });
-    return count;
-  };
-
   const planADays = getDaysCount(activePlan.selectedClasses);
   const planBDays = getDaysCount(comparePlan.selectedClasses);
-
-  const planAMorning = getMorningPeriodsCount(activePlan.selectedClasses);
-  const planBMorning = getMorningPeriodsCount(comparePlan.selectedClasses);
 
   const commonClassesCount = activePlan.selectedClasses.filter((cA) =>
     comparePlan.selectedClasses.some((cB) => cB.MaLop?.trim() === cA.MaLop?.trim()),
@@ -78,34 +63,25 @@ export default function PlanDiffBanner() {
         <div className="diff-stat-card">
           <span className="diff-stat-label">Tổng số tín chỉ</span>
           <div className="diff-stat-values">
-            <span>{activePlan.name}: <strong>{planATc} TC</strong></span>
-            <span>·</span>
-            <span>{comparePlan.name}: <strong>{planBTc} TC</strong></span>
+            <span className="diff-val-pill pill-plan-a">{activePlan.name}: {planATc} TC</span>
+            <span className="diff-val-pill pill-plan-b">{comparePlan.name}: {planBTc} TC</span>
           </div>
         </div>
 
         <div className="diff-stat-card">
           <span className="diff-stat-label">Số ngày đi học</span>
           <div className="diff-stat-values">
-            <span>{activePlan.name}: <strong>{planADays} ngày</strong></span>
-            <span>·</span>
-            <span>{comparePlan.name}: <strong>{planBDays} ngày</strong></span>
-          </div>
-        </div>
-
-        <div className="diff-stat-card">
-          <span className="diff-stat-label">Số tiết ca sáng (1-5)</span>
-          <div className="diff-stat-values">
-            <span>{activePlan.name}: <strong>{planAMorning} tiết</strong></span>
-            <span>·</span>
-            <span>{comparePlan.name}: <strong>{planBMorning} tiết</strong></span>
+            <span className="diff-val-pill pill-plan-a">{activePlan.name}: {planADays} ngày</span>
+            <span className="diff-val-pill pill-plan-b">{comparePlan.name}: {planBDays} ngày</span>
           </div>
         </div>
 
         <div className="diff-stat-card">
           <span className="diff-stat-label">Số môn học chung</span>
           <div className="diff-stat-values">
-            <strong>{commonClassesCount} / {Math.max(planACount, planBCount)} môn giống nhau</strong>
+            <span className="diff-val-pill pill-common">
+              {commonClassesCount} / {Math.max(planACount, planBCount)} môn giống nhau
+            </span>
           </div>
         </div>
       </div>

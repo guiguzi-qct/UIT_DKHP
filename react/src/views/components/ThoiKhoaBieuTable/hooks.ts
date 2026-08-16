@@ -55,13 +55,26 @@ const initTableData = () => {
   return tableData;
 };
 
+const initTableDataDiff = () => {
+  const tableData: any[] = [];
+  for (let i = 0; i < 14; i++) {
+    const row: any = {};
+    for (let thu = 2; thu <= 7; thu++) {
+      row[`Thu${thu}_A`] = CELL.NO_CLASS;
+      row[`Thu${thu}_B`] = CELL.NO_CLASS;
+    }
+    tableData.push(row);
+  }
+  return tableData;
+};
+
 // Phân loại data thành các lớp học trên trường & các lớp HT2
 // Đồng thời tái cấu trúc CTDL nhằm tiện vẽ TKB hơn
 const usePhanLoaiHocTrenTruong = () => {
   const [khongHocTrenTruong, hocTrenTruong] = useTkbStore(selectPhanLoaiHocTrenTruong);
   const diffComparePlanId = useTkbStore((s) => s.diffComparePlanId);
 
-  const { kept, redundant } = React.useMemo(() => {
+  const { keptA, keptB, redundant } = React.useMemo(() => {
     if (diffComparePlanId) {
       // @ts-ignore
       const planAClasses = hocTrenTruong.filter((c) => c.diffTag === 'MATCHED' || c.diffTag === 'PLAN_A');
@@ -72,45 +85,92 @@ const usePhanLoaiHocTrenTruong = () => {
       const resB = findOverlapedClasses(planBClasses);
 
       return {
-        kept: [...resA.kept, ...resB.kept],
+        keptA: resA.kept,
+        keptB: resB.kept,
         redundant: [...resA.redundant, ...resB.redundant],
       };
     }
-    return findOverlapedClasses(hocTrenTruong);
+    const res = findOverlapedClasses(hocTrenTruong);
+    return { keptA: res.kept, keptB: [], redundant: res.redundant };
   }, [hocTrenTruong, diffComparePlanId]);
 
   const rowDataHocTrenTruong = React.useMemo(() => {
-    const tableData = initTableData();
+    if (diffComparePlanId) {
+      const tableData = initTableDataDiff();
 
-    for (const lop of kept) {
-      // Dữ liệu cũ trong localStorage hoặc file Excel chưa có THỨ/TIẾT
-      // không được phép làm hỏng toàn bộ phần preview.
-      if (!hasTimetableSlot(lop)) continue;
-      const listTiet = getDanhSachTiet(lop.Tiet);
+      // Populate Plan A classes (including MATCHED)
+      for (const lop of keptA) {
+        if (!hasTimetableSlot(lop)) continue;
+        const listTiet = getDanhSachTiet(lop.Tiet);
+        const tietBatDauIndex = getTietIndex(listTiet[0]);
+        if (!tableData[tietBatDauIndex]) continue;
 
-      const tietBatDau = listTiet[0];
-      const tietBatDauIndex = getTietIndex(tietBatDau);
-      if (!tableData[tietBatDauIndex]) continue;
+        // @ts-ignore
+        const isMatched = lop.diffTag === 'MATCHED';
+        const colKeyA = `Thu${lop.Thu}_A`;
+        const colKeyB = `Thu${lop.Thu}_B`;
 
-      const currentCell = tableData[tietBatDauIndex]['Thu' + lop.Thu];
-      if (currentCell === CELL.NO_CLASS || currentCell === CELL.OCCUPIED) {
-        tableData[tietBatDauIndex]['Thu' + lop.Thu] = lop;
-      } else if (Array.isArray(currentCell)) {
-        currentCell.push(lop);
-      } else {
-        tableData[tietBatDauIndex]['Thu' + lop.Thu] = [currentCell as ClassModel, lop];
+        if (isMatched) {
+          tableData[tietBatDauIndex][colKeyA] = lop;
+          tableData[tietBatDauIndex][colKeyB] = CELL.OCCUPIED;
+
+          for (let i = 1; i < listTiet.length; i++) {
+            const tietIndex = getTietIndex(listTiet[i]);
+            if (tableData[tietIndex]) {
+              tableData[tietIndex][colKeyA] = CELL.OCCUPIED;
+              tableData[tietIndex][colKeyB] = CELL.OCCUPIED;
+            }
+          }
+        } else {
+          tableData[tietBatDauIndex][colKeyA] = lop;
+          for (let i = 1; i < listTiet.length; i++) {
+            const tietIndex = getTietIndex(listTiet[i]);
+            if (tableData[tietIndex]) {
+              tableData[tietIndex][colKeyA] = CELL.OCCUPIED;
+            }
+          }
+        }
       }
 
+      // Populate Plan B classes
+      for (const lop of keptB) {
+        if (!hasTimetableSlot(lop)) continue;
+        const listTiet = getDanhSachTiet(lop.Tiet);
+        const tietBatDauIndex = getTietIndex(listTiet[0]);
+        if (!tableData[tietBatDauIndex]) continue;
+
+        const colKeyB = `Thu${lop.Thu}_B`;
+        tableData[tietBatDauIndex][colKeyB] = lop;
+
+        for (let i = 1; i < listTiet.length; i++) {
+          const tietIndex = getTietIndex(listTiet[i]);
+          if (tableData[tietIndex]) {
+            tableData[tietIndex][colKeyB] = CELL.OCCUPIED;
+          }
+        }
+      }
+
+      return tableData;
+    }
+
+    const tableData = initTableData();
+    for (const lop of keptA) {
+      if (!hasTimetableSlot(lop)) continue;
+      const listTiet = getDanhSachTiet(lop.Tiet);
+      const tietBatDauIndex = getTietIndex(listTiet[0]);
+      if (!tableData[tietBatDauIndex]) continue;
+
+      tableData[tietBatDauIndex]['Thu' + lop.Thu] = lop;
       for (let i = 1; i < listTiet.length; i++) {
         const tietIndex = getTietIndex(listTiet[i]);
-        if (tableData[tietIndex] && tableData[tietIndex]['Thu' + lop.Thu] === CELL.NO_CLASS) {
+        if (tableData[tietIndex]) {
           tableData[tietIndex]['Thu' + lop.Thu] = CELL.OCCUPIED;
         }
       }
     }
 
     return tableData;
-  }, [kept]);
+  }, [keptA, keptB, diffComparePlanId]);
 
   return {
     redundant,

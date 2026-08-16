@@ -126,6 +126,62 @@ const GetCell = ({
   );
 };
 
+const GetCellDiff = ({
+  data,
+  colSpan,
+  thu,
+  tiets,
+  label,
+  rowSpan,
+  interactive,
+  onPickSlot,
+}: {
+  data: any;
+  colSpan?: number;
+  thu: number;
+  tiets: string[];
+  label: string;
+  rowSpan?: number;
+} & InteractiveProps) => {
+  if (data === CELL.NO_CLASS) {
+    return (
+      <td
+        colSpan={colSpan}
+        rowSpan={rowSpan}
+        className={clsx('empty-schedule-slot', { 'empty-pickable-slot': interactive })}
+      >
+        {interactive ? (
+          <button
+            className="empty-slot-button"
+            type="button"
+            onClick={() => onPickSlot?.({ thu, tiets, label })}
+            aria-label={`Chọn lớp cho Thứ ${thu}, ${label}`}
+          >
+            <span className="empty-slot-label">{label}</span>
+            <span className="empty-slot-action">Click để chọn</span>
+          </button>
+        ) : (
+          <span className="empty-slot-label static">{label}</span>
+        )}
+      </td>
+    );
+  }
+
+  if (data === CELL.OCCUPIED) return null;
+
+  const isMatched = data && typeof data === 'object' && data.diffTag === 'MATCHED';
+
+  return (
+    <ClassCell
+      data={data}
+      colSpan={isMatched ? 2 : colSpan}
+      rowSpan={getDanhSachTiet(data.Tiet).length}
+      interactive={interactive}
+      onPick={() => onPickSlot?.({ thu, tiets, label, existing: data })}
+    />
+  );
+};
+
 function MainPeriodRow({
   rows,
   index,
@@ -133,11 +189,65 @@ function MainPeriodRow({
   interactive,
   onPickSlot,
 }: {
-  rows: RowData[];
+  rows: any[];
   index: number;
   group: TietGroup;
 } & InteractiveProps) {
   const row = rows[index];
+  const diffComparePlanId = useTkbStore((s) => s.diffComparePlanId);
+
+  if (diffComparePlanId) {
+    return (
+      <tr className="main-period-row">
+        <td className="cell-tiet">
+          <strong>Tiết {index + 1}</strong>
+          <span>{timeLookup[index]}</span>
+        </td>
+        {DAY_NUMBERS.map((thu) => {
+          const dataA = row[`Thu${thu}_A`];
+          const dataB = row[`Thu${thu}_B`];
+
+          if (dataA && typeof dataA === 'object' && dataA.diffTag === 'MATCHED') {
+            return (
+              <GetCellDiff
+                key={`${thu}_matched`}
+                data={dataA}
+                colSpan={2}
+                thu={thu}
+                tiets={[getTietValue(index)]}
+                label={`Tiết ${index + 1}`}
+                interactive={interactive}
+                onPickSlot={onPickSlot}
+              />
+            );
+          }
+
+          return (
+            <React.Fragment key={thu}>
+              <GetCellDiff
+                key={`${thu}_A`}
+                data={dataA}
+                thu={thu}
+                tiets={[getTietValue(index)]}
+                label={`Tiết ${index + 1}`}
+                interactive={interactive}
+                onPickSlot={onPickSlot}
+              />
+              <GetCellDiff
+                key={`${thu}_B`}
+                data={dataB}
+                thu={thu}
+                tiets={[getTietValue(index)]}
+                label={`Tiết ${index + 1}`}
+                interactive={interactive}
+                onPickSlot={onPickSlot}
+              />
+            </React.Fragment>
+          );
+        })}
+      </tr>
+    );
+  }
 
   return (
     <tr className="main-period-row">
@@ -194,11 +304,12 @@ function OnlineRow({
   interactive,
   onPickSlot,
 }: {
-  rows: RowData[];
+  rows: any[];
   khongHocTrenTruong: ClassModel[];
   redundant: Array<{ existing: ClassModel; new: ClassModel[] }>;
 } & InteractiveProps) {
-  const row = rows[tietOnline.index];
+  const diffComparePlanId = useTkbStore((s) => s.diffComparePlanId);
+  const row = rows[tietOnline.index] || {};
   const onlineFromGrid = DAY_NUMBERS.map((thu) => row[getDayKey(thu)]).filter(
     (cell): cell is ClassModel => cell !== CELL.NO_CLASS && cell !== CELL.OCCUPIED,
   );
@@ -213,7 +324,7 @@ function OnlineRow({
       <td className="cell-tiet">
         <strong>Ngoài giờ</strong>
       </td>
-      <td colSpan={6} className="online-row-cell">
+      <td colSpan={diffComparePlanId ? 12 : 6} className="online-row-cell">
         {allOutsideClasses.length > 0 ? (
           <div
             className="online-classes-flex"
@@ -251,6 +362,7 @@ function OnlineRow({
 
 function Render({ interactive = false, onPickSlot }: InteractiveProps) {
   const { rowDataHocTrenTruong, khongHocTrenTruong, redundant } = usePhanLoaiHocTrenTruongContext();
+  const diffComparePlanId = useTkbStore((s) => s.diffComparePlanId);
   const location = useLocation();
   const { tkbTableRef, saveTkbImageToComputer, copyTkbImageToClipboard } = useProcessImageTkb();
   const isInStep2 = location.pathname === ROUTES._2XepLop.path;
@@ -279,9 +391,16 @@ function Render({ interactive = false, onPickSlot }: InteractiveProps) {
           <table ref={tkbTableRef}>
             <colgroup>
               <col className="timetable-period-column" />
-              {DAY_NUMBERS.map((thu) => (
-                <col key={thu} className="timetable-day-column" />
-              ))}
+              {DAY_NUMBERS.map((thu) =>
+                diffComparePlanId ? (
+                  <React.Fragment key={thu}>
+                    <col className="timetable-day-column" />
+                    <col className="timetable-day-column" />
+                  </React.Fragment>
+                ) : (
+                  <col key={thu} className="timetable-day-column" />
+                ),
+              )}
             </colgroup>
             <TableHead />
             <tbody>
