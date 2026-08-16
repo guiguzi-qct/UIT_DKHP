@@ -230,17 +230,17 @@ function App() {
                   borderRadius: '20px',
                   border: '1.5px solid rgba(255, 255, 255, 0.7)',
                   boxShadow: '0 20px 48px rgba(14, 33, 40, 0.22)',
-                  width: '275px',
-                  padding: '14px 16px',
+                  width: '290px',
+                  padding: '16px 18px',
                   background: 'rgba(255, 255, 255, 0.86)',
                   backdropFilter: 'blur(20px) saturate(180%)',
                   WebkitBackdropFilter: 'blur(20px) saturate(180%)',
                 },
               }}
             >
-              <Box style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, paddingBottom: 10, borderBottom: '1.5px dashed #D5E0E8' }}>
-                <Typography fontWeight={800} style={{ color: '#0E2128', fontSize: '15px' }}>
-                  Thông tin liên hệ
+              <Box style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, paddingBottom: 10, borderBottom: '1.5px dashed #D5E0E8' }}>
+                <Typography fontWeight={800} style={{ color: '#0E2128', fontSize: '17px', letterSpacing: '-0.02em' }}>
+                  Wanna Contact ???
                 </Typography>
 
                 <IconButton
@@ -259,11 +259,11 @@ function App() {
                 </IconButton>
               </Box>
 
-              <Box style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <Box style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 <Button
                   fullWidth
                   variant="contained"
-                  startIcon={<FacebookIcon style={{ fontSize: 20 }} />}
+                  startIcon={<FacebookIcon style={{ fontSize: 22 }} />}
                   component="a"
                   href="https://www.facebook.com/profile.php?id=61589480516886"
                   target="_blank"
@@ -276,8 +276,8 @@ function App() {
                     textTransform: 'none',
                     boxShadow: 'none',
                     justifyContent: 'flex-start',
-                    padding: '10px 16px',
-                    fontSize: '13.5px',
+                    padding: '11px 16px',
+                    fontSize: '14.5px',
                   }}
                 >
                   Facebook: Quỷ Cốc Tử
@@ -286,7 +286,7 @@ function App() {
                 <Button
                   fullWidth
                   variant="contained"
-                  startIcon={<EmailIcon style={{ fontSize: 20, color: '#ffffff' }} />}
+                  startIcon={<EmailIcon style={{ fontSize: 22, color: '#ffffff' }} />}
                   component="a"
                   href="mailto:quycoctu.tdm@gmail.com"
                   style={{
@@ -297,8 +297,8 @@ function App() {
                     textTransform: 'none',
                     boxShadow: 'none',
                     justifyContent: 'flex-start',
-                    padding: '10px 16px',
-                    fontSize: '13px',
+                    padding: '11px 16px',
+                    fontSize: '13.5px',
                   }}
                 >
                   quycoctu.tdm@gmail.com
