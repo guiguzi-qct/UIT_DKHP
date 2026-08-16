@@ -104,6 +104,18 @@ const GetCell = ({
 
   if (data === CELL.OCCUPIED) return null;
 
+  if (Array.isArray(data)) {
+    const maxSpan = Math.max(...data.map((item) => getDanhSachTiet(item.Tiet).length));
+    return (
+      <ClassCell
+        data={data as any}
+        rowSpan={maxSpan}
+        interactive={interactive}
+        onPick={() => onPickSlot?.({ thu, tiets, label, existing: data[0] })}
+      />
+    );
+  }
+
   return (
     <ClassCell
       data={data}

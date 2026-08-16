@@ -59,8 +59,25 @@ const initTableData = () => {
 // Đồng thời tái cấu trúc CTDL nhằm tiện vẽ TKB hơn
 const usePhanLoaiHocTrenTruong = () => {
   const [khongHocTrenTruong, hocTrenTruong] = useTkbStore(selectPhanLoaiHocTrenTruong);
+  const diffComparePlanId = useTkbStore((s) => s.diffComparePlanId);
 
-  const { kept, redundant } = findOverlapedClasses(hocTrenTruong);
+  const { kept, redundant } = React.useMemo(() => {
+    if (diffComparePlanId) {
+      // @ts-ignore
+      const planAClasses = hocTrenTruong.filter((c) => c.diffTag === 'MATCHED' || c.diffTag === 'PLAN_A');
+      // @ts-ignore
+      const planBClasses = hocTrenTruong.filter((c) => c.diffTag === 'PLAN_B');
+
+      const resA = findOverlapedClasses(planAClasses);
+      const resB = findOverlapedClasses(planBClasses);
+
+      return {
+        kept: [...resA.kept, ...resB.kept],
+        redundant: [...resA.redundant, ...resB.redundant],
+      };
+    }
+    return findOverlapedClasses(hocTrenTruong);
+  }, [hocTrenTruong, diffComparePlanId]);
 
   const rowDataHocTrenTruong = React.useMemo(() => {
     const tableData = initTableData();
@@ -74,11 +91,19 @@ const usePhanLoaiHocTrenTruong = () => {
       const tietBatDau = listTiet[0];
       const tietBatDauIndex = getTietIndex(tietBatDau);
       if (!tableData[tietBatDauIndex]) continue;
-      tableData[tietBatDauIndex]['Thu' + lop.Thu] = lop;
+
+      const currentCell = tableData[tietBatDauIndex]['Thu' + lop.Thu];
+      if (currentCell === CELL.NO_CLASS || currentCell === CELL.OCCUPIED) {
+        tableData[tietBatDauIndex]['Thu' + lop.Thu] = lop;
+      } else if (Array.isArray(currentCell)) {
+        currentCell.push(lop);
+      } else {
+        tableData[tietBatDauIndex]['Thu' + lop.Thu] = [currentCell as ClassModel, lop];
+      }
 
       for (let i = 1; i < listTiet.length; i++) {
         const tietIndex = getTietIndex(listTiet[i]);
-        if (tableData[tietIndex]) {
+        if (tableData[tietIndex] && tableData[tietIndex]['Thu' + lop.Thu] === CELL.NO_CLASS) {
           tableData[tietIndex]['Thu' + lop.Thu] = CELL.OCCUPIED;
         }
       }

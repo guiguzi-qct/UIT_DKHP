@@ -32,7 +32,7 @@ const randomColors = [
 ] as const;
 
 type Props = {
-  data: ClassModel;
+  data: ClassModel | ClassModel[];
   isOutsideTable?: boolean;
   interactive?: boolean;
   onPick?: () => void;
@@ -86,7 +86,9 @@ export const [ClassCellContext, useClassCellContext] = constate(() => {
 });
 
 function ClassCell({ data, isOutsideTable = false, interactive = false, onPick, ...restProps }: Props) {
-  const { MaLop, NgonNgu, TenMH, TenGV, PhongHoc, NBD, NKT, Thu, Tiet } = data;
+  const classList = useMemo(() => (Array.isArray(data) ? data : [data]), [data]);
+  const mainData = classList[0];
+  const { MaLop, TenMH } = mainData;
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const removeClasses = useTkbStore((s) => s.removeClasses);
   const selectedClasses = useTkbStore(selectSelectedClassesBuoc3);
@@ -104,15 +106,14 @@ function ClassCell({ data, isOutsideTable = false, interactive = false, onPick, 
 
   const { redundant } = usePhanLoaiHocTrenTruongContext();
 
-  // TODO: display warning cho cac truong hop:
-  // - chon 2 slot chung mon khac lop, i.e: Nhap Mon Lap Trinh LT cua 1 nguoi, TH cua 1 nguoi khac
   const cacLopChungMonDangChon = useMemo(() => {
-    return selectedClasses.filter((selectedClass) => selectedClass.MaMH === data.MaMH);
-  }, [data.MaMH, selectedClasses]);
+    return selectedClasses.filter((selectedClass) => selectedClass.MaMH === mainData.MaMH);
+  }, [mainData.MaMH, selectedClasses]);
 
   const redundantIndex = redundant.findIndex((info) => {
     return (
-      isSameAgGridRowId(info.existing, data) || info.new.some((addingClass) => isSameAgGridRowId(addingClass, data))
+      isSameAgGridRowId(info.existing, mainData) ||
+      info.new.some((addingClass) => isSameAgGridRowId(addingClass, mainData))
     );
   });
   const isRedundantRelated = redundantIndex > -1;
@@ -124,17 +125,20 @@ function ClassCell({ data, isOutsideTable = false, interactive = false, onPick, 
         className={clsx('cell-class-wrapper', {
           'cell-class-pickable': interactive,
           'cell-class-unbounded': !restProps.rowSpan,
-          'cell-class-hovering': isHoveringOnThisCell(data, 'MaMH'),
+          'cell-class-hovering': isHoveringOnThisCell(mainData, 'MaMH'),
         })}
         role={interactive ? 'button' : undefined}
         tabIndex={interactive ? 0 : undefined}
         aria-label={interactive ? `Đổi lớp ${TenMH}` : undefined}
-        onMouseEnter={() => setCellHovering(data)}
+        onMouseEnter={() => setCellHovering(mainData)}
         onMouseLeave={() => setCellHovering(null)}
         onClick={
           interactive
             ? (e) => {
-                if (isHoveringOnThisCellRemoveIcon(data) || (e.target as HTMLElement).closest('.remove-class-btn')) {
+                if (
+                  isHoveringOnThisCellRemoveIcon(mainData) ||
+                  (e.target as HTMLElement).closest('.remove-class-btn')
+                ) {
                   e.stopPropagation();
                   return;
                 }
@@ -158,7 +162,7 @@ function ClassCell({ data, isOutsideTable = false, interactive = false, onPick, 
             title={
               <>
                 Xoá môn này
-                {isWarning(data) && isHoveringOnThisCell(data, 'MaLop') && (
+                {isWarning(mainData) && isHoveringOnThisCell(mainData, 'MaLop') && (
                   <>
                     <br />
                     hoặc Shift+Click để chỉ xoá slot thừa này
@@ -166,7 +170,7 @@ function ClassCell({ data, isOutsideTable = false, interactive = false, onPick, 
                 )}
               </>
             }
-            open={isHoveringOnThisCellRemoveIcon(data)}
+            open={isHoveringOnThisCellRemoveIcon(mainData)}
           >
             <IconButton
               onMouseEnter={() => setIsHoveringOnRemoveIcon(true)}
@@ -188,61 +192,100 @@ function ClassCell({ data, isOutsideTable = false, interactive = false, onPick, 
           </Tooltip>
         )}
 
-        <div
-          className="class-cell-card"
-          style={{
-            boxShadow: isRedundantRelated ? `inset 0 0 0 3px ${randomColors[redundantIndex]}` : undefined,
-          }}
-        >
-          <div className="class-cell-content">
-            {/* @ts-ignore */}
-            {data.diffTag && (
-              <div style={{ marginBottom: 4 }}>
-                {/* @ts-ignore */}
-                {data.diffTag === 'MATCHED' && (
-                  <span style={{ background: '#17333F', color: '#ffffff', fontSize: '10.5px', fontWeight: 800, padding: '2px 6px', borderRadius: 6, display: 'inline-block' }}>
-                    Chốt (Cả 2 Plan)
-                  </span>
-                )}
-                {/* @ts-ignore */}
-                {data.diffTag === 'PLAN_A' && (
-                  <span style={{ background: '#D0E8F5', color: '#0E2128', fontSize: '10.5px', fontWeight: 800, padding: '2px 6px', borderRadius: 6, border: '1px solid #0E2128', display: 'inline-block' }}>
-                    Plan gốc (Plan A)
-                  </span>
-                )}
-                {/* @ts-ignore */}
-                {data.diffTag === 'PLAN_B' && (
-                  <span style={{ background: '#FFE8CC', color: '#0E2128', fontSize: '10.5px', fontWeight: 800, padding: '2px 6px', borderRadius: 6, border: '1px solid #0E2128', display: 'inline-block' }}>
-                    Plan so sánh (Plan B)
-                  </span>
-                )}
-              </div>
-            )}
-            <strong className="class-cell-code">
-              {MaLop}
-              {isWarning(data) && (
-                <Tooltip open={isHoveringOnThisCellWarningIcon(data)} title="Có vẻ như bạn đang chọn thừa cho môn này">
-                  <WarningAmberIcon
-                    onMouseEnter={() => setIsHoveringOnWarningIcon(true)}
-                    onMouseLeave={() => setIsHoveringOnWarningIcon(false)}
-                    style={{ color: getWarningColor(data) }}
-                  />
-                </Tooltip>
-              )}{' '}
-              - {NgonNgu}
-            </strong>
-            {TenMH && <span className="class-cell-name">{TenMH}</span>}
-            {TenGV && <strong className="class-cell-secondary">{TenGV}</strong>}
-            {PhongHoc && <span className="class-cell-secondary">{PhongHoc}</span>}
-            {NBD && <span className="class-cell-secondary">BĐ: {NBD}</span>}
-            {NKT && <span className="class-cell-secondary">KT: {NKT}</span>}
-            {isOutsideTable && (
-              <strong className="class-cell-secondary">
-                Thứ {Thu} Tiết {Tiet}
+        {classList.map((item, idx) => (
+          <div
+            key={(item.MaLop || '') + idx}
+            className="class-cell-card"
+            style={{
+              boxShadow: isRedundantRelated ? `inset 0 0 0 3px ${randomColors[redundantIndex]}` : undefined,
+              marginBottom: classList.length > 1 && idx < classList.length - 1 ? 6 : 0,
+            }}
+          >
+            <div className="class-cell-content">
+              {/* @ts-ignore */}
+              {item.diffTag && (
+                <div style={{ marginBottom: 4 }}>
+                  {/* @ts-ignore */}
+                  {item.diffTag === 'MATCHED' && (
+                    <span
+                      style={{
+                        background: '#17333F',
+                        color: '#ffffff',
+                        fontSize: '10.5px',
+                        fontWeight: 800,
+                        padding: '2px 6px',
+                        borderRadius: 6,
+                        display: 'inline-block',
+                      }}
+                    >
+                      Chốt (Cả 2 Plan)
+                    </span>
+                  )}
+                  {/* @ts-ignore */}
+                  {item.diffTag === 'PLAN_A' && (
+                    <span
+                      style={{
+                        background: '#D0E8F5',
+                        color: '#0E2128',
+                        fontSize: '10.5px',
+                        fontWeight: 800,
+                        padding: '2px 6px',
+                        borderRadius: 6,
+                        border: '1px solid #0E2128',
+                        display: 'inline-block',
+                      }}
+                    >
+                      Plan gốc (Plan A)
+                    </span>
+                  )}
+                  {/* @ts-ignore */}
+                  {item.diffTag === 'PLAN_B' && (
+                    <span
+                      style={{
+                        background: '#FFE8CC',
+                        color: '#0E2128',
+                        fontSize: '10.5px',
+                        fontWeight: 800,
+                        padding: '2px 6px',
+                        borderRadius: 6,
+                        border: '1px solid #0E2128',
+                        display: 'inline-block',
+                      }}
+                    >
+                      Plan so sánh (Plan B)
+                    </span>
+                  )}
+                </div>
+              )}
+              <strong className="class-cell-code">
+                {item.MaLop}
+                {isWarning(item) && (
+                  <Tooltip
+                    open={isHoveringOnThisCellWarningIcon(item)}
+                    title="Có vẻ như bạn đang chọn thừa cho môn này"
+                  >
+                    <WarningAmberIcon
+                      onMouseEnter={() => setIsHoveringOnWarningIcon(true)}
+                      onMouseLeave={() => setIsHoveringOnWarningIcon(false)}
+                      style={{ color: getWarningColor(item) }}
+                    />
+                  </Tooltip>
+                )}{' '}
+                - {item.NgonNgu}
               </strong>
-            )}
+              {item.TenMH && <span className="class-cell-name">{item.TenMH}</span>}
+              {item.TenGV && <strong className="class-cell-secondary">{item.TenGV}</strong>}
+              {item.PhongHoc && <span className="class-cell-secondary">{item.PhongHoc}</span>}
+              {item.NBD && <span className="class-cell-secondary">BĐ: {item.NBD}</span>}
+              {item.NKT && <span className="class-cell-secondary">KT: {item.NKT}</span>}
+              {isOutsideTable && (
+                <strong className="class-cell-secondary">
+                  Thứ {item.Thu} Tiết {item.Tiet}
+                </strong>
+              )}
+            </div>
           </div>
-        </div>
+        ))}
 
         {interactive && <span className="cell-picker-hint">Click để đổi lớp</span>}
 

@@ -1,6 +1,7 @@
 import AddIcon from '@mui/icons-material/Add';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import CheckIcon from '@mui/icons-material/Check';
+import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
@@ -283,12 +284,13 @@ export default function PlanSelectorBar() {
                 fullWidth
                 variant="outlined"
                 size="small"
+                startIcon={<CompareArrowsIcon />}
                 onClick={() => {
                   handleClosePopover();
                   setIsCompareDialogOpen(true);
                 }}
               >
-                So sánh Plan
+                So sánh
               </Button>
             )}
           </div>
@@ -414,7 +416,7 @@ export default function PlanSelectorBar() {
         }}
       >
         <DialogTitle fontWeight={800} style={{ color: '#0E2128', fontSize: '20px' }}>
-          So sánh Plan
+          So sánh
         </DialogTitle>
         <DialogContent dividers style={{ borderColor: '#D5E0E8' }}>
           <Typography variant="body2" style={{ color: '#0E2128', fontWeight: 600, marginBottom: 12 }}>
@@ -425,8 +427,32 @@ export default function PlanSelectorBar() {
             fullWidth
             size="small"
             label="Chọn Plan so sánh"
+            InputLabelProps={{ shrink: true }}
             value={targetComparePlanId || plans.find((p) => p.id !== activePlanId)?.id || ''}
             onChange={(e) => setTargetComparePlanId(e.target.value)}
+            sx={{
+              marginTop: '8px',
+              '& .MuiInputLabel-root': {
+                color: '#0E2128',
+                fontWeight: 700,
+                background: '#ffffff',
+                padding: '0 6px',
+              },
+              '& .MuiOutlinedInput-root': {
+                borderRadius: '10px',
+                '& fieldset': {
+                  borderColor: '#0E2128',
+                  borderWidth: '1.5px',
+                },
+                '&:hover fieldset, &.Mui-focused fieldset': {
+                  borderColor: '#0E2128',
+                },
+              },
+              '& .MuiSelect-select': {
+                color: '#0E2128',
+                fontWeight: 700,
+              },
+            }}
           >
             {plans
               .filter((p) => p.id !== activePlanId)
