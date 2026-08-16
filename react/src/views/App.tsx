@@ -238,9 +238,9 @@ function App() {
                 },
               }}
             >
-              <Box style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, paddingBottom: 10, borderBottom: '1.5px dashed #D5E0E8' }}>
-                <Typography fontWeight={800} style={{ color: '#0E2128', fontSize: '17px', letterSpacing: '-0.02em' }}>
-                  Wanna Contact ???
+              <Box style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+                <Typography fontWeight={800} style={{ color: '#0E2128', fontSize: '20px', letterSpacing: '-0.03em' }}>
+                  Contact
                 </Typography>
 
                 <IconButton
