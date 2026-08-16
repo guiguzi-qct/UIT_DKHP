@@ -1,5 +1,7 @@
-import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
+import EmailIcon from '@mui/icons-material/Email';
+import FacebookIcon from '@mui/icons-material/Facebook';
 import RotateLeftIcon from '@mui/icons-material/RotateLeft';
+import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -120,6 +122,7 @@ function HeaderActions() {
         </Button>
       </Tooltip>
 
+      {/* Reset Dialog */}
       <Dialog
         open={isResetConfirmOpen}
         onClose={() => setIsResetConfirmOpen(false)}
@@ -136,9 +139,9 @@ function HeaderActions() {
           Xác nhận đặt lại dữ liệu?
         </DialogTitle>
         <DialogContent>
-          <DialogContentText style={{ color: '#0E2128', fontWeight: 600, fontSize: '14.5px', lineHeight: 1.5 }}>
+          <Typography style={{ color: '#0E2128', fontWeight: 600, fontSize: '14.5px', lineHeight: 1.5 }}>
             Tất cả file Excel đã tải, các môn đã chọn và các phương án xếp lịch của bạn sẽ bị xóa. Bạn có muốn tiếp tục không?
-          </DialogContentText>
+          </Typography>
         </DialogContent>
         <DialogActions style={{ padding: '8px 24px 16px' }}>
           <Button onClick={() => setIsResetConfirmOpen(false)} style={{ color: '#0E2128', fontWeight: 700 }}>
@@ -158,6 +161,7 @@ function App() {
   const isChiVeTkb = useTkbStore(selectIsChiVeTkb);
   const textareaChiVeTkb = useTkbStore(selectTextareaChiVeTkb);
   const hasData = dataTkb.length > 0 || isChiVeTkb || textareaChiVeTkb.trim().length > 0;
+  const [isContactOpen, setIsContactOpen] = useState(false);
 
   return (
     <ErrorBoundary>
@@ -167,10 +171,16 @@ function App() {
             <Route component={ScrollToTop} />
             <AppBar className="app-header" position="sticky" elevation={0}>
               <Toolbar className="app-toolbar">
-                <Box className="brand-lockup">
-                  <img className="brand-mark" src={`${process.env.PUBLIC_URL}/logo.png`} alt="UIT no Jikan logo" />
-                  <Typography className="brand-name">UIT no Jikan</Typography>
-                </Box>
+                <Tooltip title="Bấm để xem thông tin ứng dụng & liên hệ">
+                  <Box
+                    className="brand-lockup"
+                    onClick={() => setIsContactOpen(true)}
+                    style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12 }}
+                  >
+                    <img className="brand-mark" src={`${process.env.PUBLIC_URL}/logo.png`} alt="UIT no Jikan logo" />
+                    <Typography className="brand-name">UIT no Jikan</Typography>
+                  </Box>
+                </Tooltip>
 
                 <WorkflowNav />
 
@@ -188,6 +198,93 @@ function App() {
                 </Suspense>
               </main>
             </Container>
+
+            {/* Contact Info Dialog on Logo Click */}
+            <Dialog
+              open={isContactOpen}
+              onClose={() => setIsContactOpen(false)}
+              maxWidth="xs"
+              fullWidth
+              PaperProps={{
+                style: {
+                  borderRadius: 18,
+                  border: '1.5px solid #0E2128',
+                  padding: '8px 6px',
+                },
+              }}
+            >
+              <DialogTitle fontWeight={800} style={{ color: '#0E2128', fontSize: '20px' }}>
+                UIT no Jikan 🚀
+              </DialogTitle>
+              <DialogContent dividers style={{ borderColor: '#D5E0E8' }}>
+                <Box style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                  <Typography variant="body2" style={{ color: '#0E2128', fontWeight: 600, lineHeight: 1.6 }}>
+                    Ứng dụng hỗ trợ lập kế hoạch & xếp thời khóa biểu tự động dành riêng cho sinh viên <strong>UIT (Trường Đại học Công nghệ Thông tin - ĐHQG-HCM)</strong>.
+                  </Typography>
+
+                  <Box
+                    style={{
+                      background: '#F4F7F9',
+                      borderRadius: 12,
+                      padding: '14px',
+                      border: '1px solid #D5E0E8',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: 10,
+                    }}
+                  >
+                    <Typography variant="caption" style={{ color: '#59899D', fontWeight: 800, letterSpacing: '0.05em' }}>
+                      KÊNH THÔNG TIN & HỖ TRỢ
+                    </Typography>
+
+                    <Button
+                      variant="contained"
+                      startIcon={<FacebookIcon />}
+                      component="a"
+                      href="https://www.facebook.com/profile.php?id=61589480516886"
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{
+                        borderRadius: 10,
+                        fontWeight: 800,
+                        color: '#ffffff',
+                        background: '#1877F2',
+                        textTransform: 'none',
+                        boxShadow: 'none',
+                      }}
+                    >
+                      Facebook: Quỷ Cốc Tử
+                    </Button>
+
+                    <Button
+                      variant="outlined"
+                      startIcon={<EmailIcon />}
+                      component="a"
+                      href="mailto:quycoctu.tdm@gmail.com"
+                      style={{
+                        borderRadius: 10,
+                        fontWeight: 800,
+                        color: '#0E2128',
+                        borderColor: '#0E2128',
+                        background: '#ffffff',
+                        textTransform: 'none',
+                      }}
+                    >
+                      quycoctu.tdm@gmail.com
+                    </Button>
+                  </Box>
+                </Box>
+              </DialogContent>
+              <DialogActions style={{ padding: '8px 24px 16px' }}>
+                <Button
+                  variant="contained"
+                  onClick={() => setIsContactOpen(false)}
+                  style={{ fontWeight: 800, borderRadius: 10, padding: '8px 24px', background: '#0E2128', width: '100%' }}
+                >
+                  Đóng
+                </Button>
+              </DialogActions>
+            </Dialog>
           </Box>
         </BrowserRouter>
       </ThemeProvider>
