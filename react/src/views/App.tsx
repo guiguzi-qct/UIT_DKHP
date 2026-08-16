@@ -227,47 +227,31 @@ function App() {
               PaperProps={{
                 style: {
                   marginTop: '10px',
-                  borderRadius: '20px',
+                  borderRadius: '18px',
                   border: '1.5px solid #0E2128',
                   boxShadow: '0 16px 40px rgba(14, 33, 40, 0.22)',
-                  width: '320px',
-                  padding: '18px 20px',
+                  width: '290px',
+                  padding: '12px 14px',
                   background: '#ffffff',
                 },
               }}
             >
-              <Box style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, paddingBottom: 12, borderBottom: '1.5px solid #EAEFEF' }}>
-                <Box style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <img src={`${process.env.PUBLIC_URL}/logo.png`} alt="Logo" style={{ width: 40, height: 40, borderRadius: 12, boxShadow: '0 4px 10px rgba(14,33,40,0.12)' }} />
-                  <div>
-                    <Typography fontWeight={800} style={{ color: '#0E2128', fontSize: '16px', lineHeight: 1.2 }}>
-                      UIT no Jikan
-                    </Typography>
-                    <Typography variant="caption" style={{ color: '#59899D', fontWeight: 600, fontSize: '11.5px' }}>
-                      Xếp thời khóa biểu tự động
-                    </Typography>
-                  </div>
-                </Box>
-
+              <Box style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 8 }}>
                 <IconButton
                   size="small"
                   onClick={handleLogoClose}
                   aria-label="Đóng"
                   style={{
                     color: '#0E2128',
-                    padding: 4,
+                    padding: 3,
                     borderRadius: 8,
                     background: '#F4F7F9',
                     border: '1px solid #D5E0E8',
                   }}
                 >
-                  <CloseIcon style={{ fontSize: 18 }} />
+                  <CloseIcon style={{ fontSize: 16 }} />
                 </IconButton>
               </Box>
-
-              <Typography variant="caption" style={{ color: '#59899D', fontWeight: 800, letterSpacing: '0.06em', display: 'block', marginBottom: 10, fontSize: '11px' }}>
-                THÔNG TIN LIÊN HỆ & HỖ TRỢ
-              </Typography>
 
               <Box style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 <Button
@@ -295,18 +279,17 @@ function App() {
 
                 <Button
                   fullWidth
-                  variant="outlined"
-                  startIcon={<EmailIcon style={{ fontSize: 20, color: '#0E2128' }} />}
+                  variant="contained"
+                  startIcon={<EmailIcon style={{ fontSize: 20, color: '#ffffff' }} />}
                   component="a"
                   href="mailto:quycoctu.tdm@gmail.com"
                   style={{
                     borderRadius: 12,
-                    fontWeight: 700,
-                    color: '#0E2128',
-                    borderColor: '#0E2128',
-                    borderWidth: '1.5px',
-                    background: '#F8FAFC',
+                    fontWeight: 800,
+                    color: '#ffffff',
+                    background: '#0E2128',
                     textTransform: 'none',
+                    boxShadow: '0 4px 12px rgba(14, 33, 40, 0.25)',
                     justifyContent: 'flex-start',
                     padding: '10px 16px',
                     fontSize: '13px',
