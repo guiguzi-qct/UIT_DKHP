@@ -38,19 +38,21 @@ type Props = {
   onPick?: () => void;
 } & React.TdHTMLAttributes<HTMLTableCellElement>;
 
-const getMonChonRoiKey = (data: ClassModel) => `${data.MaMH}-${data.ThucHanh}`;
+const getMonChonRoiKey = (data: ClassModel) => (data ? `${data.MaMH || ''}-${data.ThucHanh || ''}` : '');
 const useMonChonRoi = () => {
   const newRandomColors = useMemo(() => reverse([...randomColors]), []);
   const selectedClasses = useTkbStore(selectSelectedClassesBuoc3);
-  const map = groupBy(selectedClasses, getMonChonRoiKey);
+  const validSelectedClasses = useMemo(() => (selectedClasses || []).filter((c): c is ClassModel => !!c), [selectedClasses]);
+  const map = groupBy(validSelectedClasses, getMonChonRoiKey);
   const mapColor: Record<keyof typeof map, (typeof newRandomColors)[number]> = {};
   let index = 0;
   Object.entries(map).forEach(([key, value]) => {
+    if (!key) return;
     const hasDuplication = uniqMaLop(value).length > 1;
     if (hasDuplication) mapColor[key] = newRandomColors[index++];
   });
 
-  const getWarningColor = (data: ClassModel) => mapColor[getMonChonRoiKey(data)];
+  const getWarningColor = (data: ClassModel) => (data ? mapColor[getMonChonRoiKey(data)] : undefined);
   const isWarning = (data: ClassModel) => !!getWarningColor(data);
   return { isWarning, getWarningColor };
 };

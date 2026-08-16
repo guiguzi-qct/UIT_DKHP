@@ -304,9 +304,9 @@ export const selectSelectedClassesBuoc3 = memoize((state: TkbStore): ClassModel[
   let baseClasses: ClassModel[] = [];
   if (isChiVeTkb) {
     const listMaLop = new Set(parseListMaLop(textareaChiVeTkb));
-    baseClasses = finalDataTkb.filter((it) => listMaLop.has(String(it.MaLop).toUpperCase()));
+    baseClasses = (finalDataTkb || []).filter((it) => !!it && listMaLop.has(String(it.MaLop).toUpperCase()));
   } else {
-    baseClasses = selectSelectedClasses(state);
+    baseClasses = (selectSelectedClasses(state) || []).filter((it): it is ClassModel => !!it);
   }
 
   if (state.diffComparePlanId) {
@@ -314,14 +314,16 @@ export const selectSelectedClassesBuoc3 = memoize((state: TkbStore): ClassModel[
     const comparePlan = plans.find((p) => p.id === state.diffComparePlanId);
 
     if (comparePlan && comparePlan.id !== state.activePlanId) {
-      const planBClasses = comparePlan.selectedClasses || [];
-      const planBCodes = new Set(planBClasses.map((c) => c.MaLop?.trim()));
-      const planACodes = new Set(baseClasses.map((c) => c.MaLop?.trim()));
+      const planBClasses = (comparePlan.selectedClasses || []).filter((it): it is ClassModel => !!it);
+      const planBCodes = new Set(planBClasses.map((c) => c?.MaLop?.trim()).filter((s): s is string => !!s));
+      const planACodes = new Set(baseClasses.map((c) => c?.MaLop?.trim()).filter((s): s is string => !!s));
 
       const merged: ClassModel[] = [];
 
       baseClasses.forEach((cA) => {
-        const isMatched = planBCodes.has(cA.MaLop?.trim());
+        if (!cA) return;
+        const codeA = cA.MaLop?.trim();
+        const isMatched = codeA ? planBCodes.has(codeA) : false;
         merged.push({
           ...cA,
           // @ts-ignore
@@ -330,7 +332,9 @@ export const selectSelectedClassesBuoc3 = memoize((state: TkbStore): ClassModel[
       });
 
       planBClasses.forEach((cB) => {
-        if (!planACodes.has(cB.MaLop?.trim())) {
+        if (!cB) return;
+        const codeB = cB.MaLop?.trim();
+        if (codeB && !planACodes.has(codeB)) {
           merged.push({
             ...cB,
             // @ts-ignore

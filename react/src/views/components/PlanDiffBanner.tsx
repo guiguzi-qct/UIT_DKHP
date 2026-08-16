@@ -15,27 +15,30 @@ export default function PlanDiffBanner() {
 
   if (!comparePlan || comparePlan.id === activePlan.id) return null;
 
-  const planACount = activePlan.selectedClasses.length;
-  const planBCount = comparePlan.selectedClasses.length;
+  const planAClasses = (activePlan.selectedClasses || []).filter((c): c is typeof activePlan.selectedClasses[0] => !!c);
+  const planBClasses = (comparePlan.selectedClasses || []).filter((c): c is typeof comparePlan.selectedClasses[0] => !!c);
 
-  const planATc = calcTongSoTC(activePlan.selectedClasses);
-  const planBTc = calcTongSoTC(comparePlan.selectedClasses);
+  const planACount = planAClasses.length;
+  const planBCount = planBClasses.length;
 
-  const getDaysCount = (classes: typeof activePlan.selectedClasses) => {
+  const planATc = calcTongSoTC(planAClasses);
+  const planBTc = calcTongSoTC(planBClasses);
+
+  const getDaysCount = (classes: typeof planAClasses) => {
     const days = new Set<string>();
     classes.forEach((c) => {
-      if (c.Thu && /^[2-7]$/.test(c.Thu.trim())) {
-        days.add(c.Thu.trim());
+      if (c && c.Thu && /^[2-7]$/.test(String(c.Thu).trim())) {
+        days.add(String(c.Thu).trim());
       }
     });
     return days.size;
   };
 
-  const planADays = getDaysCount(activePlan.selectedClasses);
-  const planBDays = getDaysCount(comparePlan.selectedClasses);
+  const planADays = getDaysCount(planAClasses);
+  const planBDays = getDaysCount(planBClasses);
 
-  const commonClassesCount = activePlan.selectedClasses.filter((cA) =>
-    comparePlan.selectedClasses.some((cB) => cB.MaLop?.trim() === cA.MaLop?.trim()),
+  const commonClassesCount = planAClasses.filter((cA) =>
+    cA && cA.MaLop && planBClasses.some((cB) => cB && cB.MaLop && String(cB.MaLop).trim() === String(cA.MaLop).trim()),
   ).length;
 
   return (

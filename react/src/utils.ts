@@ -159,10 +159,12 @@ export const hasOverlapSchedule = (classAs: ClassModel[], classB: ClassModel) =>
 // Thường thì MaLop alone is enough because most of the classes only appear once a week or once every 2 weeks, nhưng mà có thể có môn Anh Văn học 1 tuần tới 2 buổi, nên cần có thêm Thu và Tiet
 // TODO: maybe use STT?
 export const getAgGridRowId = (classModel: ClassModel): string => {
-  return classModel.MaLop + classModel.Thu + classModel.Tiet;
+  if (!classModel) return '';
+  return String(classModel.MaLop || '') + String(classModel.Thu || '') + String(classModel.Tiet || '');
 };
 
 export const isSameAgGridRowId = (class1: ClassModel, class2: ClassModel) => {
+  if (!class1 || !class2) return false;
   return getAgGridRowId(class1) === getAgGridRowId(class2);
 };
 
@@ -172,6 +174,10 @@ export const findOverlapedClasses = (
 ): { kept: ClassModel[]; redundant: TTrungTkb[] } => {
   const kept: ClassModel[] = [];
   const redundant: TTrungTkb[] = [];
+  if (!Array.isArray(classes)) return { kept, redundant };
+
+  const validClasses = classes.filter((c): c is ClassModel => !!c && typeof c === 'object');
+  const processedAgGridRowIds = new Set<string>();
 
   const findExistingOverlap = (newClass: ClassModel) => {
     const newClassTimeSlots = getTimeSlots(newClass);
@@ -181,10 +187,9 @@ export const findOverlapedClasses = (
     });
   };
 
-  const processedAgGridRowIds = new Set<string>();
-  classes.forEach((addingClass) => {
+  validClasses.forEach((addingClass) => {
     const agGridRowId = getAgGridRowId(addingClass);
-    if (processedAgGridRowIds.has(agGridRowId)) return;
+    if (!agGridRowId || processedAgGridRowIds.has(agGridRowId)) return;
 
     processedAgGridRowIds.add(agGridRowId);
     const existingClassOverlapped = findExistingOverlap(addingClass);
