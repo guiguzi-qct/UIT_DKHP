@@ -308,10 +308,10 @@ function ClassCell({ data, isOutsideTable = false, interactive = false, onPick, 
               color="error"
               variant="contained"
               onClick={() => {
-                const classesToRemove = cacLopChungMonDangChon.length > 0 ? cacLopChungMonDangChon : [data];
+                const classesToRemove = cacLopChungMonDangChon.length > 0 ? cacLopChungMonDangChon : classList;
                 removeClasses(classesToRemove);
                 onRemoveClass();
-                enqueueSnackbar(`Đã xóa lớp ${data.MaLop}`, { variant: 'info' });
+                enqueueSnackbar(`Đã xóa lớp ${mainData.MaLop}`, { variant: 'info' });
                 setIsConfirmOpen(false);
               }}
             >
