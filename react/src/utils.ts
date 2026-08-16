@@ -93,7 +93,9 @@ const isValidTiet = (tiet: string): boolean => {
 };
 
 /** Có đủ dữ liệu để đặt lớp vào một ô cụ thể trên lưới thời khóa biểu. */
-export const hasTimetableSlot = ({ Thu, Tiet }: Pick<ClassModel, 'Thu' | 'Tiet'>): boolean => {
+export const hasTimetableSlot = (classModel?: Pick<ClassModel, 'Thu' | 'Tiet'>): boolean => {
+  if (!classModel) return false;
+  const { Thu, Tiet } = classModel;
   const normalizedThu = normalizeScheduleValue(Thu);
   const listTiet = getDanhSachTiet(Tiet);
   if (!normalizedThu || listTiet.length === 0) return false;
@@ -111,9 +113,11 @@ export const hasTimetableSlot = ({ Thu, Tiet }: Pick<ClassModel, 'Thu' | 'Tiet'>
  */
 type ValidTimeSlot = `${string}-${string}`;
 type TimeSlots = '*' | ValidTimeSlot[];
-const getTimeSlots = ({ Thu, Tiet }: ClassModel): TimeSlots => {
+const getTimeSlots = (classModel?: ClassModel): TimeSlots => {
+  if (!classModel) return [];
+  const { Thu, Tiet } = classModel;
   if (Thu === '*') return '*';
-  if (!hasTimetableSlot({ Thu, Tiet })) return [];
+  if (!hasTimetableSlot(classModel)) return [];
 
   const thuList = normalizeScheduleValue(Thu).split(',').map((s) => s.trim()).filter(Boolean);
   const rawTiet = normalizeScheduleValue(Tiet);

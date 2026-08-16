@@ -88,9 +88,15 @@ export const [ClassCellContext, useClassCellContext] = constate(() => {
 });
 
 function ClassCell({ data, isOutsideTable = false, interactive = false, onPick, ...restProps }: Props) {
-  const classList = useMemo(() => (Array.isArray(data) ? data : [data]), [data]);
+  const classList = useMemo(() => {
+    if (!data) return [];
+    return (Array.isArray(data) ? data : [data]).filter((c): c is ClassModel => !!c);
+  }, [data]);
+
   const mainData = classList[0];
-  const { MaLop, TenMH } = mainData;
+  if (!mainData) return <td {...restProps} />;
+
+  const { MaLop = '', TenMH = '' } = mainData;
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const removeClasses = useTkbStore((s) => s.removeClasses);
   const selectedClasses = useTkbStore(selectSelectedClassesBuoc3);
@@ -109,7 +115,8 @@ function ClassCell({ data, isOutsideTable = false, interactive = false, onPick, 
   const { redundant } = usePhanLoaiHocTrenTruongContext();
 
   const cacLopChungMonDangChon = useMemo(() => {
-    return selectedClasses.filter((selectedClass) => selectedClass.MaMH === mainData.MaMH);
+    if (!mainData.MaMH) return [];
+    return selectedClasses.filter((selectedClass) => selectedClass && selectedClass.MaMH === mainData.MaMH);
   }, [mainData.MaMH, selectedClasses]);
 
   const redundantIndex = redundant.findIndex((info) => {
