@@ -268,6 +268,7 @@ export default function PlanSelectorBar() {
           })}
         </div>
 
+        <div className="popover-plan-footer">
           <div style={{ display: 'grid', gridTemplateColumns: plans.length > 1 ? '1fr 1fr' : '1fr', gap: 6 }}>
             <Button
               fullWidth
