@@ -227,26 +227,32 @@ function App() {
               PaperProps={{
                 style: {
                   marginTop: '10px',
-                  borderRadius: '18px',
-                  border: '1.5px solid #0E2128',
-                  boxShadow: '0 16px 40px rgba(14, 33, 40, 0.22)',
-                  width: '290px',
-                  padding: '12px 14px',
-                  background: '#ffffff',
+                  borderRadius: '20px',
+                  border: '1.5px solid rgba(255, 255, 255, 0.7)',
+                  boxShadow: '0 20px 48px rgba(14, 33, 40, 0.22)',
+                  width: '275px',
+                  padding: '14px 16px',
+                  background: 'rgba(255, 255, 255, 0.86)',
+                  backdropFilter: 'blur(20px) saturate(180%)',
+                  WebkitBackdropFilter: 'blur(20px) saturate(180%)',
                 },
               }}
             >
-              <Box style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 8 }}>
+              <Box style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, paddingBottom: 10, borderBottom: '1.5px dashed #D5E0E8' }}>
+                <Typography fontWeight={800} style={{ color: '#0E2128', fontSize: '15px' }}>
+                  Thông tin liên hệ
+                </Typography>
+
                 <IconButton
                   size="small"
                   onClick={handleLogoClose}
                   aria-label="Đóng"
                   style={{
-                    color: '#0E2128',
-                    padding: 3,
+                    color: '#ffffff',
+                    padding: 4,
                     borderRadius: 8,
-                    background: '#F4F7F9',
-                    border: '1px solid #D5E0E8',
+                    background: '#ef4444',
+                    boxShadow: '0 2px 8px rgba(239, 68, 68, 0.35)',
                   }}
                 >
                   <CloseIcon style={{ fontSize: 16 }} />
@@ -263,12 +269,12 @@ function App() {
                   target="_blank"
                   rel="noreferrer"
                   style={{
-                    borderRadius: 12,
+                    borderRadius: 14,
                     fontWeight: 800,
                     color: '#ffffff',
-                    background: 'linear-gradient(135deg, #1877F2 0%, #0052CC 100%)',
+                    background: '#1877F2',
                     textTransform: 'none',
-                    boxShadow: '0 4px 12px rgba(24, 119, 242, 0.25)',
+                    boxShadow: 'none',
                     justifyContent: 'flex-start',
                     padding: '10px 16px',
                     fontSize: '13.5px',
@@ -284,12 +290,12 @@ function App() {
                   component="a"
                   href="mailto:quycoctu.tdm@gmail.com"
                   style={{
-                    borderRadius: 12,
+                    borderRadius: 14,
                     fontWeight: 800,
                     color: '#ffffff',
                     background: '#0E2128',
                     textTransform: 'none',
-                    boxShadow: '0 4px 12px rgba(14, 33, 40, 0.25)',
+                    boxShadow: 'none',
                     justifyContent: 'flex-start',
                     padding: '10px 16px',
                     fontSize: '13px',
