@@ -1,3 +1,4 @@
+import CloseIcon from '@mui/icons-material/Close';
 import EmailIcon from '@mui/icons-material/Email';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import RotateLeftIcon from '@mui/icons-material/RotateLeft';
@@ -10,6 +11,7 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
+import IconButton from '@mui/material/IconButton';
 import LinearProgress from '@mui/material/LinearProgress';
 import Popover from '@mui/material/Popover';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
@@ -225,49 +227,66 @@ function App() {
               PaperProps={{
                 style: {
                   marginTop: '10px',
-                  borderRadius: '16px',
+                  borderRadius: '20px',
                   border: '1.5px solid #0E2128',
-                  boxShadow: '0 12px 36px rgba(14, 33, 40, 0.16)',
-                  width: '310px',
-                  padding: '16px',
+                  boxShadow: '0 16px 40px rgba(14, 33, 40, 0.22)',
+                  width: '320px',
+                  padding: '18px 20px',
                   background: '#ffffff',
                 },
               }}
             >
-              <Box style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12, paddingBottom: 10, borderBottom: '1px solid #EAEFEF' }}>
-                <img src={`${process.env.PUBLIC_URL}/logo.png`} alt="Logo" style={{ width: 36, height: 36, borderRadius: 10 }} />
-                <div>
-                  <Typography fontWeight={800} style={{ color: '#0E2128', fontSize: '15px', lineHeight: 1.2 }}>
-                    UIT no Jikan
-                  </Typography>
-                  <Typography variant="caption" style={{ color: '#59899D', fontWeight: 600 }}>
-                    Xếp thời khóa biểu tự động
-                  </Typography>
-                </div>
+              <Box style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, paddingBottom: 12, borderBottom: '1.5px solid #EAEFEF' }}>
+                <Box style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <img src={`${process.env.PUBLIC_URL}/logo.png`} alt="Logo" style={{ width: 40, height: 40, borderRadius: 12, boxShadow: '0 4px 10px rgba(14,33,40,0.12)' }} />
+                  <div>
+                    <Typography fontWeight={800} style={{ color: '#0E2128', fontSize: '16px', lineHeight: 1.2 }}>
+                      UIT no Jikan
+                    </Typography>
+                    <Typography variant="caption" style={{ color: '#59899D', fontWeight: 600, fontSize: '11.5px' }}>
+                      Xếp thời khóa biểu tự động
+                    </Typography>
+                  </div>
+                </Box>
+
+                <IconButton
+                  size="small"
+                  onClick={handleLogoClose}
+                  aria-label="Đóng"
+                  style={{
+                    color: '#0E2128',
+                    padding: 4,
+                    borderRadius: 8,
+                    background: '#F4F7F9',
+                    border: '1px solid #D5E0E8',
+                  }}
+                >
+                  <CloseIcon style={{ fontSize: 18 }} />
+                </IconButton>
               </Box>
 
-              <Typography variant="caption" style={{ color: '#59899D', fontWeight: 800, letterSpacing: '0.04em', display: 'block', marginBottom: 8 }}>
-                THÔNG TIN LIÊN HỆ
+              <Typography variant="caption" style={{ color: '#59899D', fontWeight: 800, letterSpacing: '0.06em', display: 'block', marginBottom: 10, fontSize: '11px' }}>
+                THÔNG TIN LIÊN HỆ & HỖ TRỢ
               </Typography>
 
-              <Box style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <Box style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 <Button
                   fullWidth
                   variant="contained"
-                  startIcon={<FacebookIcon />}
+                  startIcon={<FacebookIcon style={{ fontSize: 20 }} />}
                   component="a"
                   href="https://www.facebook.com/profile.php?id=61589480516886"
                   target="_blank"
                   rel="noreferrer"
                   style={{
-                    borderRadius: 10,
+                    borderRadius: 12,
                     fontWeight: 800,
                     color: '#ffffff',
-                    background: '#1877F2',
+                    background: 'linear-gradient(135deg, #1877F2 0%, #0052CC 100%)',
                     textTransform: 'none',
-                    boxShadow: 'none',
+                    boxShadow: '0 4px 12px rgba(24, 119, 242, 0.25)',
                     justifyContent: 'flex-start',
-                    padding: '8px 14px',
+                    padding: '10px 16px',
                     fontSize: '13.5px',
                   }}
                 >
@@ -277,18 +296,19 @@ function App() {
                 <Button
                   fullWidth
                   variant="outlined"
-                  startIcon={<EmailIcon />}
+                  startIcon={<EmailIcon style={{ fontSize: 20, color: '#0E2128' }} />}
                   component="a"
                   href="mailto:quycoctu.tdm@gmail.com"
                   style={{
-                    borderRadius: 10,
+                    borderRadius: 12,
                     fontWeight: 700,
                     color: '#0E2128',
-                    borderColor: '#D5E0E8',
-                    background: '#F4F7F9',
+                    borderColor: '#0E2128',
+                    borderWidth: '1.5px',
+                    background: '#F8FAFC',
                     textTransform: 'none',
                     justifyContent: 'flex-start',
-                    padding: '8px 14px',
+                    padding: '10px 16px',
                     fontSize: '13px',
                   }}
                 >
