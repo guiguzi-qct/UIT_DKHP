@@ -9,7 +9,7 @@ import { enqueueSnackbar } from 'notistack';
 import React, { ChangeEventHandler } from 'react';
 import XLSX from 'xlsx';
 import { selectDataExcel, useTkbStore } from '../../zus';
-import { arrayToTkbObject, sheetJSFT, toDateTimeString } from './utils';
+import { parseSheetRowsDynamic, sheetJSFT, toDateTimeString } from './utils';
 
 function SelectExcelButton() {
   const dataExcel = useTkbStore(selectDataExcel);
@@ -25,27 +25,22 @@ function SelectExcelButton() {
       reader.onerror = () => enqueueSnackbar('Không thể đọc file. Vui lòng thử lại.', { variant: 'error' });
       reader.onload = (event) => {
         try {
-          const isNumericSTT = (val: unknown): boolean => {
-            if (val == null) return false;
-            const str = String(val).trim();
-            return str !== '' && !isNaN(Number(str)) && Number(str) > 0;
-          };
-
           const workbook = XLSX.read(event?.target?.result, { type: readAsBinary ? 'binary' : 'array' });
-          const dataInArray = workbook.SheetNames.slice(0, 2)
-            .flatMap((sheetName) => XLSX.utils.sheet_to_json<any[][]>(workbook.Sheets[sheetName], { header: 1 }))
-            .filter((row) => Array.isArray(row) && row.length > 2 && isNumericSTT(row[0]) && Boolean(row[1] || row[2]));
+          const allClassModels = workbook.SheetNames.flatMap((sheetName) => {
+            const sheetRows = XLSX.utils.sheet_to_json<any[][]>(workbook.Sheets[sheetName], { header: 1 });
+            return parseSheetRowsDynamic(sheetRows);
+          });
 
-          if (!dataInArray.length) throw new Error('invalid-format');
+          if (!allClassModels.length) throw new Error('invalid-format');
 
           const now = new Date();
           setDataExcel({
-            data: dataInArray.map((row) => arrayToTkbObject(row)),
+            data: allClassModels,
             fileName: file.name,
             lastUpdateTimestamp: now.getTime(),
             lastUpdate: toDateTimeString(now),
           });
-          enqueueSnackbar(`Đã đọc ${dataInArray.length} lớp từ ${file.name}`, { variant: 'success' });
+          enqueueSnackbar(`Đã đọc ${allClassModels.length} lớp từ ${file.name}`, { variant: 'success' });
         } catch {
           enqueueSnackbar('File chưa đúng định dạng thời khóa biểu của trường.', { variant: 'error' });
         }

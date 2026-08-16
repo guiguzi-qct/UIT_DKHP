@@ -75,28 +75,45 @@ export function getCompatibleCandidates(
   selectedClasses: ClassModel[],
   target: PickerTarget,
 ): ClassModel[] {
-  return data
-    .filter((candidate) => {
-      if (selectedClasses.some((selectedClass) => isSameAgGridRowId(selectedClass, candidate))) return false;
+  const initialMatches = data.filter((candidate) => {
+    if (selectedClasses.some((selectedClass) => isSameAgGridRowId(selectedClass, candidate))) return false;
 
-      const candidatePeriods = getDanhSachTiet(candidate.Tiet);
-      if (candidatePeriods.some((tiet) => ['11', '12', '13'].includes(tiet))) return false;
+    const candidatePeriods = getDanhSachTiet(candidate.Tiet);
 
-      if (target.kind === 'slot') {
-        const matchesSlot =
-          hasTimetableSlot(candidate) &&
-          candidate.Thu === String(target.thu) &&
-          candidatePeriods.length > 0 &&
-          candidatePeriods.every((tiet) => target.tiets.includes(tiet));
-        if (!matchesSlot) return false;
+    if (target.kind === 'slot') {
+      const matchesSlot =
+        hasTimetableSlot(candidate) &&
+        candidate.Thu === String(target.thu) &&
+        candidatePeriods.length > 0 &&
+        candidatePeriods.every((tiet) => target.tiets.includes(tiet));
+      if (!matchesSlot) return false;
+    }
+
+    if (target.kind === 'replace' && !isSameCoursePart(candidate, target.existing)) return false;
+
+    const classesKeptWhileTryingCandidate = getSelectionWithoutCoursePart(selectedClasses, candidate);
+    return !hasOverlapSchedule(classesKeptWhileTryingCandidate, candidate);
+  });
+
+  const matchedSet = new Set(initialMatches.map(getCandidateKey));
+  const result = [...initialMatches];
+
+  initialMatches.forEach((candidate) => {
+    if (isThucHanhClass(candidate)) {
+      const parentCode = getParentTheoryCode(candidate.MaLop);
+      const parentTheory = data.find(
+        (c) => isTheoryClass(c) && c.MaMH === candidate.MaMH && c.MaLop?.trim() === parentCode,
+      );
+      if (parentTheory && !matchedSet.has(getCandidateKey(parentTheory))) {
+        matchedSet.add(getCandidateKey(parentTheory));
+        result.push(parentTheory);
       }
+    }
+  });
 
-      if (target.kind === 'replace' && !isSameCoursePart(candidate, target.existing)) return false;
-
-      const classesKeptWhileTryingCandidate = getSelectionWithoutCoursePart(selectedClasses, candidate);
-      return !hasOverlapSchedule(classesKeptWhileTryingCandidate, candidate);
-    })
-    .sort((a, b) => `${a.TenMH}-${a.MaLop}`.localeCompare(`${b.TenMH}-${b.MaLop}`, 'vi', { sensitivity: 'base' }));
+  return result.sort((a, b) =>
+    `${a.TenMH}-${a.MaLop}`.localeCompare(`${b.TenMH}-${b.MaLop}`, 'vi', { sensitivity: 'base' }),
+  );
 }
 
 export function getDraftConflictReason(
@@ -185,10 +202,20 @@ export function buildTheoryPracticeTree(candidates: ClassModel[]): {
   return { theoryNodes, standalonePractices };
 }
 
-const formatTiet = (tiet: string) =>
-  getDanhSachTiet(tiet)
-    .map((value) => (value === '0' ? '10' : value))
-    .join(', ');
+export const formatTiet = (tiet: string) => {
+  const list = getDanhSachTiet(tiet).map((value) => (value === '0' ? '10' : value));
+  if (list.length === 0) return '';
+  if (list.length === 1) return list[0];
+
+  const nums = list.map(Number);
+  const isConsecutive = nums.every((val, idx) => idx === 0 || val === nums[idx - 1] + 1);
+
+  if (isConsecutive && nums.length > 2) {
+    return `${nums[0]}–${nums[nums.length - 1]}`;
+  }
+
+  return list.join(', ');
+};
 
 const formatSchedule = (candidate: ClassModel) => {
   if (!hasTimetableSlot(candidate)) return 'Chưa có lịch cố định';
