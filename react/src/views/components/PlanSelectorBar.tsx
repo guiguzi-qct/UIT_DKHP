@@ -41,7 +41,6 @@ export default function PlanSelectorBar() {
   const deletePlan = useTkbStore((s) => s.deletePlan);
   const movePlan = useTkbStore((s) => s.movePlan);
 
-  const diffComparePlanId = useTkbStore((s) => s.diffComparePlanId);
   const setDiffComparePlanId = useTkbStore((s) => s.setDiffComparePlanId);
 
   const activePlan = plans.find((p) => p.id === activePlanId) || plans[0];
