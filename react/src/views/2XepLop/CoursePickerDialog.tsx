@@ -72,7 +72,7 @@ export function isPracticeOfTheory(thClass: ClassModel, ltClass: ClassModel): bo
   const thCode = (thClass.MaLop || '').trim();
 
   if (!ltCode || !thCode) return false;
-  return thCode.startsWith(ltCode) && thCode.length > ltCode.length;
+  return getParentTheoryCode(thCode) === ltCode;
 }
 
 export function getMatchingPracticeClasses(ltClass: ClassModel, allCandidates: ClassModel[]): ClassModel[] {
