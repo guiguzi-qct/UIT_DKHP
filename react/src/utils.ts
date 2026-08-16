@@ -54,13 +54,28 @@ export const getBuoiFromTiet = (tiet: ClassModel['Tiet']): Buoi => {
 export const getDanhSachTiet = (tiet: ClassModel['Tiet']): string[] => {
   const normalizedTiet = normalizeScheduleValue(tiet);
   if (!normalizedTiet) return [];
-  if (normalizedTiet.includes(','))
-    return normalizedTiet
-      .split(',')
-      .map((it) => it.trim())
-      .filter(Boolean);
   if (normalizedTiet === '*') return ['*'];
-  return normalizedTiet.split('');
+
+  const parts = normalizedTiet.split(',').map((it) => it.trim()).filter(Boolean);
+  const result: string[] = [];
+
+  parts.forEach((p) => {
+    if (
+      p.length >= 4 &&
+      p.length % 2 === 0 &&
+      Array.from({ length: p.length / 2 }).every((_, i) =>
+        ['10', '11', '12', '13', '14', '15'].includes(p.substring(i * 2, i * 2 + 2)),
+      )
+    ) {
+      for (let i = 0; i < p.length; i += 2) {
+        result.push(p.substring(i, i + 2));
+      }
+    } else {
+      result.push(...p.split(''));
+    }
+  });
+
+  return result;
 };
 
 const INVALID_SCHEDULE_VALUES = new Set(['undefined', 'null', 'nan']);
@@ -74,14 +89,19 @@ const normalizeScheduleValue = (value: unknown): string => {
 const isValidTiet = (tiet: string): boolean => {
   if (tiet === '*') return true;
   const tietNumber = Number(tiet === '0' ? 10 : tiet);
-  return Number.isInteger(tietNumber) && tietNumber >= 1 && tietNumber <= 14;
+  return Number.isInteger(tietNumber) && tietNumber >= 1 && tietNumber <= 15;
 };
 
 /** Có đủ dữ liệu để đặt lớp vào một ô cụ thể trên lưới thời khóa biểu. */
 export const hasTimetableSlot = ({ Thu, Tiet }: Pick<ClassModel, 'Thu' | 'Tiet'>): boolean => {
   const normalizedThu = normalizeScheduleValue(Thu);
   const listTiet = getDanhSachTiet(Tiet);
-  return /^[2-7]$/.test(normalizedThu) && listTiet.length > 0 && listTiet.every(isValidTiet);
+  if (!normalizedThu || listTiet.length === 0) return false;
+
+  const thuList = normalizedThu.split(',').map((s) => s.trim()).filter(Boolean);
+  const isThuValid = thuList.length > 0 && thuList.every((d) => /^[2-7]$/.test(d));
+
+  return isThuValid && listTiet.every(isValidTiet);
 };
 
 /**
@@ -94,7 +114,32 @@ type TimeSlots = '*' | ValidTimeSlot[];
 const getTimeSlots = ({ Thu, Tiet }: ClassModel): TimeSlots => {
   if (Thu === '*') return '*';
   if (!hasTimetableSlot({ Thu, Tiet })) return [];
-  return getDanhSachTiet(Tiet).map((tiet): ValidTimeSlot => `${Thu}-${tiet}`);
+
+  const thuList = normalizeScheduleValue(Thu).split(',').map((s) => s.trim()).filter(Boolean);
+  const rawTiet = normalizeScheduleValue(Tiet);
+
+  if (thuList.length > 1 && rawTiet.includes(',')) {
+    const tietParts = rawTiet.split(',').map((s) => s.trim()).filter(Boolean);
+    if (tietParts.length === thuList.length) {
+      const slots: ValidTimeSlot[] = [];
+      thuList.forEach((thu, idx) => {
+        const subTiets = getDanhSachTiet(tietParts[idx]);
+        subTiets.forEach((tiet) => {
+          slots.push(`${thu}-${tiet}`);
+        });
+      });
+      return slots;
+    }
+  }
+
+  const listTiet = getDanhSachTiet(Tiet);
+  const slots: ValidTimeSlot[] = [];
+  thuList.forEach((thu) => {
+    listTiet.forEach((tiet) => {
+      slots.push(`${thu}-${tiet}`);
+    });
+  });
+  return slots;
 };
 
 const isTimeSlotsOverlap = (timeSlotsA: TimeSlots, timeSlotsB: TimeSlots) => {
