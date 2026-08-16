@@ -32,9 +32,31 @@ export function getParentTheoryCode(maLop: string): string {
 }
 
 export function isThucHanhClass(candidate: ClassModel): boolean {
-  if (candidate.ThucHanh) return true;
+  if (!candidate) return false;
+
+  // 1. Explicit check from Excel fields: ThucHanh > 0 or HTGD === 'TH'
+  if (candidate.ThucHanh !== undefined && candidate.ThucHanh !== null) {
+    const num = Number(candidate.ThucHanh);
+    if (!isNaN(num) && num > 0) return true;
+  }
+
+  if (candidate.HTGD) {
+    const htgd = String(candidate.HTGD).trim().toUpperCase();
+    if (htgd === 'TH' || htgd.includes('THỰC HÀNH') || htgd.includes('THUC HANH')) {
+      return true;
+    }
+  }
+
+  // 2. Pattern check for MaLop: e.g. IT007.R110.1 -> parent is IT007.R110 (contains a dot)
   const maLop = candidate.MaLop?.trim() || '';
-  return /\.\d+$/.test(maLop);
+  if (/\.\d+$/.test(maLop)) {
+    const parentCode = getParentTheoryCode(maLop);
+    if (parentCode && parentCode.includes('.')) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 export function isTheoryClass(candidate: ClassModel): boolean {
@@ -42,12 +64,15 @@ export function isTheoryClass(candidate: ClassModel): boolean {
 }
 
 export function isPracticeOfTheory(thClass: ClassModel, ltClass: ClassModel): boolean {
+  if (!thClass || !ltClass) return false;
   if (thClass.MaMH !== ltClass.MaMH) return false;
-  if (!isThucHanhClass(thClass) || !isTheoryClass(ltClass)) return false;
-  const ltCode = ltClass.MaLop?.trim() || '';
-  const thCode = thClass.MaLop?.trim() || '';
-  const subSuffix = thCode.slice(ltCode.length);
-  return thCode.startsWith(ltCode) && /^\.\d+$/.test(subSuffix);
+  if (!isThucHanhClass(thClass) || isThucHanhClass(ltClass)) return false;
+
+  const ltCode = (ltClass.MaLop || '').trim();
+  const thCode = (thClass.MaLop || '').trim();
+
+  if (!ltCode || !thCode) return false;
+  return thCode.startsWith(ltCode) && thCode.length > ltCode.length;
 }
 
 export function getMatchingPracticeClasses(ltClass: ClassModel, allCandidates: ClassModel[]): ClassModel[] {
@@ -346,11 +371,15 @@ export default function CoursePickerDialog({ target, onClose }: Props) {
       const hasParentLTSelected = allSelectedLTs.some((lt) => isPracticeOfTheory(candidate, lt));
 
       if (!hasParentLTSelected) {
-        const candidateKey = getCandidateKey(candidate);
-        setShakingKey(candidateKey);
-        setTimeout(() => setShakingKey(null), 500);
-        enqueueSnackbar('Bạn phải chọn lớp Lý thuyết trước khi chọn lớp Thực hành!', { variant: 'error' });
-        return;
+        const parentCode = getParentTheoryCode(candidate.MaLop);
+        const parentTheory = data.find(
+          (c) => isTheoryClass(c) && c.MaMH === candidate.MaMH && c.MaLop?.trim() === parentCode,
+        );
+        if (parentTheory) {
+          enqueueSnackbar(`Đã tự động chọn lớp Lý thuyết ${parentTheory.MaLop} đi kèm!`, { variant: 'info' });
+          setDraftCandidates((current) => [...current, parentTheory, candidate]);
+          return;
+        }
       }
     }
 
@@ -367,6 +396,7 @@ export default function CoursePickerDialog({ target, onClose }: Props) {
     const allCurrentClasses = [...selectedClasses, ...draftCandidates];
     const draftLTClasses = draftCandidates.filter(isTheoryClass);
 
+    let missingTHWarning = '';
     for (const ltClass of draftLTClasses) {
       const matchingTHOptions = getMatchingPracticeClasses(ltClass, data);
       if (matchingTHOptions.length > 0) {
@@ -375,24 +405,18 @@ export default function CoursePickerDialog({ target, onClose }: Props) {
         );
 
         if (!hasMatchingTHSelected) {
-          setShakingSubmit(true);
-          const ltKey = getCandidateKey(ltClass);
-          setShakingKey(ltKey);
-          setTimeout(() => {
-            setShakingSubmit(false);
-            setShakingKey(null);
-          }, 500);
-          enqueueSnackbar(
-            `Lớp Lý thuyết ${ltClass.MaLop} có bài Thực hành. Bạn chưa chọn lớp Thực hành đi kèm (${matchingTHOptions.map(c => c.MaLop).join(', ')})!`,
-            { variant: 'error' }
-          );
-          return;
+          missingTHWarning = `Nhớ chọn thêm lớp Thực hành cho môn ${ltClass.TenMH} (${matchingTHOptions.map((c) => c.MaLop).join(', ')}) nhé!`;
         }
       }
     }
 
     setSelectedClasses(applyCandidateBatch(selectedClasses, draftCandidates));
-    enqueueSnackbar(`Đã thêm ${draftCandidates.length} lớp vào thời khóa biểu`, { variant: 'success' });
+    enqueueSnackbar(
+      missingTHWarning
+        ? `Đã thêm ${draftCandidates.length} lớp. ${missingTHWarning}`
+        : `Đã thêm ${draftCandidates.length} lớp vào thời khóa biểu`,
+      { variant: missingTHWarning ? 'warning' : 'success' }
+    );
     closeDialog();
   };
 
