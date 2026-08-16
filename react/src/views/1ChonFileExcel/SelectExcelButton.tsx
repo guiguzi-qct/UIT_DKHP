@@ -25,10 +25,16 @@ function SelectExcelButton() {
       reader.onerror = () => enqueueSnackbar('Không thể đọc file. Vui lòng thử lại.', { variant: 'error' });
       reader.onload = (event) => {
         try {
+          const isNumericSTT = (val: unknown): boolean => {
+            if (val == null) return false;
+            const str = String(val).trim();
+            return str !== '' && !isNaN(Number(str)) && Number(str) > 0;
+          };
+
           const workbook = XLSX.read(event?.target?.result, { type: readAsBinary ? 'binary' : 'array' });
           const dataInArray = workbook.SheetNames.slice(0, 2)
             .flatMap((sheetName) => XLSX.utils.sheet_to_json<any[][]>(workbook.Sheets[sheetName], { header: 1 }))
-            .filter((row) => typeof row[0] === 'number');
+            .filter((row) => Array.isArray(row) && row.length > 2 && isNumericSTT(row[0]) && Boolean(row[1] || row[2]));
 
           if (!dataInArray.length) throw new Error('invalid-format');
 
