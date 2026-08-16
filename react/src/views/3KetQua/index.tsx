@@ -2,7 +2,6 @@ import Alert from '@mui/material/Alert';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import ThoiKhoaBieuTable from '../components/ThoiKhoaBieuTable';
-import PlanDiffBanner from '../components/PlanDiffBanner';
 import PlanSelectorBar from '../components/PlanSelectorBar';
 import { selectSelectedClassesBuoc3, useTkbStore } from '../../zus';
 import { calcTongSoTC } from '../../utils';
@@ -16,7 +15,6 @@ function Index() {
   return (
     <section className="page-wrap wide result-page">
       <PlanSelectorBar />
-      <PlanDiffBanner />
 
       <Paper className="surface-card class-source-card">
         <DanhSachLopInput

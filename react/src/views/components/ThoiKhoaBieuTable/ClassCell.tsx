@@ -213,61 +213,6 @@ function ClassCell({ data, isOutsideTable = false, interactive = false, onPick, 
             }}
           >
             <div className="class-cell-content">
-              {/* @ts-ignore */}
-              {item.diffTag && (
-                <div style={{ marginBottom: 4 }}>
-                  {/* @ts-ignore */}
-                  {item.diffTag === 'MATCHED' && (
-                    <span
-                      style={{
-                        background: '#17333F',
-                        color: '#ffffff',
-                        fontSize: '10.5px',
-                        fontWeight: 800,
-                        padding: '2px 6px',
-                        borderRadius: 6,
-                        display: 'inline-block',
-                      }}
-                    >
-                      Chốt (Cả 2 Plan)
-                    </span>
-                  )}
-                  {/* @ts-ignore */}
-                  {item.diffTag === 'PLAN_A' && (
-                    <span
-                      style={{
-                        background: '#D0E8F5',
-                        color: '#0E2128',
-                        fontSize: '10.5px',
-                        fontWeight: 800,
-                        padding: '2px 6px',
-                        borderRadius: 6,
-                        border: '1px solid #0E2128',
-                        display: 'inline-block',
-                      }}
-                    >
-                      Plan gốc (Plan A)
-                    </span>
-                  )}
-                  {/* @ts-ignore */}
-                  {item.diffTag === 'PLAN_B' && (
-                    <span
-                      style={{
-                        background: '#FFE8CC',
-                        color: '#0E2128',
-                        fontSize: '10.5px',
-                        fontWeight: 800,
-                        padding: '2px 6px',
-                        borderRadius: 6,
-                        border: '1px solid #0E2128',
-                        display: 'inline-block',
-                      }}
-                    >
-                      Plan so sánh (Plan B)
-                    </span>
-                  )}
-                </div>
-              )}
               <strong className="class-cell-code">
                 {item.MaLop}
                 {isWarning(item) && (
