@@ -94,9 +94,7 @@ function ClassCell({ data, isOutsideTable = false, interactive = false, onPick, 
   }, [data]);
 
   const mainData = classList[0];
-  if (!mainData) return <td {...restProps} />;
 
-  const { MaLop = '', TenMH = '' } = mainData;
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const removeClasses = useTkbStore((s) => s.removeClasses);
   const selectedClasses = useTkbStore(selectSelectedClassesBuoc3);
@@ -115,9 +113,13 @@ function ClassCell({ data, isOutsideTable = false, interactive = false, onPick, 
   const { redundant } = usePhanLoaiHocTrenTruongContext();
 
   const cacLopChungMonDangChon = useMemo(() => {
-    if (!mainData.MaMH) return [];
+    if (!mainData || !mainData.MaMH) return [];
     return selectedClasses.filter((selectedClass) => selectedClass && selectedClass.MaMH === mainData.MaMH);
-  }, [mainData.MaMH, selectedClasses]);
+  }, [mainData, selectedClasses]);
+
+  if (!mainData) return <td {...restProps} />;
+
+  const { MaLop = '', TenMH = '' } = mainData;
 
   const redundantIndex = redundant.findIndex((info) => {
     return (
