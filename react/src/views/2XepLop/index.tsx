@@ -1,7 +1,8 @@
+import SearchIcon from '@mui/icons-material/Search';
 import Button from '@mui/material/Button';
 import Paper from '@mui/material/Paper';
 import { enqueueSnackbar } from 'notistack';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { ROUTES } from '../../constants';
 import { selectSelectedClassesBuoc3, selectTongSoTcBuoc3, useTkbStore } from '../../zus';
@@ -16,6 +17,17 @@ function Index() {
   const selectedClasses = useTkbStore(selectSelectedClassesBuoc3);
   const credits = useTkbStore(selectTongSoTcBuoc3);
   const setSelectedClasses = useTkbStore((s) => s.setSelectedClasses);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'x') {
+        e.preventDefault();
+        setPickerTarget({ kind: 'all' });
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const openPickerFromTimetable = (target: TimetablePickTarget) => {
     if (target.existing) {
@@ -41,9 +53,21 @@ function Index() {
       </Paper>
 
       <div className="builder-action-dock" role="region" aria-label="Hành động xếp lớp">
-        <div className="builder-dock-copy">
-          <strong>Xếp lớp trực tiếp trên lịch</strong>
-          <span>Bấm vào ô lịch để chọn hoặc đổi môn.</span>
+        <div
+          className="builder-dock-search"
+          role="button"
+          tabIndex={0}
+          onClick={() => setPickerTarget({ kind: 'all' })}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              setPickerTarget({ kind: 'all' });
+            }
+          }}
+        >
+          <SearchIcon className="builder-dock-search-icon" />
+          <span className="builder-dock-search-placeholder">Tìm tên môn, mã môn, giảng viên...</span>
+          <span className="builder-dock-shortcut">Ctrl + X</span>
         </div>
         <div className="stat-pill-group">
           <div className="stat-pill stat-pill-solid">

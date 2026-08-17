@@ -2,7 +2,6 @@ import AddIcon from '@mui/icons-material/Add';
 import CheckIcon from '@mui/icons-material/Check';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import SearchIcon from '@mui/icons-material/Search';
 import Button from '@mui/material/Button';
 import ButtonBase from '@mui/material/ButtonBase';
 import Chip from '@mui/material/Chip';
@@ -10,7 +9,6 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import InputAdornment from '@mui/material/InputAdornment';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { enqueueSnackbar } from 'notistack';
@@ -535,17 +533,9 @@ export default function CoursePickerDialog({ target, onClose }: Props) {
           autoFocus
           fullWidth
           size="small"
-          className="course-picker-search-field"
           value={search}
           onChange={(event) => setSearch(event.target.value)}
           placeholder="Tìm tên môn, mã môn, mã lớp hoặc giảng viên..."
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon style={{ color: '#59899D', fontSize: 20 }} />
-              </InputAdornment>
-            ),
-          }}
         />
 
         <div className="course-picker-count">

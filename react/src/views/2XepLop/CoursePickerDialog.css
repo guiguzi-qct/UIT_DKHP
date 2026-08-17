@@ -47,25 +47,6 @@
   color: #0E2128 !important;
   font-weight: 600 !important;
 }
-.course-picker-search-field .MuiOutlinedInput-root {
-  border-radius: 50px !important;
-  background: #f8fafc !important;
-  transition: all 0.2s ease-in-out !important;
-}
-.course-picker-search-field .MuiOutlinedInput-root:hover {
-  background: #ffffff !important;
-}
-.course-picker-search-field .MuiOutlinedInput-root.Mui-focused {
-  background: #ffffff !important;
-  box-shadow: 0 0 0 3px rgba(14, 33, 40, 0.1) !important;
-}
-.course-picker-search-field .MuiOutlinedInput-notchedOutline {
-  border-color: #cbd5e1 !important;
-  border-width: 1.5px !important;
-}
-.course-picker-search-field .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
-  border-color: #0E2128 !important;
-}
 .course-picker-draft {
   margin-bottom: 14px;
   padding: 12px;
