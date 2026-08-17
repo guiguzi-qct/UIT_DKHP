@@ -83,13 +83,11 @@ function Index() {
           <Button
             variant="outlined"
             color="error"
+            className="builder-clear-btn"
             disabled={!selectedClasses.length}
             onClick={handleClearAll}
           >
             Xóa hết
-          </Button>
-          <Button variant="outlined" onClick={() => setPickerTarget({ kind: 'all' })}>
-            Chọn môn
           </Button>
           <Button
             variant="contained"
