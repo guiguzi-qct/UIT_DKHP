@@ -109,16 +109,19 @@
   min-height: 50px;
 }
 .builder-clear-btn {
+  color: #c5221f !important;
+  border-color: #c5221f !important;
   border-width: 1.5px !important;
   border-radius: 12px !important;
-  font-weight: 700 !important;
+  font-weight: 800 !important;
+  background-color: rgba(197, 34, 31, 0.04) !important;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 .builder-clear-btn:hover:not(:disabled) {
-  background-color: #d32f2f !important;
+  background-color: #c5221f !important;
   color: #ffffff !important;
-  border-color: #d32f2f !important;
-  box-shadow: 0 4px 14px rgba(211, 47, 47, 0.35) !important;
+  border-color: #c5221f !important;
+  box-shadow: 0 4px 14px rgba(197, 34, 31, 0.35) !important;
   transform: translateY(-1px);
 }
 .builder-timetable .timetable-scroll {
