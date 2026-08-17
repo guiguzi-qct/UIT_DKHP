@@ -46,9 +46,15 @@ function Index() {
           <strong>Xếp lớp trực tiếp trên lịch</strong>
           <span>Bấm vào ô lịch để chọn hoặc đổi môn.</span>
         </div>
-        <div className="builder-stats">
-          <Chip label={`${selectedClasses.length} lớp`} color={selectedClasses.length ? 'primary' : 'default'} />
-          <Chip label={`${credits} tín chỉ`} variant="outlined" />
+        <div className="stat-pill-group">
+          <div className="stat-pill stat-pill-solid">
+            <strong className="stat-pill-num">{selectedClasses.length}</strong>
+            <span className="stat-pill-txt">lớp</span>
+          </div>
+          <div className="stat-pill stat-pill-solid">
+            <strong className="stat-pill-num">{credits}</strong>
+            <span className="stat-pill-txt">tín chỉ</span>
+          </div>
         </div>
         <div className="builder-dock-actions">
           <Button

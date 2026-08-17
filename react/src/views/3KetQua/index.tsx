@@ -23,14 +23,14 @@ function Index() {
               <Typography fontWeight={800} style={{ fontSize: '22px', color: '#0E2128', letterSpacing: '-0.02em' }}>
                 Danh sách mã lớp
               </Typography>
-              <div className="step3-stat-badges">
-                <div className="step3-stat-pill">
-                  <span className="step3-stat-num">{classCount}</span>
-                  <span className="step3-stat-txt">lớp</span>
+              <div className="stat-pill-group">
+                <div className="stat-pill stat-pill-solid">
+                  <strong className="stat-pill-num">{classCount}</strong>
+                  <span className="stat-pill-txt">lớp</span>
                 </div>
-                <div className="step3-stat-pill">
-                  <span className="step3-stat-num">{tcCount}</span>
-                  <span className="step3-stat-txt">tín chỉ</span>
+                <div className="stat-pill stat-pill-solid">
+                  <strong className="stat-pill-num">{tcCount}</strong>
+                  <span className="stat-pill-txt">tín chỉ</span>
                 </div>
               </div>
             </div>
