@@ -246,7 +246,7 @@ export type TheoryWithPracticeNode = {
   practices: ClassModel[];
 };
 
-export function buildTheoryPracticeTree(candidates: ClassModel[]): {
+export function buildTheoryPracticeTree(candidates: ClassModel[], data: ClassModel[] = []): {
   theoryNodes: TheoryWithPracticeNode[];
   standalonePractices: ClassModel[];
 } {
@@ -267,9 +267,42 @@ export function buildTheoryPracticeTree(candidates: ClassModel[]): {
     };
   });
 
-  const standalonePractices = practices.filter(
+  const unmatchedPractices = practices.filter(
     (th) => !matchedPracticeKeys.has(getCandidateKey(th))
   );
+
+  const standalonePractices: ClassModel[] = [];
+
+  unmatchedPractices.forEach((th) => {
+    if (matchedPracticeKeys.has(getCandidateKey(th))) return;
+
+    const parentCode = getParentTheoryCode(th.MaLop);
+    const parentTheory =
+      candidates.find((c) => isTheoryClass(c) && c.MaMH === th.MaMH && c.MaLop?.trim() === parentCode) ||
+      data.find((c) => isTheoryClass(c) && c.MaMH === th.MaMH && c.MaLop?.trim() === parentCode);
+
+    if (parentTheory) {
+      const existingNode = theoryNodes.find((node) => isSameAgGridRowId(node.theory, parentTheory));
+      const siblingPractices = practices.filter((p) => isPracticeOfTheory(p, parentTheory));
+
+      siblingPractices.forEach((p) => matchedPracticeKeys.add(getCandidateKey(p)));
+
+      if (existingNode) {
+        siblingPractices.forEach((p) => {
+          if (!existingNode.practices.some((item) => isSameAgGridRowId(item, p))) {
+            existingNode.practices.push(p);
+          }
+        });
+      } else {
+        theoryNodes.push({
+          theory: parentTheory,
+          practices: siblingPractices.length > 0 ? siblingPractices : [th],
+        });
+      }
+    } else {
+      standalonePractices.push(th);
+    }
+  });
 
   return { theoryNodes, standalonePractices };
 }
@@ -534,7 +567,7 @@ export default function CoursePickerDialog({ target, onClose }: Props) {
                 </button>
 
                 {isExpanded && (() => {
-                  const { theoryNodes, standalonePractices } = buildTheoryPracticeTree(group.candidates);
+                  const { theoryNodes, standalonePractices } = buildTheoryPracticeTree(group.candidates, data);
 
                   return (
                     <div className="course-option-list">
