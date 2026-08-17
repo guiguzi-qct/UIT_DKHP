@@ -136,55 +136,7 @@ export function getCompatibleCandidates(
     return !hasOverlapSchedule(classesKeptWhileTryingCandidate, candidate);
   });
 
-  if (target.kind !== 'slot') {
-    return directMatches.sort((a, b) =>
-      `${a.TenMH}-${a.MaLop}`.localeCompare(`${b.TenMH}-${b.MaLop}`, 'vi', { sensitivity: 'base' }),
-    );
-  }
-
-  // For slot target: Expand directMatches to include paired Theory & Practice classes
-  const matchedSet = new Set(directMatches.map(getCandidateKey));
-  const expandedList = [...directMatches];
-
-  directMatches.forEach((candidate) => {
-    if (isTheoryClass(candidate)) {
-      const practices = data.filter(
-        (th) => isThucHanhClass(th) && isPracticeOfTheory(th, candidate),
-      );
-      practices.forEach((th) => {
-        const key = getCandidateKey(th);
-        if (!matchedSet.has(key)) {
-          matchedSet.add(key);
-          expandedList.push(th);
-        }
-      });
-    } else if (isThucHanhClass(candidate)) {
-      const parentCode = getParentTheoryCode(candidate.MaLop);
-      const parentTheory = data.find(
-        (c) => isTheoryClass(c) && c.MaMH === candidate.MaMH && c.MaLop?.trim() === parentCode,
-      );
-      if (parentTheory) {
-        const parentKey = getCandidateKey(parentTheory);
-        if (!matchedSet.has(parentKey)) {
-          matchedSet.add(parentKey);
-          expandedList.push(parentTheory);
-        }
-
-        const siblingPractices = data.filter(
-          (th) => isThucHanhClass(th) && isPracticeOfTheory(th, parentTheory),
-        );
-        siblingPractices.forEach((th) => {
-          const key = getCandidateKey(th);
-          if (!matchedSet.has(key)) {
-            matchedSet.add(key);
-            expandedList.push(th);
-          }
-        });
-      }
-    }
-  });
-
-  return expandedList.sort((a, b) =>
+  return directMatches.sort((a, b) =>
     `${a.TenMH}-${a.MaLop}`.localeCompare(`${b.TenMH}-${b.MaLop}`, 'vi', { sensitivity: 'base' }),
   );
 }
