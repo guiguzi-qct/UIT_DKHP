@@ -34,20 +34,29 @@ export function getParentTheoryCode(maLop: string): string {
 export function isThucHanhClass(candidate: ClassModel): boolean {
   if (!candidate) return false;
 
-  // 1. Explicit check from Excel fields: ThucHanh > 0 or HTGD === 'TH'
-  if (candidate.ThucHanh !== undefined && candidate.ThucHanh !== null) {
-    const num = Number(candidate.ThucHanh);
-    if (!isNaN(num) && num > 0) return true;
-  }
-
+  // 1. Explicit check from HTGD field
   if (candidate.HTGD) {
     const htgd = String(candidate.HTGD).trim().toUpperCase();
     if (htgd === 'TH' || htgd.includes('THỰC HÀNH') || htgd.includes('THUC HANH')) {
       return true;
     }
+    if (htgd === 'LT' || htgd.includes('LÝ THUYẾT') || htgd.includes('LY THUYET') || htgd === 'LHD') {
+      return false; // Explicitly Theory!
+    }
   }
 
-  // 2. Pattern check for MaLop: e.g. IT007.R110.1 -> parent is IT007.R110 (contains a dot)
+  // 2. Explicit check from ThucHanh field
+  if (candidate.ThucHanh !== undefined && candidate.ThucHanh !== null && String(candidate.ThucHanh).trim() !== '') {
+    const num = Number(candidate.ThucHanh);
+    if (!isNaN(num)) {
+      if (num > 0) return true; // Explicitly Practice!
+      if (num === 0) return false; // Explicitly Theory!
+    }
+  }
+
+  // 3. Fallback: Pattern check for MaLop
+  // Practice classes in UIT end with a dot followed by a practice group number (e.g. .1, .2)
+  // AND the parent code (before the last .digit) contains another dot or class identifier (e.g. IT007.R110.1 -> parent IT007.R110)
   const maLop = candidate.MaLop?.trim() || '';
   if (/\.\d+$/.test(maLop)) {
     const parentCode = getParentTheoryCode(maLop);

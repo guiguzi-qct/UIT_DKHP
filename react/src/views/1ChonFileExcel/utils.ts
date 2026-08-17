@@ -3,29 +3,29 @@ import { ClassModelOriginal } from 'types';
 export type ColumnMap = Partial<Record<keyof ClassModelOriginal, number>>;
 
 const HEADER_ALIAS_MAP: Record<keyof ClassModelOriginal, string[]> = {
-  STT: ['stt', 'sodanhsach', 'danhsach'],
-  MaMH: ['mamh', 'mamonhoc', 'mamon'],
-  MaLop: ['malop', 'malophocphan', 'malhp'],
-  TenMH: ['tenmh', 'tenmonhoc', 'tenmon', 'tenlhp'],
-  MaGV: ['magv', 'magiangvien', 'macb'],
-  TenGV: ['tengv', 'tengiangvien', 'tentrogiang', 'giangvien'],
-  SiSo: ['siso'],
-  SoTc: ['sotc', 'totc', 'sotinchi', 'stc'],
-  ThucHanh: ['thuchanh', 'th'],
-  HTGD: ['htgd', 'hinhthucgiangday', 'hinhthuc', 'ht'],
-  Thu: ['thu', 'thuhoc', 'thutrongtuan'],
-  Tiet: ['tiet', 'tiethoc', 'danhsachtiet'],
-  CachTuan: ['cachtuan'],
-  PhongHoc: ['phonghoc', 'phong'],
-  KhoaHoc: ['khoahoc', 'khoa'],
+  STT: ['stt', 'sodanhsach', 'danhsach', 'tt', 'no', 'number'],
+  MaMH: ['mamh', 'mamonhoc', 'mamon', 'mahp', 'mahocphan', 'mamonhocphan', 'macocau'],
+  MaLop: ['malop', 'malophocphan', 'malhp', 'malopmonhoc', 'lophocphan', 'malopghep', 'macls', 'lop'],
+  TenMH: ['tenmh', 'tenmonhoc', 'tenmon', 'tenlhp', 'tenhocphan', 'tenmonhocphan', 'hocphan'],
+  MaGV: ['magv', 'magiangvien', 'macb', 'macanbo'],
+  TenGV: ['tengv', 'tengiangvien', 'tentrogiang', 'giangvien', 'canbogiangday', 'gvhd', 'gv'],
+  SiSo: ['siso', 'sldk', 'soluong', 'sl', 'cl'],
+  SoTc: ['sotc', 'totc', 'sotinchi', 'stc', 'tc', 'tinchi'],
+  ThucHanh: ['thuchanh', 'th', 'sotcth'],
+  HTGD: ['htgd', 'hinhthucgiangday', 'hinhthuc', 'ht', 'loaivaotrong', 'loaimon', 'loailop'],
+  Thu: ['thu', 'thuhoc', 'thutrongtuan', 'ngayhoc', 'thu2'],
+  Tiet: ['tiet', 'tiethoc', 'danhsachtiet', 'tiethocphan', 'tietbd'],
+  CachTuan: ['cachtuan', 'tuanhoc', 'tuan'],
+  PhongHoc: ['phonghoc', 'phong', 'phonglt', 'phongth', 'diadiem'],
+  KhoaHoc: ['khoahoc', 'khoa', 'khoaql'],
   HocKy: ['hocky', 'hk'],
-  NamHoc: ['namhoc'],
-  HeDT: ['hedt', 'hedaotao'],
-  KhoaQL: ['khoaql', 'khoaquanly'],
-  NBD: ['nbd', 'ngaybatdau', 'ngaybd'],
-  NKT: ['nkt', 'ngayketthuc', 'ngaykt'],
-  GhiChu: ['ghichu'],
-  NgonNgu: ['ngonngu'],
+  NamHoc: ['namhoc', 'nh'],
+  HeDT: ['hedt', 'hedaotao', 'he'],
+  KhoaQL: ['khoaql', 'khoaquanly', 'bm', 'bomon'],
+  NBD: ['nbd', 'ngaybatdau', 'ngaybd', 'bd', 'tungay'],
+  NKT: ['nkt', 'ngayketthuc', 'ngaykt', 'kt', 'denngay'],
+  GhiChu: ['ghichu', 'note', 'ghichu2'],
+  NgonNgu: ['ngonngu', 'lang', 'nn'],
 };
 
 const normalizeTextKey = (text: unknown): string => {
@@ -89,7 +89,7 @@ export function arrayToTkbObjectDynamic(
   const nktRaw = getVal('NKT', 20);
 
   return {
-    STT: isNaN(sttNum) ? sttRaw : sttNum,
+    STT: isNaN(sttNum) ? stringOrEmpty(sttRaw) : sttNum,
     MaMH: stringOrEmpty(getVal('MaMH', 1)),
     MaLop: stringOrEmpty(getVal('MaLop', 2)),
     TenMH: stringOrEmpty(getVal('TenMH', 3)),
@@ -126,7 +126,7 @@ export function parseSheetRowsDynamic(sheetRows: any[][]): ClassModelOriginal[] 
   for (let r = 0; r < maxScanRows; r++) {
     const colMap = detectHeaderColumns(sheetRows[r]);
     const matchedCount = Object.keys(colMap).length;
-    if (matchedCount > maxMatched && matchedCount >= 3) {
+    if (matchedCount > maxMatched && matchedCount >= 2) {
       maxMatched = matchedCount;
       bestMap = colMap;
       bestHeaderIdx = r;
@@ -140,25 +140,43 @@ export function parseSheetRowsDynamic(sheetRows: any[][]): ClassModelOriginal[] 
 
   const startRow = bestHeaderIdx >= 0 ? bestHeaderIdx + 1 : 0;
   const results: ClassModelOriginal[] = [];
+  let prevClass: ClassModelOriginal | null = null;
 
   for (let r = startRow; r < sheetRows.length; r++) {
     const row = sheetRows[r];
     if (!Array.isArray(row) || row.length === 0) continue;
 
-    const sttRaw = getCol(row, 'STT', 0);
-    const maLopRaw = getCol(row, 'MaLop', 2);
-    const maMhRaw = getCol(row, 'MaMH', 1);
+    let maLopRaw = getCol(row, 'MaLop', 2);
+    let maMhRaw = getCol(row, 'MaMH', 1);
+    let tenMhRaw = getCol(row, 'TenMH', 3);
+    const thuRaw = getCol(row, 'Thu', 10);
+    const tietRaw = getCol(row, 'Tiet', 11);
 
-    const isNumericSTT =
-      sttRaw != null &&
-      String(sttRaw).trim() !== '' &&
-      !isNaN(Number(String(sttRaw).trim())) &&
-      Number(String(sttRaw).trim()) > 0;
-    const hasCode = Boolean(maLopRaw || maMhRaw);
+    let maLopStr = String(maLopRaw ?? '').trim();
+    let maMhStr = String(maMhRaw ?? '').trim();
+    let tenMhStr = String(tenMhRaw ?? '').trim();
+    const thuStr = String(thuRaw ?? '').trim();
+    const tietStr = String(tietRaw ?? '').trim();
 
-    if (!isNumericSTT || !hasCode) continue;
+    // Carry over class code info for multi-schedule rows in Excel
+    if (!maLopStr && !maMhStr && !tenMhStr && prevClass && (thuStr || tietStr)) {
+      maLopStr = prevClass.MaLop;
+      maMhStr = prevClass.MaMH;
+      tenMhStr = prevClass.TenMH;
+    }
 
-    results.push(arrayToTkbObjectDynamic(row, (field, defIdx) => getCol(row, field, defIdx)));
+    if (!maLopStr && !maMhStr && !tenMhStr) continue;
+
+    const normCombined = `${maLopStr} ${maMhStr} ${tenMhStr}`.toLowerCase();
+    if (normCombined.includes('mã lớp') || normCombined.includes('mã môn') || normCombined.includes('tên môn')) continue;
+
+    const parsedRow = arrayToTkbObjectDynamic(row, (field, defIdx) => getCol(row, field, defIdx));
+    if (!parsedRow.MaLop && maLopStr) parsedRow.MaLop = maLopStr;
+    if (!parsedRow.MaMH && maMhStr) parsedRow.MaMH = maMhStr;
+    if (!parsedRow.TenMH && tenMhStr) parsedRow.TenMH = tenMhStr;
+
+    results.push(parsedRow);
+    prevClass = parsedRow;
   }
 
   return results;
