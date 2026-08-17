@@ -89,7 +89,7 @@ export function arrayToTkbObjectDynamic(
   const nktRaw = getVal('NKT', 20);
 
   return {
-    STT: isNaN(sttNum) ? stringOrEmpty(sttRaw) : sttNum,
+    STT: isNaN(sttNum) ? 0 : sttNum,
     MaMH: stringOrEmpty(getVal('MaMH', 1)),
     MaLop: stringOrEmpty(getVal('MaLop', 2)),
     TenMH: stringOrEmpty(getVal('TenMH', 3)),
