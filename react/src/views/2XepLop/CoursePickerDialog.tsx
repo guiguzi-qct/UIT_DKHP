@@ -95,23 +95,30 @@ export const applyCandidateBatch = (selectedClasses: ClassModel[], candidates: C
     selectedClasses,
   );
 
+export function isSameThu(thuA: any, thuB: any): boolean {
+  if (thuA === undefined || thuA === null || thuB === undefined || thuB === null) return false;
+  const numA = String(thuA).replace(/\D/g, '');
+  const numB = String(thuB).replace(/\D/g, '');
+  return numA !== '' && numA === numB;
+}
+
 export function getCompatibleCandidates(
   data: ClassModel[],
   selectedClasses: ClassModel[],
   target: PickerTarget,
 ): ClassModel[] {
-  const initialMatches = data.filter((candidate) => {
+  const directMatches = data.filter((candidate) => {
     if (selectedClasses.some((selectedClass) => isSameAgGridRowId(selectedClass, candidate))) return false;
 
-    const candidatePeriods = getDanhSachTiet(candidate.Tiet);
-
     if (target.kind === 'slot') {
-      const matchesSlot =
-        hasTimetableSlot(candidate) &&
-        candidate.Thu === String(target.thu) &&
-        candidatePeriods.length > 0 &&
-        candidatePeriods.every((tiet) => target.tiets.includes(tiet));
-      if (!matchesSlot) return false;
+      if (!hasTimetableSlot(candidate)) return false;
+      if (!isSameThu(candidate.Thu, target.thu)) return false;
+
+      const candidatePeriods = getDanhSachTiet(candidate.Tiet);
+      if (!candidatePeriods.length) return false;
+
+      const hasOverlapPeriod = candidatePeriods.some((tiet) => target.tiets.includes(tiet));
+      if (!hasOverlapPeriod) return false;
     }
 
     if (target.kind === 'replace' && !isSameCoursePart(candidate, target.existing)) return false;
@@ -120,23 +127,55 @@ export function getCompatibleCandidates(
     return !hasOverlapSchedule(classesKeptWhileTryingCandidate, candidate);
   });
 
-  const matchedSet = new Set(initialMatches.map(getCandidateKey));
-  const result = [...initialMatches];
+  if (target.kind !== 'slot') {
+    return directMatches.sort((a, b) =>
+      `${a.TenMH}-${a.MaLop}`.localeCompare(`${b.TenMH}-${b.MaLop}`, 'vi', { sensitivity: 'base' }),
+    );
+  }
 
-  initialMatches.forEach((candidate) => {
-    if (isThucHanhClass(candidate)) {
+  // For slot target: Expand directMatches to include paired Theory & Practice classes
+  const matchedSet = new Set(directMatches.map(getCandidateKey));
+  const expandedList = [...directMatches];
+
+  directMatches.forEach((candidate) => {
+    if (isTheoryClass(candidate)) {
+      const practices = data.filter(
+        (th) => isThucHanhClass(th) && isPracticeOfTheory(th, candidate),
+      );
+      practices.forEach((th) => {
+        const key = getCandidateKey(th);
+        if (!matchedSet.has(key)) {
+          matchedSet.add(key);
+          expandedList.push(th);
+        }
+      });
+    } else if (isThucHanhClass(candidate)) {
       const parentCode = getParentTheoryCode(candidate.MaLop);
       const parentTheory = data.find(
         (c) => isTheoryClass(c) && c.MaMH === candidate.MaMH && c.MaLop?.trim() === parentCode,
       );
-      if (parentTheory && !matchedSet.has(getCandidateKey(parentTheory))) {
-        matchedSet.add(getCandidateKey(parentTheory));
-        result.push(parentTheory);
+      if (parentTheory) {
+        const parentKey = getCandidateKey(parentTheory);
+        if (!matchedSet.has(parentKey)) {
+          matchedSet.add(parentKey);
+          expandedList.push(parentTheory);
+        }
+
+        const siblingPractices = data.filter(
+          (th) => isThucHanhClass(th) && isPracticeOfTheory(th, parentTheory),
+        );
+        siblingPractices.forEach((th) => {
+          const key = getCandidateKey(th);
+          if (!matchedSet.has(key)) {
+            matchedSet.add(key);
+            expandedList.push(th);
+          }
+        });
       }
     }
   });
 
-  return result.sort((a, b) =>
+  return expandedList.sort((a, b) =>
     `${a.TenMH}-${a.MaLop}`.localeCompare(`${b.TenMH}-${b.MaLop}`, 'vi', { sensitivity: 'base' }),
   );
 }
@@ -294,31 +333,7 @@ export default function CoursePickerDialog({ target, onClose }: Props) {
   const candidates = useMemo(() => {
     if (!target) return [];
     const normalizedSearch = search.trim().toLocaleLowerCase('vi');
-    let list = getCompatibleCandidates(data, selectedClasses, target);
-
-    if (target.kind === 'slot') {
-      const activeLTs = [...selectedClasses, ...draftCandidates].filter(isTheoryClass);
-      
-      // Collect all practice classes belonging to currently active LTs
-      const practiceClassesForActiveLTs = data.filter((c) =>
-        isThucHanhClass(c) && activeLTs.some((lt) => isPracticeOfTheory(c, lt))
-      );
-
-      const listKeys = new Set(list.map(getCandidateKey));
-      practiceClassesForActiveLTs.forEach((th) => {
-        if (!listKeys.has(getCandidateKey(th))) {
-          list.push(th);
-        }
-      });
-
-      // Filter: only show theory classes fitting slot OR practice classes matching active LTs
-      list = list.filter((c) => {
-        if (isThucHanhClass(c)) {
-          return activeLTs.some((lt) => isPracticeOfTheory(c, lt));
-        }
-        return true;
-      });
-    }
+    const list = getCompatibleCandidates(data, selectedClasses, target);
 
     return list.filter((candidate) => {
       if (!normalizedSearch) return true;
@@ -326,7 +341,7 @@ export default function CoursePickerDialog({ target, onClose }: Props) {
         .filter(Boolean)
         .some((value) => String(value).toLocaleLowerCase('vi').includes(normalizedSearch));
     });
-  }, [data, draftCandidates, search, selectedClasses, target]);
+  }, [data, search, selectedClasses, target]);
 
   const conflictReasons = useMemo(() => {
     const reasons = new Map<string, string>();
