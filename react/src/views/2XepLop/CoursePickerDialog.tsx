@@ -132,8 +132,7 @@ export function getCompatibleCandidates(
 
     if (target.kind === 'replace' && !isSameCoursePart(candidate, target.existing)) return false;
 
-    const classesKeptWhileTryingCandidate = getSelectionWithoutCoursePart(selectedClasses, candidate);
-    return !hasOverlapSchedule(classesKeptWhileTryingCandidate, candidate);
+    return true;
   });
 
   if (target.kind !== 'slot') {
@@ -158,6 +157,29 @@ export function getCompatibleCandidates(
           expandedList.push(th);
         }
       });
+    } else if (isThucHanhClass(candidate)) {
+      const parentCode = getParentTheoryCode(candidate.MaLop);
+      const parentTheory = data.find(
+        (c) => isTheoryClass(c) && c.MaMH === candidate.MaMH && c.MaLop?.trim() === parentCode,
+      );
+      if (parentTheory) {
+        const parentKey = getCandidateKey(parentTheory);
+        if (!matchedSet.has(parentKey)) {
+          matchedSet.add(parentKey);
+          expandedList.push(parentTheory);
+        }
+
+        const siblingPractices = data.filter(
+          (th) => isThucHanhClass(th) && isPracticeOfTheory(th, parentTheory),
+        );
+        siblingPractices.forEach((th) => {
+          const key = getCandidateKey(th);
+          if (!matchedSet.has(key)) {
+            matchedSet.add(key);
+            expandedList.push(th);
+          }
+        });
+      }
     }
   });
 
