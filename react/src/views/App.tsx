@@ -105,9 +105,18 @@ function HeaderActions() {
 
   const handleConfirmReset = () => {
     resetAllData();
+    try {
+      localStorage.clear();
+      sessionStorage.clear();
+    } catch (e) {
+      console.error(e);
+    }
     setIsResetConfirmOpen(false);
-    enqueueSnackbar('Đã đặt lại dữ liệu thành công', { variant: 'success' });
+    enqueueSnackbar('Đã đặt lại dữ liệu & xóa cache thành công', { variant: 'success' });
     history.push(ROUTES._1ChonFileExcel.path);
+    setTimeout(() => {
+      window.location.reload();
+    }, 100);
   };
 
   return (
@@ -149,8 +158,8 @@ function HeaderActions() {
           <Button onClick={() => setIsResetConfirmOpen(false)} style={{ color: '#0E2128', fontWeight: 700 }}>
             Hủy
           </Button>
-          <Button variant="contained" color="error" style={{ fontWeight: 800, borderRadius: 10, padding: '8px 20px' }} onClick={handleConfirmReset} autoFocus>
-            Xác nhận xóa & làm lại
+          <Button variant="contained" color="error" style={{ fontWeight: 800, borderRadius: 10, padding: '8px 24px' }} onClick={handleConfirmReset} autoFocus>
+            Xác nhận
           </Button>
         </DialogActions>
       </Dialog>

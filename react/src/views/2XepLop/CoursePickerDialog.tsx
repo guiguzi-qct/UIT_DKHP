@@ -136,7 +136,32 @@ export function getCompatibleCandidates(
     return !hasOverlapSchedule(classesKeptWhileTryingCandidate, candidate);
   });
 
-  return directMatches.sort((a, b) =>
+  if (target.kind !== 'slot') {
+    return directMatches.sort((a, b) =>
+      `${a.TenMH}-${a.MaLop}`.localeCompare(`${b.TenMH}-${b.MaLop}`, 'vi', { sensitivity: 'base' }),
+    );
+  }
+
+  // For slot target: If a Theory class matches the slot, include ALL of its child Practice classes (regardless of time!)
+  const matchedSet = new Set(directMatches.map(getCandidateKey));
+  const expandedList = [...directMatches];
+
+  directMatches.forEach((candidate) => {
+    if (isTheoryClass(candidate)) {
+      const practices = data.filter(
+        (th) => isThucHanhClass(th) && isPracticeOfTheory(th, candidate),
+      );
+      practices.forEach((th) => {
+        const key = getCandidateKey(th);
+        if (!matchedSet.has(key)) {
+          matchedSet.add(key);
+          expandedList.push(th);
+        }
+      });
+    }
+  });
+
+  return expandedList.sort((a, b) =>
     `${a.TenMH}-${a.MaLop}`.localeCompare(`${b.TenMH}-${b.MaLop}`, 'vi', { sensitivity: 'base' }),
   );
 }
