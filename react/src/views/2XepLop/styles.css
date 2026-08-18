@@ -32,14 +32,29 @@
   background-color: #0E2128 !important;
   color: #ffffff !important;
   border-radius: 50px !important;
-  font-weight: 700 !important;
-  padding: 6px 18px !important;
+  font-size: 15.5px !important;
+  font-weight: 800 !important;
+  padding: 8px 22px !important;
   box-shadow: 0 2px 8px rgba(14, 33, 40, 0.18) !important;
   transition: all 0.2s ease !important;
 }
 .copy-script-btn:hover {
   background-color: #17333F !important;
   box-shadow: 0 4px 14px rgba(14, 33, 40, 0.28) !important;
+  transform: translateY(-1px);
+}
+.copy-script-outlined-btn {
+  border: 1.5px solid #0E2128 !important;
+  color: #0E2128 !important;
+  background-color: transparent !important;
+  border-radius: 50px !important;
+  font-weight: 700 !important;
+  padding: 6px 18px !important;
+  transition: all 0.2s ease !important;
+}
+.copy-script-outlined-btn:hover {
+  background-color: rgba(14, 33, 40, 0.06) !important;
+  border-color: #0E2128 !important;
   transform: translateY(-1px);
 }
 .builder-timetable {
