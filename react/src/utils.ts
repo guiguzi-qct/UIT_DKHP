@@ -171,7 +171,7 @@ export const hasTimetableSlot = (classModel?: Pick<ClassModel, 'Thu' | 'Tiet'>):
  */
 type ValidTimeSlot = `${string}-${string}`;
 type TimeSlots = '*' | ValidTimeSlot[];
-const getTimeSlots = (classModel?: ClassModel): TimeSlots => {
+export const getTimeSlots = (classModel?: ClassModel): TimeSlots => {
   if (!classModel) return [];
   const { Thu, Tiet } = classModel;
   if (Thu === '*') return '*';
