@@ -6,7 +6,7 @@ import clsx from 'clsx';
 import { useLocation } from 'react-router-dom';
 import { ROUTES } from '../../../constants';
 import { ClassModel } from '../../../types';
-import { extractThuList, getDanhSachTiet } from '../../../utils';
+import { extractThuList, getDanhSachTiet, getTimeSlots } from '../../../utils';
 
 import ErrorBoundary from '../ErrorBoundary';
 import ClassCell, { ClassCellContext } from './ClassCell';
