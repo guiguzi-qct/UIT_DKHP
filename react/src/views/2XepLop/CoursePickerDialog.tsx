@@ -892,3 +892,355 @@ export default function CoursePickerDialog({ target, onClose }: Props) {
     </Dialog>
   );
 }
+
+export function CoursePickerSidePanel() {
+  const [search, setSearch] = useState('');
+  const [typeFilter, setTypeFilter] = useState<'ALL' | 'LT' | 'TH'>('ALL');
+  const [hideConflicts, setHideConflicts] = useState(false);
+  const [viewMode, setViewMode] = useState<'group' | 'list'>('list');
+  const [expandedCourseKey, setExpandedCourseKey] = useState<string | null>(null);
+
+  const data = useTkbStore(selectFinalDataTkb);
+  const selectedClasses = useTkbStore(selectSelectedClassesBuoc3);
+  const setSelectedClasses = useTkbStore((state) => state.setSelectedClasses);
+
+  const allCandidates = useMemo(() => {
+    const list = getCompatibleCandidates(data, selectedClasses, { kind: 'all' });
+    const normalizedSearch = search.trim().toLocaleLowerCase('vi');
+
+    return list.filter((candidate) => {
+      const isTH = isThucHanhClass(candidate);
+      if (typeFilter === 'LT' && isTH) return false;
+      if (typeFilter === 'TH' && !isTH) return false;
+
+      if (!normalizedSearch) return true;
+      return [candidate.TenMH, candidate.MaMH, candidate.MaLop, candidate.TenGV, candidate.PhongHoc]
+        .filter(Boolean)
+        .some((value) => String(value).toLocaleLowerCase('vi').includes(normalizedSearch));
+    });
+  }, [data, search, selectedClasses, typeFilter]);
+
+  const conflictReasons = useMemo(() => {
+    const reasons = new Map<string, string>();
+    allCandidates.forEach((candidate) => {
+      const reason = getDraftConflictReason(candidate, selectedClasses, []);
+      if (reason) reasons.set(getCandidateKey(candidate), reason);
+    });
+    return reasons;
+  }, [allCandidates, selectedClasses]);
+
+  const displayCandidates = useMemo(() => {
+    if (!hideConflicts) return allCandidates;
+    return allCandidates.filter((c) => !conflictReasons.has(getCandidateKey(c)));
+  }, [allCandidates, hideConflicts, conflictReasons]);
+
+  const candidateGroups = useMemo(() => groupCandidatesByCourseName(displayCandidates), [displayCandidates]);
+
+  const toggleCandidate = (candidate: ClassModel) => {
+    const isSelected = selectedClasses.some((s) => isSameAgGridRowId(s, candidate));
+    if (isSelected) {
+      setSelectedClasses(selectedClasses.filter((s) => !isSameAgGridRowId(s, candidate)));
+      enqueueSnackbar(`Đã bỏ ${candidate.MaLop}`, { variant: 'info' });
+      return;
+    }
+
+    const isTH = isThucHanhClass(candidate);
+    if (isTH) {
+      const hasParentLT = selectedClasses.some((lt) => isTheoryClass(lt) && isPracticeOfTheory(candidate, lt));
+      if (!hasParentLT) {
+        const parentCode = getParentTheoryCode(candidate.MaLop);
+        const parentTheory = data.find(
+          (c) => isTheoryClass(c) && c.MaMH === candidate.MaMH && c.MaLop?.trim() === parentCode
+        );
+        if (parentTheory) {
+          setSelectedClasses([...selectedClasses, parentTheory, candidate]);
+          enqueueSnackbar(`Đã chọn ${candidate.MaLop} & tự động thêm lớp Lý thuyết ${parentTheory.MaLop}!`, { variant: 'success' });
+          return;
+        }
+      }
+    }
+
+    setSelectedClasses(applyCandidateBatch(selectedClasses, [candidate]));
+    enqueueSnackbar(`Đã thêm ${candidate.MaLop}`, { variant: 'success' });
+  };
+
+  return (
+    <div className="course-picker-side-panel-container">
+      <div className="side-panel-header">
+        <Typography className="side-panel-title">Tìm & Chọn môn học</Typography>
+        <Typography variant="body2" color="text.secondary" className="side-panel-desc">
+          Tích chọn lớp để cập nhật trực tiếp vào thời khóa biểu
+        </Typography>
+      </div>
+
+      <TextField
+        fullWidth
+        size="small"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        placeholder="Tìm tên môn, mã môn, mã lớp, giảng viên..."
+        className="side-panel-search-input"
+      />
+
+      <div className="side-panel-toolbar">
+        <div className="side-panel-filter-chips">
+          <Button
+            size="small"
+            variant={typeFilter === 'ALL' ? 'contained' : 'outlined'}
+            onClick={() => setTypeFilter('ALL')}
+            className="chip-btn"
+          >
+            Tất cả ({displayCandidates.length})
+          </Button>
+          <Button
+            size="small"
+            variant={typeFilter === 'LT' ? 'contained' : 'outlined'}
+            onClick={() => setTypeFilter('LT')}
+            className="chip-btn"
+          >
+            LT
+          </Button>
+          <Button
+            size="small"
+            variant={typeFilter === 'TH' ? 'contained' : 'outlined'}
+            onClick={() => setTypeFilter('TH')}
+            className="chip-btn"
+          >
+            TH
+          </Button>
+          <Button
+            size="small"
+            variant={hideConflicts ? 'contained' : 'outlined'}
+            color={hideConflicts ? 'secondary' : 'inherit'}
+            onClick={() => setHideConflicts(!hideConflicts)}
+            className="chip-btn"
+          >
+            {hideConflicts ? 'Hiện lớp trùng' : 'Ẩn lớp trùng'}
+          </Button>
+        </div>
+
+        <ToggleButtonGroup
+          value={viewMode}
+          exclusive
+          onChange={(_, val) => val && setViewMode(val)}
+          size="small"
+          className="course-view-toggle-group"
+        >
+          <ToggleButton value="list" aria-label="Chế độ danh sách">
+            <ViewListIcon style={{ fontSize: 18, marginRight: 4 }} />
+            Danh sách
+          </ToggleButton>
+          <ToggleButton value="group" aria-label="Chế độ nhóm môn">
+            <ViewModuleIcon style={{ fontSize: 18, marginRight: 4 }} />
+            Nhóm môn
+          </ToggleButton>
+        </ToggleButtonGroup>
+      </div>
+
+      {viewMode === 'list' ? (
+        <div className="course-flat-list-wrapper side-panel-list">
+          <table className="course-flat-table">
+            <thead>
+              <tr>
+                <th style={{ width: '46px', textAlign: 'center' }}>Chọn</th>
+                <th>Môn học</th>
+                <th>Mã lớp</th>
+                <th>Giảng viên</th>
+                <th>Thứ</th>
+                <th>Tiết</th>
+                <th>Phòng</th>
+                <th>Loại</th>
+                <th>Tín chỉ</th>
+              </tr>
+            </thead>
+            <tbody>
+              {displayCandidates.map((candidate) => {
+                const key = getCandidateKey(candidate);
+                const conflict = conflictReasons.get(key);
+                const isActive = selectedClasses.some((s) => isSameAgGridRowId(s, candidate));
+                const isTH = isThucHanhClass(candidate);
+
+                return (
+                  <tr
+                    key={key}
+                    className={`course-flat-row ${conflict ? 'is-conflict' : ''} ${isActive ? 'is-active' : ''}`}
+                    onClick={() => !conflict && toggleCandidate(candidate)}
+                  >
+                    <td style={{ textAlign: 'center' }} onClick={(e) => e.stopPropagation()}>
+                      <input
+                        type="checkbox"
+                        checked={isActive}
+                        disabled={!!conflict}
+                        onChange={() => !conflict && toggleCandidate(candidate)}
+                      />
+                    </td>
+                    <td className="cell-name">
+                      <strong className="mh-title">{candidate.TenMH}</strong>
+                      <span className="mh-code">{candidate.MaMH}</span>
+                    </td>
+                    <td className="cell-code">
+                      <strong>{candidate.MaLop}</strong>
+                    </td>
+                    <td className="cell-gv">{candidate.TenGV || '—'}</td>
+                    <td className="cell-thu">{candidate.Thu || '—'}</td>
+                    <td className="cell-tiet">{candidate.Tiet || '—'}</td>
+                    <td className="cell-phong">{candidate.PhongHoc || '—'}</td>
+                    <td className="cell-type">
+                      <Chip
+                        size="small"
+                        className={isTH ? 'chip-thuc-hanh' : 'chip-ly-thuyet'}
+                        label={isTH ? 'Thực hành' : 'Lý thuyết'}
+                      />
+                    </td>
+                    <td className="cell-sotc">
+                      {candidate.SoTc || getEffectiveSoTc(candidate, data)}
+                    </td>
+                  </tr>
+                );
+              })}
+              {!displayCandidates.length && (
+                <tr>
+                  <td colSpan={9} style={{ textAlign: 'center', padding: '32px 16px' }}>
+                    <Typography fontWeight={800}>Không tìm thấy lớp phù hợp</Typography>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <div className="course-group-list side-panel-group-list">
+          {candidateGroups.map((group) => {
+            const isExpanded = expandedCourseKey === group.key;
+            return (
+              <section className="course-group" key={group.key}>
+                <button
+                  className="course-group-trigger"
+                  type="button"
+                  aria-expanded={isExpanded}
+                  onClick={() => setExpandedCourseKey(isExpanded ? null : group.key)}
+                >
+                  <span className="course-group-copy">
+                    <strong>{group.name}</strong>
+                    <small>
+                      {group.courseCodes.join(', ') || 'Chưa có mã môn'} · {group.candidates.length} lớp
+                    </small>
+                  </span>
+                  <span className="course-group-action" aria-hidden="true">
+                    {isExpanded ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+                  </span>
+                </button>
+
+                {isExpanded && (() => {
+                  const { theoryNodes, standalonePractices } = buildTheoryPracticeTree(group.candidates, data);
+
+                  return (
+                    <div className="course-option-list">
+                      {theoryNodes.map(({ theory, practices }) => {
+                        const ltKey = getCandidateKey(theory);
+                        const ltConflict = conflictReasons.get(ltKey);
+                        const isLTActive = selectedClasses.some((s) => isSameAgGridRowId(s, theory));
+
+                        return (
+                          <div className="theory-tree-node" key={ltKey}>
+                            <ButtonBase
+                              disableRipple
+                              className={`course-option course-option-theory${
+                                ltConflict ? ' course-option-conflict' : ''
+                              }${isLTActive ? ' course-option-active-lt' : ''}`}
+                              disabled={!!ltConflict}
+                              onClick={() => toggleCandidate(theory)}
+                            >
+                              <div className="course-option-main">
+                                <strong>{theory.MaLop}</strong>
+                                <span>{theory.TenGV || 'Chưa có giảng viên'}</span>
+                                <div className="course-option-chips">
+                                  <Chip size="small" label={formatSchedule(theory)} />
+                                  <Chip size="small" variant="outlined" label={`${theory.SoTc || getEffectiveSoTc(theory, data)} tín chỉ`} />
+                                  <Chip size="small" color="primary" className="chip-ly-thuyet" label="Lý thuyết" />
+                                </div>
+                              </div>
+                              <span className="course-option-action">
+                                {ltConflict || (isLTActive ? <CheckIcon aria-hidden="true" /> : <AddIcon aria-hidden="true" />)}
+                              </span>
+                            </ButtonBase>
+
+                            {practices.length > 0 && (
+                              <div className={`practice-nested-container${isLTActive ? ' active-branch' : ''}`}>
+                                {practices.map((practice) => {
+                                  const thKey = getCandidateKey(practice);
+                                  const thConflict = conflictReasons.get(thKey);
+                                  const isTHActive = selectedClasses.some((s) => isSameAgGridRowId(s, practice));
+
+                                  return (
+                                    <ButtonBase
+                                      disableRipple
+                                      className={`course-option course-option-practice${
+                                        thConflict ? ' course-option-conflict' : ''
+                                      }${isTHActive ? ' course-option-active-th' : ''}`}
+                                      key={thKey}
+                                      disabled={!!thConflict}
+                                      onClick={() => toggleCandidate(practice)}
+                                    >
+                                      <div className="course-option-main">
+                                        <strong>{practice.MaLop}</strong>
+                                        <span>{practice.TenGV || 'Chưa có giảng viên'}</span>
+                                        <div className="course-option-chips">
+                                          <Chip size="small" label={formatSchedule(practice)} />
+                                          <Chip size="small" variant="outlined" label={`${practice.SoTc || getEffectiveSoTc(practice, data)} tín chỉ`} />
+                                          <Chip size="small" className={`chip-thuc-hanh ${isTHActive ? 'active' : ''}`} label="Thực hành" />
+                                        </div>
+                                      </div>
+                                      <span className="course-option-action">
+                                        {thConflict || (isTHActive ? <CheckIcon aria-hidden="true" /> : <AddIcon aria-hidden="true" />)}
+                                      </span>
+                                    </ButtonBase>
+                                  );
+                                })}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+
+                      {standalonePractices.map((practice) => {
+                        const thKey = getCandidateKey(practice);
+                        const thConflict = conflictReasons.get(thKey);
+                        const isTHActive = selectedClasses.some((s) => isSameAgGridRowId(s, practice));
+
+                        return (
+                          <ButtonBase
+                            disableRipple
+                            className={`course-option course-option-practice${
+                              thConflict ? ' course-option-conflict' : ''
+                            }${isTHActive ? ' course-option-active-th' : ''}`}
+                            key={thKey}
+                            disabled={!!thConflict}
+                            onClick={() => toggleCandidate(practice)}
+                          >
+                            <div className="course-option-main">
+                              <strong>{practice.MaLop}</strong>
+                              <span>{practice.TenGV || 'Chưa có giảng viên'}</span>
+                              <div className="course-option-chips">
+                                <Chip size="small" label={formatSchedule(practice)} />
+                                <Chip size="small" variant="outlined" label={`${practice.SoTc || getEffectiveSoTc(practice, data)} tín chỉ`} />
+                                <Chip size="small" color="secondary" className="chip-thuc-hanh" label="Thực hành" />
+                              </div>
+                            </div>
+                            <span className="course-option-action">
+                              {thConflict || (isTHActive ? <CheckIcon aria-hidden="true" /> : <AddIcon aria-hidden="true" />)}
+                            </span>
+                          </ButtonBase>
+                        );
+                      })}
+                    </div>
+                  );
+                })()}
+              </section>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}

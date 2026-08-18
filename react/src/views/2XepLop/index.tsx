@@ -8,7 +8,7 @@ import { ROUTES } from '../../constants';
 import { selectSelectedClassesBuoc3, selectTongSoTcBuoc3, useTkbStore } from '../../zus';
 import PlanSelectorBar from '../components/PlanSelectorBar';
 import ThoiKhoaBieuTable, { TimetablePickTarget } from '../components/ThoiKhoaBieuTable';
-import CoursePickerDialog, { PickerTarget } from './CoursePickerDialog';
+import CoursePickerDialog, { CoursePickerSidePanel, PickerTarget } from './CoursePickerDialog';
 import './styles.css';
 
 function Index() {
@@ -48,9 +48,17 @@ function Index() {
     <section className="page-wrap wide builder-page">
       <PlanSelectorBar />
 
-      <Paper className="surface-card timetable-card builder-timetable">
-        <ThoiKhoaBieuTable interactive onPickSlot={openPickerFromTimetable} />
-      </Paper>
+      <div className="builder-split-layout">
+        {/* LEFT PANEL: Inline Search & List View Panel */}
+        <Paper className="surface-card builder-side-panel">
+          <CoursePickerSidePanel />
+        </Paper>
+
+        {/* RIGHT PANEL: Timetable Grid */}
+        <Paper className="surface-card timetable-card builder-timetable">
+          <ThoiKhoaBieuTable interactive onPickSlot={openPickerFromTimetable} />
+        </Paper>
+      </div>
 
       <div className="builder-action-dock" role="region" aria-label="Hành động xếp lớp">
         <div

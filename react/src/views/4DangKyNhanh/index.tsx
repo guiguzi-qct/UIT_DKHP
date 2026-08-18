@@ -525,23 +525,32 @@ ${autoSubmitSnippet}
                   <Switch
                     checked={autoSubmit}
                     onChange={(e) => setAutoSubmit(e.target.checked)}
-                    color="success"
                     size="small"
+                    sx={{
+                      '& .MuiSwitch-switchBase.Mui-checked': {
+                        color: '#0E2128',
+                      },
+                      '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                        backgroundColor: '#0E2128',
+                        opacity: 0.8,
+                      },
+                    }}
                   />
                 }
                 label={
-                  <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '0.85rem', color: autoSubmit ? '#1b5e20' : 'text.secondary' }}>
+                  <Typography variant="body2" sx={{ fontWeight: 700, fontSize: '0.85rem', color: '#0E2128' }}>
                     Tự động bấm đăng ký: <strong>{autoSubmit ? 'BẬT' : 'TẮT'}</strong>
                   </Typography>
                 }
                 sx={{
                   margin: 0,
                   userSelect: 'none',
-                  background: autoSubmit ? 'rgba(46, 125, 50, 0.08)' : 'rgba(0, 0, 0, 0.04)',
-                  px: 1.5,
+                  background: '#ffffff',
+                  px: 1.75,
                   py: 0.5,
-                  borderRadius: '10px',
-                  border: autoSubmit ? '1px solid rgba(46, 125, 50, 0.3)' : '1px solid rgba(0, 0, 0, 0.12)',
+                  borderRadius: '12px',
+                  border: '1.5px solid #0E2128',
+                  boxShadow: '0 2px 6px rgba(14, 33, 40, 0.04)',
                   transition: 'all 0.2s ease-in-out',
                 }}
               />
