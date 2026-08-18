@@ -24,7 +24,14 @@ export type PickerTarget =
   | { kind: 'replace'; existing: ClassModel };
 
 export function getParentTheoryCode(maLop: string): string {
-  const trimmed = (maLop || '').trim();
+  let trimmed = (maLop || '').trim();
+  if (trimmed.includes('-----')) {
+    trimmed = trimmed.split('-----')[0].trim();
+  }
+  const codeMatch = trimmed.match(/^([A-Z0-9\.]+)/i);
+  if (codeMatch) {
+    trimmed = codeMatch[1];
+  }
   if (/\.\d+$/.test(trimmed)) {
     return trimmed.replace(/\.\d+$/, '');
   }
@@ -34,7 +41,15 @@ export function getParentTheoryCode(maLop: string): string {
 export function isThucHanhClass(candidate: ClassModel): boolean {
   if (!candidate) return false;
 
-  // 1. Explicit check from HTGD field
+  const maLop = (candidate.MaLop || '').trim();
+
+  // 1. MaLop pattern check FIRST: UIT practice classes always have a practice suffix (.1, .2, .ANTT.1)
+  // e.g. IE104.R12.1 or NT230.R11.ANTT.1 or SE104.O21.2
+  if (/\.[A-Z0-9\.]+\.\d+/i.test(maLop) || /\.\d+(\s|-----|$)/.test(maLop)) {
+    return true;
+  }
+
+  // 2. Explicit check from HTGD field
   if (candidate.HTGD) {
     const htgd = String(candidate.HTGD).trim().toUpperCase();
     if (htgd === 'TH' || htgd.includes('THỰC HÀNH') || htgd.includes('THUC HANH')) {
@@ -45,23 +60,12 @@ export function isThucHanhClass(candidate: ClassModel): boolean {
     }
   }
 
-  // 2. Explicit check from ThucHanh field
+  // 3. Explicit check from ThucHanh field
   if (candidate.ThucHanh !== undefined && candidate.ThucHanh !== null && String(candidate.ThucHanh).trim() !== '') {
     const num = Number(candidate.ThucHanh);
     if (!isNaN(num)) {
       if (num > 0) return true; // Explicitly Practice!
       if (num === 0) return false; // Explicitly Theory!
-    }
-  }
-
-  // 3. Fallback: Pattern check for MaLop
-  // Practice classes in UIT end with a dot followed by a practice group number (e.g. .1, .2)
-  // AND the parent code (before the last .digit) contains another dot or class identifier (e.g. IT007.R110.1 -> parent IT007.R110)
-  const maLop = candidate.MaLop?.trim() || '';
-  if (/\.\d+$/.test(maLop)) {
-    const parentCode = getParentTheoryCode(maLop);
-    if (parentCode && parentCode.includes('.')) {
-      return true;
     }
   }
 
@@ -320,6 +324,12 @@ export const formatTiet = (tiet: string) => {
   }
 
   return list.join(', ');
+};
+
+const getEffectiveSoTc = (candidate: ClassModel, data: ClassModel[] = []): number => {
+  if (candidate.SoTc && candidate.SoTc > 0) return candidate.SoTc;
+  const match = data.find((c) => (c.MaMH === candidate.MaMH || c.TenMH === candidate.TenMH) && c.SoTc > 0);
+  return match?.SoTc || 0;
 };
 
 const formatSchedule = (candidate: ClassModel) => {
@@ -595,7 +605,7 @@ export default function CoursePickerDialog({ target, onClose }: Props) {
                                 <span>{theory.TenGV || 'Chưa có giảng viên'}</span>
                                 <div className="course-option-chips">
                                   <Chip size="small" label={formatSchedule(theory)} />
-                                  <Chip size="small" variant="outlined" label={`${theory.SoTc} tín chỉ`} />
+                                  <Chip size="small" variant="outlined" label={`${theory.SoTc || getEffectiveSoTc(theory, data)} tín chỉ`} />
                                   {theory.PhongHoc && (
                                     <Chip size="small" variant="outlined" label={theory.PhongHoc} />
                                   )}
@@ -651,7 +661,7 @@ export default function CoursePickerDialog({ target, onClose }: Props) {
                                         <span>{practice.TenGV || 'Chưa có giảng viên'}</span>
                                         <div className="course-option-chips">
                                           <Chip size="small" label={formatSchedule(practice)} />
-                                          <Chip size="small" variant="outlined" label={`${practice.SoTc} tín chỉ`} />
+                                          <Chip size="small" variant="outlined" label={`${practice.SoTc || getEffectiveSoTc(practice, data)} tín chỉ`} />
                                           {practice.PhongHoc && (
                                             <Chip size="small" variant="outlined" label={practice.PhongHoc} />
                                           )}
@@ -708,7 +718,7 @@ export default function CoursePickerDialog({ target, onClose }: Props) {
                               <span>{practice.TenGV || 'Chưa có giảng viên'}</span>
                               <div className="course-option-chips">
                                 <Chip size="small" label={formatSchedule(practice)} />
-                                <Chip size="small" variant="outlined" label={`${practice.SoTc} tín chỉ`} />
+                                <Chip size="small" variant="outlined" label={`${practice.SoTc || getEffectiveSoTc(practice, data)} tín chỉ`} />
                                 {practice.PhongHoc && (
                                   <Chip size="small" variant="outlined" label={practice.PhongHoc} />
                                 )}

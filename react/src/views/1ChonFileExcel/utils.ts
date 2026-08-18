@@ -177,9 +177,59 @@ export function parseSheetRowsDynamic(sheetRows: any[][]): ClassModelOriginal[] 
     if (!parsedRow.MaMH && maMhStr) parsedRow.MaMH = maMhStr;
     if (!parsedRow.TenMH && tenMhStr) parsedRow.TenMH = tenMhStr;
 
+    // Handle merged class rows containing '-----' (e.g. IE104.R12.1 ... ----- IE104.R12.2 ...)
+    if (maLopStr.includes('-----')) {
+      const segments = maLopStr.split(/\s*-----\s*/).filter(Boolean);
+      segments.forEach((segment) => {
+        const segTrim = segment.trim();
+        const codeToken = segTrim.split(/\s+/)[0];
+        const cleanCode = /^[A-Z0-9\.]+$/i.test(codeToken) ? codeToken : segTrim;
+
+        const subRow: ClassModelOriginal = {
+          ...parsedRow,
+          MaLop: cleanCode,
+        };
+
+        if (cleanCode.includes('.')) {
+          const maMh = cleanCode.split('.')[0];
+          if (!subRow.MaMH) subRow.MaMH = maMh;
+        }
+
+        results.push(subRow);
+      });
+      prevClass = parsedRow;
+      continue;
+    }
+
+    // Clean MaLop if it contains extra appended text (e.g. "IE104.R12.1 Internet...")
+    if (parsedRow.MaLop && parsedRow.MaLop.includes(' ')) {
+      const codeToken = parsedRow.MaLop.trim().split(/\s+/)[0];
+      if (/^[A-Z0-9\.]+$/i.test(codeToken)) {
+        parsedRow.MaLop = codeToken;
+      }
+    }
+
     results.push(parsedRow);
     prevClass = parsedRow;
   }
+
+  // Post-process: Populate missing SoTc by matching MaMH or TenMH across the parsed results
+  const soTcMap = new Map<string, number>();
+  results.forEach((item) => {
+    if (item.SoTc && item.SoTc > 0) {
+      if (item.MaMH) soTcMap.set(item.MaMH.trim().toUpperCase(), item.SoTc);
+      if (item.TenMH) soTcMap.set(item.TenMH.trim().toUpperCase(), item.SoTc);
+    }
+  });
+
+  results.forEach((item) => {
+    if (!item.SoTc || item.SoTc === 0) {
+      const fallback =
+        (item.MaMH && soTcMap.get(item.MaMH.trim().toUpperCase())) ||
+        (item.TenMH && soTcMap.get(item.TenMH.trim().toUpperCase()));
+      if (fallback) item.SoTc = fallback;
+    }
+  });
 
   return results;
 }
