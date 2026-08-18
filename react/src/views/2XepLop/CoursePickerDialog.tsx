@@ -1290,7 +1290,7 @@ export function CoursePickerSidePanel({
                   onMouseEnter={() => !conflict && onHoverClass?.(candidate)}
                   onMouseLeave={() => onHoverClass?.(null)}
                 >
-                  <td style={isChild ? { textAlign: 'center', paddingLeft: '16px' } : { textAlign: 'center' }} onClick={(e) => e.stopPropagation()}>
+                  <td style={{ textAlign: 'center' }} onClick={(e) => e.stopPropagation()}>
                     <input
                       type="checkbox"
                       checked={isActive}
@@ -1298,21 +1298,9 @@ export function CoursePickerSidePanel({
                       onChange={() => !conflict && toggleCandidate(candidate)}
                     />
                   </td>
-                  <td className="cell-name">
-                    {isChild ? (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 7, paddingLeft: 12 }}>
-                        <span className="child-plus-badge">+</span>
-                        <div>
-                          <strong className="mh-title">{candidate.TenMH}</strong>
-                          <span className="mh-code">{candidate.MaMH}</span>
-                        </div>
-                      </div>
-                    ) : (
-                      <>
-                        <strong className="mh-title">{candidate.TenMH}</strong>
-                        <span className="mh-code">{candidate.MaMH}</span>
-                      </>
-                    )}
+                  <td className="cell-name" style={isChild ? { paddingLeft: '28px' } : undefined}>
+                    <strong className="mh-title">{candidate.TenMH}</strong>
+                    <span className="mh-code">{candidate.MaMH}</span>
                   </td>
                   <td className="cell-code">
                     <strong>{candidate.MaLop}</strong>
