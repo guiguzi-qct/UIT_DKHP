@@ -94,6 +94,22 @@ export default function DanhSachLopInput({ header }: { header?: React.ReactNode 
     }
   };
 
+  const copyCodes = async () => {
+    const codes = parseListMaLop(isEditing ? draft : storedValue);
+    if (!codes.length) {
+      enqueueSnackbar('Chưa có mã lớp để sao chép.', { variant: 'warning' });
+      return;
+    }
+
+    try {
+      await copyText(codes.join(','));
+      enqueueSnackbar(`Đã sao chép ${codes.length} mã lớp.`, { variant: 'success' });
+    } catch (error) {
+      console.error(error);
+      enqueueSnackbar('Không thể sao chép tự động. Hãy chọn và sao chép nội dung trong ô.', { variant: 'error' });
+    }
+  };
+
   const copyScript = async () => {
     const codes = parseListMaLop(isEditing ? draft : storedValue);
     if (!codes.length) {
@@ -245,9 +261,9 @@ ${codeBlock}
             variant="contained"
             className="copy-script-btn"
             startIcon={<ContentCopyOutlinedIcon />}
-            onClick={copyScript}
+            onClick={copyCodes}
           >
-            Copy Tất Cả Mã Lớp
+            Copy
           </Button>
         </div>
       </div>

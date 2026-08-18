@@ -81,22 +81,25 @@ export default function DangKyNhanh() {
       .map((c) => c.MaLop?.trim())
       .filter(Boolean)
       .join('\n');
+    const bt = '`';
 
     return `(() => {
   const t0 = performance.now();
 
-  const RAW_CODES = \`
+  const RAW_CODES = ${bt}
 ${codesIndent}
-  \`;
+  ${bt};
 
-  const norm = s =>
+  const norm = (s) =>
     String(s ?? "")
       .replace(/[\\s\\u00A0]+/g, " ")
       .trim()
       .toUpperCase();
 
   const targets = new Set(
-    RAW_CODES.split(/[\\s,;]+/).map(norm).filter(Boolean)
+    RAW_CODES.split(/[\\s,;]+/)
+      .map(norm)
+      .filter(Boolean)
   );
 
   if (!targets.size) {
@@ -130,11 +133,9 @@ ${codesIndent}
   }
 
   const found = new Set();
+  const unavailableCodes = [];
 
   let selected = 0;
-  let already = 0;
-  let disabled = 0;
-  let noCheckbox = 0;
 
   for (let i = startRow; i < table.rows.length; i++) {
     const row = table.rows[i];
@@ -149,13 +150,9 @@ ${codesIndent}
 
     const cb = row.querySelector('input[type="checkbox"]');
 
-    if (!cb) {
-      noCheckbox++;
-    } else if (cb.disabled) {
-      disabled++;
-    } else if (cb.checked) {
-      already++;
-    } else {
+    if (!cb || cb.disabled) {
+      unavailableCodes.push(code);
+    } else if (!cb.checked) {
       cb.click();
       selected++;
     }
@@ -163,12 +160,35 @@ ${codesIndent}
     if (found.size === targets.size) break;
   }
 
-  const missing = targets.size - found.size;
+  const missingCodes = [...targets].filter(
+    (code) => !found.has(code)
+  );
+
   const ms = (performance.now() - t0).toFixed(2);
 
+  const ok =
+    unavailableCodes.length === 0 &&
+    missingCodes.length === 0;
+
   console.log(
-    \`Yêu cầu: \${targets.size} | Tick mới: \${selected} | Đã có: \${already} | Bị khóa: \${disabled} | Không tìm thấy: \${missing} | Không checkbox: \${noCheckbox} | \${ms}ms\`
+    \`%c\${ok ? "HOÀN TẤT" : "CÓ VẤN ĐỀ"} %c• \${ms}ms\`,
+    \`color:\${ok ? "#16a34a" : "#d97706"};font-weight:700;font-size:13px\`,
+    "color:#64748b;font-weight:400"
   );
+
+  console.log(\`\\nĐã chọn          \${selected}\`);
+
+  if (unavailableCodes.length) {
+    console.log(
+      \`\\nKhông đăng ký được\\n\${unavailableCodes.join("\\n")}\`
+    );
+  }
+
+  if (missingCodes.length) {
+    console.log(
+      \`\\nKhông tìm thấy\\n\${missingCodes.join("\\n")}\`
+    );
+  }
 })();`;
   }, [selectedClasses]);
 
@@ -323,7 +343,7 @@ ${codesIndent}
                 onClick={handleCopyAllCodes}
                 disabled={classCount === 0}
               >
-                {copiedAllCodes ? 'Đã sao chép tất cả!' : 'Copy Tất Cả Mã Lớp'}
+                {copiedAllCodes ? 'Đã sao chép tất cả!' : 'Copy'}
               </Button>
             </Box>
           </Box>
