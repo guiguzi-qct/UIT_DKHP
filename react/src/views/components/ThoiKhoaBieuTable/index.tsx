@@ -175,7 +175,7 @@ function MainPeriodRow({
                 <td key={thu} rowSpan={hSpan} className="cell-class-wrapper ghost-cell-wrapper">
                   <div
                     className="class-cell-card ghost-preview-card"
-                    title={`Xem trước: ${hoveredClass.MaLop} - ${hoveredClass.TenMH}`}
+                    title={hoveredClass ? `Xem trước: ${hoveredClass.MaLop} - ${hoveredClass.TenMH}` : 'Xem trước'}
                   />
                 </td>
               );
