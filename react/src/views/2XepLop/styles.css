@@ -78,8 +78,8 @@
   width: 100vw !important;
   margin-left: calc(-50vw + 50%) !important;
   margin-right: calc(-50vw + 50%) !important;
-  padding-left: 16px !important;
-  padding-right: 16px !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
   padding-top: 0 !important;
   padding-bottom: 92px !important;
   box-sizing: border-box !important;
@@ -87,11 +87,11 @@
 
 .builder-page.has-open-side-drawer .builder-workspace-card {
   padding: 0 !important;
-  gap: 12px !important;
+  gap: 0 !important;
   border-radius: 0 !important;
   border: 0 !important;
   background: transparent !important;
-  width: 100% !important;
+  width: 100vw !important;
   box-shadow: none !important;
 }
 
@@ -100,7 +100,7 @@
   width: 100%;
   align-items: stretch;
   min-height: 640px;
-  gap: 12px;
+  gap: 0;
   position: relative;
   margin-top: 4px;
 }
@@ -114,11 +114,7 @@
   flex: 0 0 auto;
   display: flex;
   flex-direction: column;
-  border-radius: 16px !important;
-  border: 1.5px solid #0E2128 !important;
-  background: #ffffff !important;
-  padding: 12px !important;
-  box-shadow: 0 8px 24px rgba(14, 33, 40, 0.08) !important;
+  padding: 12px 14px !important;
   overflow: hidden;
 }
 
@@ -152,11 +148,7 @@
 .builder-timetable-column {
   flex: 1;
   min-width: 0;
-  border-radius: 16px !important;
-  border: 1.5px solid #0E2128 !important;
-  background: #ffffff !important;
-  padding: 14px 14px 95px 14px !important;
-  box-shadow: 0 8px 24px rgba(14, 33, 40, 0.08) !important;
+  padding: 12px 14px 95px 14px !important;
 }
 
 .course-picker-side-panel-container {
@@ -315,8 +307,9 @@
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  border: 1px solid #0E2128 !important;
-  border-radius: 0 !important;
+  border: 1.5px solid #0E2128 !important;
+  border-radius: 14px !important;
+  overflow: hidden;
 }
 
 .filter-header-row th {
