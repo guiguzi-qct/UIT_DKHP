@@ -1,6 +1,5 @@
 import SearchIcon from '@mui/icons-material/Search';
 import Button from '@mui/material/Button';
-import Paper from '@mui/material/Paper';
 import { enqueueSnackbar } from 'notistack';
 import { useEffect, useRef, useState } from 'react';
 import { useHistory } from 'react-router-dom';
