@@ -61,12 +61,26 @@
   padding-bottom: 92px;
 }
 
+.builder-workspace-card {
+  padding: 16px;
+  border-radius: 18px !important;
+  border: 1.5px solid #0E2128 !important;
+  background: #ffffff !important;
+  box-shadow: 0 8px 32px rgba(14, 33, 40, 0.1) !important;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow: hidden;
+}
+
 .builder-split-layout {
   display: flex;
-  gap: 0;
   width: 100%;
   align-items: stretch;
-  margin-top: 14px;
+  min-height: 640px;
+  gap: 0;
+  position: relative;
+  margin-top: 6px;
 }
 
 .builder-split-layout.is-resizing {
@@ -74,46 +88,35 @@
   cursor: col-resize !important;
 }
 
-.builder-side-drawer {
-  position: fixed !important;
-  top: 76px !important;
-  left: 0 !important;
-  bottom: 0 !important;
-  z-index: 1050 !important;
-  border-radius: 0 !important;
-  border: 0 !important;
-  border-right: 1.5px solid #0E2128 !important;
-  box-shadow: 6px 0 24px rgba(14, 33, 40, 0.12) !important;
-  background: #ffffff !important;
-  display: flex !important;
-  flex-direction: column !important;
-  padding: 12px 14px 12px !important;
-  overflow: hidden !important;
-  box-sizing: border-box !important;
+.builder-inline-side-panel {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  border-right: 1.5px solid #BACCD6;
+  padding-right: 12px;
+  overflow: hidden;
 }
 
-.builder-drawer-resizer {
-  position: fixed !important;
-  top: 76px !important;
-  bottom: 0 !important;
-  width: 18px !important;
-  margin-left: -9px !important;
-  z-index: 1250 !important;
-  cursor: col-resize !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  user-select: none !important;
+.builder-inline-resizer {
+  width: 14px;
+  margin: 0 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: col-resize;
+  user-select: none;
+  z-index: 10;
+  flex-shrink: 0;
 }
 
-.builder-drawer-resizer:hover .resizer-handle-line,
-.builder-split-layout.is-resizing + .builder-drawer-resizer .resizer-handle-line {
-  background-color: #0E2128 !important;
-  width: 5px !important;
+.builder-inline-resizer:hover .resizer-handle-line,
+.builder-split-layout.is-resizing .builder-inline-resizer .resizer-handle-line {
+  background-color: #0E2128;
+  width: 4px;
 }
 
 .resizer-handle-line {
-  width: 3px;
+  width: 2px;
   height: 64px;
   border-radius: 4px;
   background-color: #BACCD6;
@@ -121,10 +124,11 @@
   pointer-events: none;
 }
 
-.builder-page.has-open-side-drawer {
-  max-width: none !important;
-  width: 100% !important;
-  box-sizing: border-box !important;
+.builder-timetable-column {
+  flex: 1;
+  min-width: 0;
+  padding-left: 12px;
+  padding-bottom: 95px;
 }
 
 .course-picker-side-panel-container {
@@ -387,28 +391,27 @@
 .builder-action-dock {
   position: fixed;
   z-index: 1250;
-  right: 50%;
-  bottom: 14px;
-  width: min(980px, calc(100% - 24px));
-  padding: 7px;
-  display: grid;
-  grid-template-columns: minmax(260px, 1fr) auto minmax(250px, auto);
+  right: 176px;
+  bottom: 24px;
+  height: 50px;
+  padding: 0 16px;
+  display: flex;
   align-items: center;
-  gap: 10px;
-  border: 1px solid #d4d4d8;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.96);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(14px);
-  transform: translateX(50%);
+  gap: 12px;
+  border: 2px solid #0E2128;
+  border-radius: 25px;
+  background: #ffffff;
+  box-shadow: 0 10px 30px rgba(14, 33, 40, 0.22);
+  transform: none !important;
   animation: builder-dock-in 220ms ease-out both;
   transition: all 0.2s ease-in-out;
 }
 .builder-action-dock.is-compact {
   width: auto;
-  grid-template-columns: auto auto;
-  justify-content: center;
-  padding: 8px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px;
 }
 .builder-dock-search {
   display: flex;

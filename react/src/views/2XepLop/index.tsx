@@ -36,10 +36,10 @@ function Index() {
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      if (!isResizing) return;
-      // Since drawer is fixed flush at left: 0, width is simply mouse position e.clientX
-      const newWidth = e.clientX;
-      const maxW = Math.min(950, window.innerWidth - 320);
+      if (!isResizing || !splitContainerRef.current) return;
+      const rect = splitContainerRef.current.getBoundingClientRect();
+      const newWidth = e.clientX - rect.left;
+      const maxW = Math.min(950, rect.width - 320);
       if (newWidth >= 320 && newWidth <= maxW) {
         setSidePanelWidth(newWidth);
       }
@@ -89,56 +89,57 @@ function Index() {
   };
 
   return (
-    <section
-      className={`page-wrap wide builder-page ${isSidePanelOpen ? 'has-open-side-drawer' : ''}`}
-      style={isSidePanelOpen ? { paddingLeft: `${sidePanelWidth + 16}px`, transition: isResizing ? 'none' : 'padding-left 0.15s ease' } : {}}
-    >
-      <PlanSelectorBar />
+    <section className="page-wrap wide builder-page">
+      {/* UNIFIED WORKSPACE CONTAINER CARD MATCHING DIAGRAM */}
+      <div className="surface-card builder-workspace-card">
+        {/* TOP ROW: Plan Selector Bar */}
+        <PlanSelectorBar />
 
-      <div
-        className={`builder-split-layout ${isResizing ? 'is-resizing' : ''}`}
-        ref={splitContainerRef}
-      >
-        {/* LEFT DRAWER PANEL: Flush Left Edge, Full Height, Sharp Square Corners */}
-        {isSidePanelOpen && (
-          <>
-            <div
-              className="builder-side-drawer"
-              style={{ width: `${sidePanelWidth}px` }}
-            >
-              <CoursePickerSidePanel
-                onClose={() => {
-                  setIsSidePanelOpen(false);
-                  setSelectedSlotFilter(null);
+        {/* MIDDLE ROW: Integrated Split Layout */}
+        <div
+          className={`builder-split-layout ${isResizing ? 'is-resizing' : ''}`}
+          ref={splitContainerRef}
+        >
+          {/* LEFT COLUMN: Inline Search List Panel */}
+          {isSidePanelOpen && (
+            <>
+              <div
+                className="builder-inline-side-panel"
+                style={{ width: `${sidePanelWidth}px` }}
+              >
+                <CoursePickerSidePanel
+                  onClose={() => {
+                    setIsSidePanelOpen(false);
+                    setSelectedSlotFilter(null);
+                  }}
+                  onOpenGroupModal={() => {
+                    setIsSidePanelOpen(false);
+                    setSelectedSlotFilter(null);
+                    setPickerTarget({ kind: 'all' });
+                  }}
+                  slotFilter={selectedSlotFilter}
+                  onClearSlotFilter={() => setSelectedSlotFilter(null)}
+                />
+              </div>
+
+              {/* DRAGGABLE RESIZER HANDLE */}
+              <div
+                className="builder-inline-resizer"
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  setIsResizing(true);
                 }}
-                onOpenGroupModal={() => {
-                  setIsSidePanelOpen(false);
-                  setSelectedSlotFilter(null);
-                  setPickerTarget({ kind: 'all' });
-                }}
-                slotFilter={selectedSlotFilter}
-                onClearSlotFilter={() => setSelectedSlotFilter(null)}
-              />
-            </div>
+                title="Kéo rê để thay đổi chiều rộng bảng tìm kiếm"
+              >
+                <div className="resizer-handle-line" />
+              </div>
+            </>
+          )}
 
-            {/* DRAGGABLE RESIZER HANDLE */}
-            <div
-              className="builder-drawer-resizer"
-              style={{ left: `${sidePanelWidth}px` }}
-              onMouseDown={(e) => {
-                e.preventDefault();
-                setIsResizing(true);
-              }}
-              title="Kéo rê để thay đổi chiều rộng bảng tìm kiếm"
-            >
-              <div className="resizer-handle-line" />
-            </div>
-          </>
-        )}
-
-        {/* RIGHT PANEL: Timetable Grid */}
-        <div className="timetable-card builder-timetable">
-          <ThoiKhoaBieuTable interactive onPickSlot={openPickerFromTimetable} />
+          {/* RIGHT COLUMN: Timetable Grid */}
+          <div className="builder-timetable-column">
+            <ThoiKhoaBieuTable interactive onPickSlot={openPickerFromTimetable} />
+          </div>
         </div>
       </div>
 
