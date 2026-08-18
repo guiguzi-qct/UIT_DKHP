@@ -101,21 +101,23 @@ export default function DanhSachLopInput({ header }: { header?: React.ReactNode 
       return;
     }
 
+    const bt = '`';
+    const codeBlock = codes.join('\n');
     const scriptText = `(() => {
   const t0 = performance.now();
 
-  const RAW_CODES = \\\`
-${codes.join('\n')}
-  \\\`;
+  const RAW_CODES = ${bt}
+${codeBlock}
+  ${bt};
 
   const norm = (s) =>
     String(s ?? "")
-      .replace(/[\\\\s\\\\u00A0]+/g, " ")
+      .replace(/[\\s\\u00A0]+/g, " ")
       .trim()
       .toUpperCase();
 
   const targets = new Set(
-    RAW_CODES.split(/[\\\\s,;]+/)
+    RAW_CODES.split(/[\\s,;]+/)
       .map(norm)
       .filter(Boolean)
   );
@@ -189,22 +191,22 @@ ${codes.join('\n')}
     missingCodes.length === 0;
 
   console.log(
-    \\\`%c\\\${ok ? "HOÀN TẤT" : "CÓ VẤN ĐỀ"} %c• \\\${ms}ms\\\`,
-    \\\`color:\\\${ok ? "#16a34a" : "#d97706"};font-weight:700;font-size:13px\\\`,
+    \`%c\${ok ? "HOÀN TẤT" : "CÓ VẤN ĐỀ"} %c• \${ms}ms\`,
+    \`color:\${ok ? "#16a34a" : "#d97706"};font-weight:700;font-size:13px\`,
     "color:#64748b;font-weight:400"
   );
 
-  console.log(\\\`\\\\nĐã chọn          \\\${selected}\\\`);
+  console.log(\`\\nĐã chọn          \${selected}\`);
 
   if (unavailableCodes.length) {
     console.log(
-      \\\`\\\\nKhông đăng ký được\\\\n\\\${unavailableCodes.join("\\\\n")}\\\`
+      \`\\nKhông đăng ký được\\n\${unavailableCodes.join("\\n")}\`
     );
   }
 
   if (missingCodes.length) {
     console.log(
-      \\\`\\\\nKhông tìm thấy\\\\n\\\${missingCodes.join("\\\\n")}\\\`
+      \`\\nKhông tìm thấy\\n\${missingCodes.join("\\n")}\`
     );
   }
 })();`;
