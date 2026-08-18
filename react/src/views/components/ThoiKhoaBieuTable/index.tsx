@@ -6,7 +6,7 @@ import clsx from 'clsx';
 import { useLocation } from 'react-router-dom';
 import { ROUTES } from '../../../constants';
 import { ClassModel } from '../../../types';
-import { getDanhSachTiet } from '../../../utils';
+import { extractThuList, getDanhSachTiet } from '../../../utils';
 
 import ErrorBoundary from '../ErrorBoundary';
 import ClassCell, { ClassCellContext } from './ClassCell';
@@ -153,32 +153,87 @@ function MainPeriodRow({
 
         if (data === CELL.NO_CLASS) {
           const run = getEmptyRun(rows, thu, index, group);
+
+          const isHoveredOnThisDay =
+            hoveredClass &&
+            hoveredClass.Thu &&
+            hoveredClass.Tiet &&
+            extractThuList(hoveredClass.Thu).includes(String(thu));
+
+          const hoveredTiets = isHoveredOnThisDay ? getDanhSachTiet(hoveredClass.Tiet) : [];
+          const hoveredIndices = hoveredTiets
+            .map((t) => (t === '0' ? 9 : Number(t) - 1))
+            .filter((idx) => idx >= run.start && idx <= run.end);
+
+          if (hoveredIndices.length > 0) {
+            const hStart = Math.min(...hoveredIndices);
+            const hEnd = Math.max(...hoveredIndices);
+
+            if (index === hStart) {
+              const hSpan = hEnd - hStart + 1;
+              return (
+                <td key={thu} rowSpan={hSpan} className="cell-class-wrapper ghost-cell-wrapper">
+                  <div
+                    className="class-cell-card ghost-preview-card"
+                    title={`Xem trước: ${hoveredClass.MaLop} - ${hoveredClass.TenMH}`}
+                  />
+                </td>
+              );
+            }
+
+            if (index > hStart && index <= hEnd) {
+              return null;
+            }
+
+            if (index < hStart) {
+              const upperStart = run.start;
+              const upperEnd = hStart - 1;
+              if (index !== upperStart) return null;
+              const upperSpan = upperEnd - upperStart + 1;
+              const upperTiets = Array.from({ length: upperSpan }, (_, i) => getTietValue(upperStart + i));
+              const upperLabel = getRangeLabel(upperStart, upperEnd, group);
+              return (
+                <GetCell
+                  key={thu}
+                  data={data}
+                  thu={thu}
+                  tiets={upperTiets}
+                  label={upperLabel}
+                  rowSpan={upperSpan}
+                  interactive={interactive}
+                  onPickSlot={onPickSlot}
+                />
+              );
+            }
+
+            if (index > hEnd) {
+              const lowerStart = hEnd + 1;
+              const lowerEnd = run.end;
+              if (index !== lowerStart) return null;
+              const lowerSpan = lowerEnd - lowerStart + 1;
+              const lowerTiets = Array.from({ length: lowerSpan }, (_, i) => getTietValue(lowerStart + i));
+              const lowerLabel = getRangeLabel(lowerStart, lowerEnd, group);
+              return (
+                <GetCell
+                  key={thu}
+                  data={data}
+                  thu={thu}
+                  tiets={lowerTiets}
+                  label={lowerLabel}
+                  rowSpan={lowerSpan}
+                  interactive={interactive}
+                  onPickSlot={onPickSlot}
+                />
+              );
+            }
+          }
+
           if (index !== run.start) return null;
 
           const tiets = Array.from({ length: run.end - run.start + 1 }, (_, offset) =>
             getTietValue(run.start + offset),
           );
           const label = getRangeLabel(run.start, run.end, group);
-
-          // Check if hoveredClass falls on this slot
-          const isHovered =
-            hoveredClass &&
-            hoveredClass.Thu &&
-            hoveredClass.Tiet &&
-            Number(hoveredClass.Thu) === thu &&
-            getDanhSachTiet(hoveredClass.Tiet).some((t) => tiets.includes(t));
-
-          if (isHovered) {
-            const hoveredSpan = getDanhSachTiet(hoveredClass.Tiet).length;
-            return (
-              <td key={thu} rowSpan={hoveredSpan} className="cell-class-wrapper ghost-cell-wrapper">
-                <div
-                  className="class-cell-card ghost-preview-card"
-                  title={`Xem trước: ${hoveredClass.MaLop} - ${hoveredClass.TenMH}`}
-                />
-              </td>
-            );
-          }
 
           return (
             <GetCell
