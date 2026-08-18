@@ -893,7 +893,7 @@ export default function CoursePickerDialog({ target, onClose }: Props) {
   );
 }
 
-export function CoursePickerSidePanel() {
+export function CoursePickerSidePanel({ onClose }: { onClose?: () => void }) {
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState<'ALL' | 'LT' | 'TH'>('ALL');
   const [hideConflicts, setHideConflicts] = useState(false);
@@ -967,7 +967,20 @@ export function CoursePickerSidePanel() {
   return (
     <div className="course-picker-side-panel-container">
       <div className="side-panel-header">
-        <Typography className="side-panel-title">Tìm & Chọn môn học</Typography>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Typography className="side-panel-title">Tìm & Chọn môn học</Typography>
+          {onClose && (
+            <button
+              type="button"
+              className="course-picker-close"
+              style={{ position: 'static', width: 32, height: 32, fontSize: 20 }}
+              onClick={onClose}
+              aria-label="Đóng bảng tìm kiếm"
+            >
+              ×
+            </button>
+          )}
+        </div>
         <Typography variant="body2" color="text.secondary" className="side-panel-desc">
           Tích chọn lớp để cập nhật trực tiếp vào thời khóa biểu
         </Typography>

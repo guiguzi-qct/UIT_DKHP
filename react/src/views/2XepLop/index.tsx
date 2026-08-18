@@ -14,6 +14,7 @@ import './styles.css';
 function Index() {
   const history = useHistory();
   const [pickerTarget, setPickerTarget] = useState<PickerTarget | null>(null);
+  const [isSidePanelOpen, setIsSidePanelOpen] = useState<boolean>(false);
   const selectedClasses = useTkbStore(selectSelectedClassesBuoc3);
   const credits = useTkbStore(selectTongSoTcBuoc3);
   const setSelectedClasses = useTkbStore((s) => s.setSelectedClasses);
@@ -22,7 +23,7 @@ function Index() {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'x') {
         e.preventDefault();
-        setPickerTarget({ kind: 'all' });
+        setIsSidePanelOpen((prev) => !prev);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -33,7 +34,7 @@ function Index() {
     if (target.existing) {
       setPickerTarget({ kind: 'replace', existing: target.existing });
     } else if (target.label === 'Ngoài giờ') {
-      setPickerTarget({ kind: 'all' });
+      setIsSidePanelOpen(true);
     } else {
       setPickerTarget({ kind: 'slot', thu: target.thu, tiets: target.tiets, label: target.label });
     }
@@ -49,10 +50,12 @@ function Index() {
       <PlanSelectorBar />
 
       <div className="builder-split-layout">
-        {/* LEFT PANEL: Inline Search & List View Panel */}
-        <Paper className="surface-card builder-side-panel">
-          <CoursePickerSidePanel />
-        </Paper>
+        {/* LEFT PANEL: Inline Search & List View Panel (Appears when toggled) */}
+        {isSidePanelOpen && (
+          <Paper className="surface-card builder-side-panel">
+            <CoursePickerSidePanel onClose={() => setIsSidePanelOpen(false)} />
+          </Paper>
+        )}
 
         {/* RIGHT PANEL: Timetable Grid */}
         <Paper className="surface-card timetable-card builder-timetable">
@@ -65,16 +68,18 @@ function Index() {
           className="builder-dock-search"
           role="button"
           tabIndex={0}
-          onClick={() => setPickerTarget({ kind: 'all' })}
+          onClick={() => setIsSidePanelOpen((prev) => !prev)}
           onKeyDown={(e) => {
             if (e.key === 'Enter' || e.key === ' ') {
               e.preventDefault();
-              setPickerTarget({ kind: 'all' });
+              setIsSidePanelOpen((prev) => !prev);
             }
           }}
         >
           <SearchIcon className="builder-dock-search-icon" />
-          <span className="builder-dock-search-placeholder">Tìm tên môn, mã môn, giảng viên...</span>
+          <span className="builder-dock-search-placeholder">
+            {isSidePanelOpen ? 'Thu gọn bảng tìm kiếm' : 'Tìm tên môn, mã môn, giảng viên...'}
+          </span>
           <span className="builder-dock-shortcut">Ctrl + X</span>
         </div>
         <div className="stat-pill-group">
