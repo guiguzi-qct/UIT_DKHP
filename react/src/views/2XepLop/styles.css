@@ -118,6 +118,14 @@
   overflow: hidden;
 }
 
+.builder-page.has-open-side-drawer .side-panel-list {
+  flex: 1 !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  border: 1.5px solid #0E2128 !important;
+  border-radius: 14px !important;
+}
+
 .builder-inline-resizer {
   width: 10px;
   margin: 0 -5px;
@@ -149,6 +157,11 @@
   flex: 1;
   min-width: 0;
   padding: 12px 14px 95px 14px !important;
+}
+
+.builder-page.has-open-side-drawer .builder-timetable-column,
+.builder-page.has-open-side-drawer .builder-timetable-column .timetable-scroll {
+  overflow-y: hidden !important;
 }
 
 .course-picker-side-panel-container {
