@@ -1036,10 +1036,37 @@ export function CoursePickerSidePanel({
     return reasons;
   }, [allCandidates, selectedClasses]);
 
-  const displayCandidates = useMemo(() => {
-    if (!hideConflicts) return allCandidates;
-    return allCandidates.filter((c) => !conflictReasons.has(getCandidateKey(c)));
-  }, [allCandidates, hideConflicts, conflictReasons]);
+  const candidateTree = useMemo(() => {
+    const parentTheoryMap = new Map<string, ClassModel[]>();
+    const childPracticeSet = new Set<string>();
+
+    const theoryCandidates = displayCandidates.filter((c) => isTheoryClass(c));
+
+    theoryCandidates.forEach((lt) => {
+      const children = displayCandidates.filter(
+        (th) => isThucHanhClass(th) && isPracticeOfTheory(th, lt),
+      );
+      parentTheoryMap.set(getCandidateKey(lt), children);
+      children.forEach((th) => childPracticeSet.add(getCandidateKey(th)));
+    });
+
+    const rows: { candidate: ClassModel; isChild: boolean; parentLtCode?: string }[] = [];
+
+    displayCandidates.forEach((c) => {
+      const key = getCandidateKey(c);
+      if (isTheoryClass(c)) {
+        rows.push({ candidate: c, isChild: false });
+        const children = parentTheoryMap.get(key) || [];
+        children.forEach((child) => {
+          rows.push({ candidate: child, isChild: true, parentLtCode: c.MaLop });
+        });
+      } else if (!childPracticeSet.has(key)) {
+        rows.push({ candidate: c, isChild: false });
+      }
+    });
+
+    return rows;
+  }, [displayCandidates]);
 
   const toggleCandidate = (candidate: ClassModel) => {
     const candidateMaLop = (candidate.MaLop || '').trim();
@@ -1243,7 +1270,7 @@ export function CoursePickerSidePanel({
             </tr>
           </thead>
           <tbody>
-            {displayCandidates.map((candidate) => {
+            {candidateTree.map(({ candidate, isChild, parentLtCode }) => {
               const key = getCandidateKey(candidate);
               const conflict = conflictReasons.get(key);
               const isActive = selectedClasses.some((s) => isSameAgGridRowId(s, candidate));
@@ -1252,8 +1279,8 @@ export function CoursePickerSidePanel({
 
               return (
                 <tr
-                  key={key}
-                  className={`course-flat-row ${conflict ? 'is-conflict' : ''} ${isActive ? 'is-active' : ''}`}
+                  key={key + (isChild ? '-child' : '')}
+                  className={`course-flat-row ${conflict ? 'is-conflict' : ''} ${isActive ? 'is-active' : ''} ${isChild ? 'is-child-practice-row' : ''}`}
                   onClick={() => !conflict && toggleCandidate(candidate)}
                   onMouseEnter={() => !conflict && onHoverClass?.(candidate)}
                   onMouseLeave={() => onHoverClass?.(null)}
@@ -1267,8 +1294,24 @@ export function CoursePickerSidePanel({
                     />
                   </td>
                   <td className="cell-name">
-                    <strong className="mh-title">{candidate.TenMH}</strong>
-                    <span className="mh-code">{candidate.MaMH}</span>
+                    {isChild ? (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, paddingLeft: 10 }}>
+                        <span style={{ color: '#0284C7', fontSize: '13px', fontWeight: 800 }}>└─</span>
+                        <div>
+                          <strong className="mh-title" style={{ fontSize: '13.5px', color: '#0f172a' }}>
+                            TH {candidate.MaLop}
+                          </strong>
+                          <span className="mh-code" style={{ fontSize: '11px', color: '#64748b' }}>
+                            (Con của {parentLtCode})
+                          </span>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <strong className="mh-title">{candidate.TenMH}</strong>
+                        <span className="mh-code">{candidate.MaMH}</span>
+                      </>
+                    )}
                   </td>
                   <td className="cell-code">
                     <strong>{candidate.MaLop}</strong>

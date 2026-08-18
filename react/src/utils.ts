@@ -51,31 +51,64 @@ export const getBuoiFromTiet = (tiet: ClassModel['Tiet']): Buoi => {
   return Buoi.N_A;
 };
 
+export const parseTietPart = (rawPart: string): string[] => {
+  const p = rawPart.trim();
+  if (!p) return [];
+
+  if (
+    p.length >= 4 &&
+    p.length % 2 === 0 &&
+    Array.from({ length: p.length / 2 }).every((_, i) =>
+      /^1[0-9]$/.test(p.substring(i * 2, i * 2 + 2))
+    )
+  ) {
+    const tiets: string[] = [];
+    for (let i = 0; i < p.length; i += 2) {
+      const pair = p.substring(i, i + 2);
+      const digit = pair === '10' ? '10' : pair.substring(1);
+      tiets.push(digit);
+    }
+    return tiets;
+  }
+
+  const rangeMatch = p.match(/^([0-9]{1,2})\s*[-–—]\s*([0-9]{1,2})$/);
+  if (rangeMatch) {
+    const start = Number(rangeMatch[1]);
+    const end = Number(rangeMatch[2]);
+    if (start <= end && start >= 1 && end <= 15) {
+      const result: string[] = [];
+      for (let t = start; t <= end; t++) {
+        result.push(String(t));
+      }
+      return result;
+    }
+  }
+
+  const digits = p.match(/[0-9]+/g);
+  if (digits) {
+    const result: string[] = [];
+    digits.forEach((dStr) => {
+      dStr.split('').forEach((d) => result.push(d));
+    });
+    return result;
+  }
+
+  return [];
+};
+
 export const getDanhSachTiet = (tiet: ClassModel['Tiet']): string[] => {
   const normalizedTiet = normalizeScheduleValue(tiet);
   if (!normalizedTiet) return [];
   if (normalizedTiet === '*') return ['*'];
 
-  const parts = normalizedTiet.split(',').map((it) => it.trim()).filter(Boolean);
+  const parts = normalizedTiet.split(/[,;\s]+/).map((it) => it.trim()).filter(Boolean);
   const result: string[] = [];
 
   parts.forEach((p) => {
-    if (
-      p.length >= 4 &&
-      p.length % 2 === 0 &&
-      Array.from({ length: p.length / 2 }).every((_, i) =>
-        ['10', '11', '12', '13', '14', '15'].includes(p.substring(i * 2, i * 2 + 2)),
-      )
-    ) {
-      for (let i = 0; i < p.length; i += 2) {
-        result.push(p.substring(i, i + 2));
-      }
-    } else {
-      result.push(...p.split(''));
-    }
+    result.push(...parseTietPart(p));
   });
 
-  return result;
+  return Array.from(new Set(result));
 };
 
 const INVALID_SCHEDULE_VALUES = new Set(['undefined', 'null', 'nan']);
@@ -146,19 +179,17 @@ const getTimeSlots = (classModel?: ClassModel): TimeSlots => {
 
   const thuList = extractThuList(Thu);
   const rawTiet = normalizeScheduleValue(Tiet);
+  const tietParts = rawTiet.split(/[,;\s]+/).map((s) => s.trim()).filter(Boolean);
 
-  if (thuList.length > 1 && rawTiet.includes(',')) {
-    const tietParts = rawTiet.split(',').map((s) => s.trim()).filter(Boolean);
-    if (tietParts.length === thuList.length) {
-      const slots: ValidTimeSlot[] = [];
-      thuList.forEach((thu, idx) => {
-        const subTiets = getDanhSachTiet(tietParts[idx]);
-        subTiets.forEach((tiet) => {
-          slots.push(`${thu}-${tiet}`);
-        });
+  if (thuList.length > 1 && tietParts.length === thuList.length) {
+    const slots: ValidTimeSlot[] = [];
+    thuList.forEach((thu, idx) => {
+      const subTiets = parseTietPart(tietParts[idx]);
+      subTiets.forEach((tiet) => {
+        slots.push(`${thu}-${tiet}`);
       });
-      return slots;
-    }
+    });
+    return slots;
   }
 
   const listTiet = getDanhSachTiet(Tiet);

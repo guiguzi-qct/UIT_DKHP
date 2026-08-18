@@ -686,3 +686,12 @@ body:has(.has-open-side-drawer) {
     animation: none;
   }
 }
+
+.course-flat-row.is-child-practice-row {
+  background-color: #f8fafc !important;
+  border-left: 3.5px solid #0284c7 !important;
+}
+
+.course-flat-row.is-child-practice-row:hover {
+  background-color: #f1f5f9 !important;
+}
