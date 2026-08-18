@@ -1,5 +1,6 @@
 import ContentCopyOutlinedIcon from '@mui/icons-material/ContentCopyOutlined';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import FlashOnIcon from '@mui/icons-material/FlashOn';
 import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
@@ -110,6 +111,141 @@ export default function DanhSachLopInput({ header }: { header?: React.ReactNode 
     }
   };
 
+  const copyScript = async () => {
+    const codes = parseListMaLop(isEditing ? draft : storedValue);
+    if (!codes.length) {
+      enqueueSnackbar('Chưa có mã lớp để tạo script.', { variant: 'warning' });
+      return;
+    }
+
+    const scriptText = `(() => {
+  const t0 = performance.now();
+  const RAW_CODES = \\\`
+${codes.join('\n')}
+  \\\`;
+
+  const norm = (s) =>
+    String(s ?? "")
+      .replace(/[\\\\s\\\\u00A0\\\\u200B-\\\\u200D\\\\uFEFF]+/g, " ")
+      .trim()
+      .toUpperCase();
+
+  const targets = new Set(
+    RAW_CODES.split(/[\\\\s,;\\\\n\\\\r]+/)
+      .map(norm)
+      .filter(Boolean)
+  );
+
+  if (!targets.size) {
+    console.warn("Không có mã lớp.");
+    return;
+  }
+
+  let table;
+  let colIdx = -1;
+  let startRow = 0;
+
+  const tables = Array.from(document.querySelectorAll("table"));
+  outer: for (const t of tables) {
+    for (let r = 0; r < Math.min(t.rows.length, 5); r++) {
+      for (let c = 0; c < t.rows[r].cells.length; c++) {
+        const text = norm(t.rows[r].cells[c].textContent);
+        if (text === "MÃ LỚP" || text === "MA LOP" || text.includes("MÃ LỚP")) {
+          table = t;
+          colIdx = c;
+          startRow = r + 1;
+          break outer;
+        }
+      }
+    }
+  }
+
+  if (!table) {
+    console.error('Không tìm thấy cột "Mã lớp".');
+    return;
+  }
+
+  const found = new Set();
+  const unavailableCodes = [];
+  const selectedRows = [];
+  let selectedCount = 0;
+  let alreadyCheckedCount = 0;
+
+  for (let i = startRow; i < table.rows.length; i++) {
+    const row = table.rows[i];
+    if (row.cells.length <= colIdx) continue;
+
+    const code = norm(row.cells[colIdx].textContent);
+    if (!targets.has(code)) continue;
+
+    found.add(code);
+
+    const cb = row.querySelector('input[type="checkbox"]');
+
+    if (!cb || cb.disabled) {
+      unavailableCodes.push(code);
+      row.style.backgroundColor = "rgba(239, 68, 68, 0.15)";
+    } else {
+      if (!cb.checked) {
+        cb.click();
+        cb.dispatchEvent(new Event("change", { bubbles: true }));
+        selectedCount++;
+      } else {
+        alreadyCheckedCount++;
+      }
+      row.style.backgroundColor = "rgba(34, 197, 94, 0.2)";
+      row.style.transition = "background-color 0.3s ease";
+      selectedRows.push(row);
+    }
+
+    if (found.size === targets.size) break;
+  }
+
+  if (selectedRows.length > 0) {
+    selectedRows[0].scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  const missingCodes = [...targets].filter((code) => !found.has(code));
+  const ms = (performance.now() - t0).toFixed(2);
+  const isSuccess = unavailableCodes.length === 0 && missingCodes.length === 0;
+
+  console.log(
+    \\\`%c\\\${isSuccess ? "HOÀN TẤT" : "CÓ VẤN ĐỀ"} %c• \\\${ms}ms\\\`,
+    \\\`color:\\\${isSuccess ? "#16a34a" : "#d97706"};font-weight:700;font-size:13px\\\`,
+    "color:#64748b;font-weight:400"
+  );
+
+  console.log(\\\`\\\\nĐã chọn          : \\\${selectedCount} lớp\\\`);
+  if (alreadyCheckedCount > 0) {
+    console.log(\\\`Đã tích sẵn       : \\\${alreadyCheckedCount} lớp\\\`);
+  }
+
+  if (unavailableCodes.length) {
+    console.log(
+      \\\`%c\\\\nKhông đăng ký được (\\\${unavailableCodes.length} lớp - Hết chỗ/Khóa):\\\\n\\\${unavailableCodes.join("\\\\n")}\\\`,
+      "color:#dc2626;font-weight:700"
+    );
+  }
+
+  if (missingCodes.length) {
+    console.log(
+      \\\`%c\\\\nKhông tìm thấy trong danh sách (\\\${missingCodes.length} lớp):\\\\n\\\${missingCodes.join("\\\\n")}\\\`,
+      "color:#d97706;font-weight:700"
+    );
+  }
+})();`;
+
+    try {
+      await copyText(scriptText);
+      enqueueSnackbar(`Đã sao chép Script ĐKHP cho ${codes.length} mã lớp. Dán vào Console F12 để chạy!`, {
+        variant: 'success',
+      });
+    } catch (error) {
+      console.error(error);
+      enqueueSnackbar('Không thể sao chép Script.', { variant: 'error' });
+    }
+  };
+
   return (
     <div className="class-code-editor">
       <div className="class-source-header">
@@ -129,8 +265,21 @@ export default function DanhSachLopInput({ header }: { header?: React.ReactNode 
               Chỉnh sửa
             </Button>
           )}
-          <Button variant="contained" startIcon={<ContentCopyOutlinedIcon />} onClick={copyCodes}>
-            Sao chép mã lớp
+          <Button
+            variant="contained"
+            className="copy-script-btn"
+            startIcon={<FlashOnIcon />}
+            onClick={copyScript}
+          >
+            Sao chép Script
+          </Button>
+          <Button
+            variant="contained"
+            className="copy-script-btn"
+            startIcon={<ContentCopyOutlinedIcon />}
+            onClick={copyCodes}
+          >
+            Copy Tất Cả Mã Lớp
           </Button>
         </div>
       </div>

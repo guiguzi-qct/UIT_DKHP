@@ -28,6 +28,20 @@
   font-weight: 600;
   color: #ffffff;
 }
+.copy-script-btn {
+  background-color: #0E2128 !important;
+  color: #ffffff !important;
+  border-radius: 50px !important;
+  font-weight: 700 !important;
+  padding: 6px 18px !important;
+  box-shadow: 0 2px 8px rgba(14, 33, 40, 0.18) !important;
+  transition: all 0.2s ease !important;
+}
+.copy-script-btn:hover {
+  background-color: #17333F !important;
+  box-shadow: 0 4px 14px rgba(14, 33, 40, 0.28) !important;
+  transform: translateY(-1px);
+}
 .builder-timetable {
   padding: 10px;
   animation: builder-table-in 220ms ease-out both;
