@@ -9,7 +9,7 @@ import { enqueueSnackbar } from 'notistack';
 import React, { ChangeEventHandler } from 'react';
 import XLSX from 'xlsx';
 import { selectDataExcel, useTkbStore } from '../../zus';
-import { parseSheetRowsDynamic, sheetJSFT, toDateTimeString } from './utils';
+import { parseUitScheduleExcel, sheetJSFT, toDateTimeString } from './utils';
 
 function SelectExcelButton() {
   const dataExcel = useTkbStore(selectDataExcel);
@@ -18,36 +18,22 @@ function SelectExcelButton() {
   const [isDragging, setIsDragging] = React.useState(false);
 
   const readFile = React.useCallback(
-    (file: File) => {
-      const reader = new FileReader();
-      const readAsBinary = !!reader.readAsBinaryString;
+    async (file: File) => {
+      try {
+        const { classes } = await parseUitScheduleExcel(file);
+        if (!classes.length) throw new Error('Không tìm thấy lớp học trong file.');
 
-      reader.onerror = () => enqueueSnackbar('Không thể đọc file. Vui lòng thử lại.', { variant: 'error' });
-      reader.onload = (event) => {
-        try {
-          const workbook = XLSX.read(event?.target?.result, { type: readAsBinary ? 'binary' : 'array' });
-          const allClassModels = workbook.SheetNames.flatMap((sheetName) => {
-            const sheetRows = XLSX.utils.sheet_to_json<any[][]>(workbook.Sheets[sheetName], { header: 1 });
-            return parseSheetRowsDynamic(sheetRows);
-          });
-
-          if (!allClassModels.length) throw new Error('invalid-format');
-
-          const now = new Date();
-          setDataExcel({
-            data: allClassModels,
-            fileName: file.name,
-            lastUpdateTimestamp: now.getTime(),
-            lastUpdate: toDateTimeString(now),
-          });
-          enqueueSnackbar(`Đã đọc ${allClassModels.length} lớp từ ${file.name}`, { variant: 'success' });
-        } catch {
-          enqueueSnackbar('File chưa đúng định dạng thời khóa biểu của trường.', { variant: 'error' });
-        }
-      };
-
-      if (readAsBinary) reader.readAsBinaryString(file);
-      else reader.readAsArrayBuffer(file);
+        const now = new Date();
+        setDataExcel({
+          data: classes,
+          fileName: file.name,
+          lastUpdateTimestamp: now.getTime(),
+          lastUpdate: toDateTimeString(now),
+        });
+        enqueueSnackbar(`Đã đọc ${classes.length} lớp từ ${file.name}`, { variant: 'success' });
+      } catch (err: any) {
+        enqueueSnackbar(err?.message || 'File chưa đúng định dạng thời khóa biểu của trường.', { variant: 'error' });
+      }
     },
     [setDataExcel],
   );
