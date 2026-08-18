@@ -110,7 +110,8 @@ body:has(.has-open-side-drawer) {
 .builder-page.has-open-side-drawer {
   max-width: none !important;
   width: 100vw !important;
-  height: calc(100vh - 76px) !important;
+  height: calc(100vh - 62px) !important;
+  min-height: calc(100vh - 62px) !important;
   margin-left: calc(-50vw + 50%) !important;
   margin-right: calc(-50vw + 50%) !important;
   padding: 0 !important;
