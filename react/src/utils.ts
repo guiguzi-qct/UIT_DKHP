@@ -180,6 +180,14 @@ export const hasOverlapSchedule = (classAs: ClassModel[], classB: ClassModel) =>
   const classBTimeSlots = getTimeSlots(classB);
   return classAs.some((classA) => {
     if (isSameAgGridRowId(classA, classB)) return false;
+    if (
+      classA.MaMH === classB.MaMH &&
+      classA.MaLop &&
+      classB.MaLop &&
+      classA.MaLop.trim() === classB.MaLop.trim()
+    ) {
+      return false;
+    }
     const classATimeSlots = getTimeSlots(classA);
     return isTimeSlotsOverlap(classATimeSlots, classBTimeSlots);
   });

@@ -113,6 +113,7 @@ export function getMatchingPracticeClasses(ltClass: ClassModel, allCandidates: C
 
 const isSameCoursePart = (a: ClassModel, b: ClassModel) => {
   if (a.MaMH !== b.MaMH) return false;
+  if (a.MaLop && b.MaLop && a.MaLop.trim() === b.MaLop.trim()) return false;
   return isThucHanhClass(a) === isThucHanhClass(b);
 };
 
@@ -1041,9 +1042,22 @@ export function CoursePickerSidePanel({
   }, [allCandidates, hideConflicts, conflictReasons]);
 
   const toggleCandidate = (candidate: ClassModel) => {
-    const isSelected = selectedClasses.some((s) => isSameAgGridRowId(s, candidate));
+    const candidateMaLop = (candidate.MaLop || '').trim();
+    const siblingSessions = data.filter(
+      (c) => c.MaMH === candidate.MaMH && (c.MaLop || '').trim() === candidateMaLop
+    );
+    const sessionsToAdd = siblingSessions.length > 0 ? siblingSessions : [candidate];
+
+    const isSelected = selectedClasses.some(
+      (s) => (s.MaLop || '').trim() === candidateMaLop && s.MaMH === candidate.MaMH
+    );
+
     if (isSelected) {
-      setSelectedClasses(selectedClasses.filter((s) => !isSameAgGridRowId(s, candidate)));
+      setSelectedClasses(
+        selectedClasses.filter(
+          (s) => !((s.MaLop || '').trim() === candidateMaLop && s.MaMH === candidate.MaMH)
+        )
+      );
       enqueueSnackbar(`Đã bỏ chọn ${candidate.MaLop}`, { variant: 'info' });
       return;
     }
@@ -1053,18 +1067,18 @@ export function CoursePickerSidePanel({
       const hasParentLT = selectedClasses.some((lt) => isTheoryClass(lt) && isPracticeOfTheory(candidate, lt));
       if (!hasParentLT) {
         const parentCode = getParentTheoryCode(candidate.MaLop);
-        const parentTheory = data.find(
-          (c) => isTheoryClass(c) && c.MaMH === candidate.MaMH && c.MaLop?.trim() === parentCode
+        const parentTheorySessions = data.filter(
+          (c) => isTheoryClass(c) && c.MaMH === candidate.MaMH && (c.MaLop || '').trim() === parentCode
         );
-        if (parentTheory) {
-          setSelectedClasses([...selectedClasses, parentTheory, candidate]);
-          enqueueSnackbar(`Đã chọn ${candidate.MaLop} & tự động thêm lớp Lý thuyết ${parentTheory.MaLop}!`, { variant: 'success' });
+        if (parentTheorySessions.length > 0) {
+          setSelectedClasses([...applyCandidateBatch(selectedClasses, parentTheorySessions), ...sessionsToAdd]);
+          enqueueSnackbar(`Đã chọn ${candidate.MaLop} & tự động thêm lớp Lý thuyết ${parentCode}!`, { variant: 'success' });
           return;
         }
       }
     }
 
-    setSelectedClasses(applyCandidateBatch(selectedClasses, [candidate]));
+    setSelectedClasses(applyCandidateBatch(selectedClasses, sessionsToAdd));
     enqueueSnackbar(`Đã thêm ${candidate.MaLop}`, { variant: 'success' });
   };
 
