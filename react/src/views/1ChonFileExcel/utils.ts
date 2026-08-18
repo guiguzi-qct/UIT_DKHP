@@ -15,14 +15,14 @@ const normHeader = (value: unknown): string =>
     .replace(/[^A-Z0-9]+/g, '');
 
 const HEADER_ALIASES: Record<string, string[]> = {
-  STT: ['STT'],
+  STT: ['STT', 'SODANHSACH', 'DANHSACH', 'TT', 'NO', 'NUMBER'],
   MAMH: ['MAMH', 'MAMON', 'MAMONHOC', 'MAHP', 'MAHOCPHAN'],
   MALOP: ['MALOP', 'MALOPHOC', 'MALHP', 'MALOPMONHOC', 'LOPHOCPHAN'],
   TENMH: ['TENMH', 'TENMON', 'TENMONHOC', 'TENHOCPHAN'],
   MAGV: ['MAGV', 'MAGIANGVIEN', 'MACB'],
   TENGV: ['TENGV', 'TENGIANGVIEN', 'GIANGVIEN', 'CANBOGIANGDAY', 'GVHD', 'GV'],
   SISO: ['SISO', 'SISOTOIDA', 'SLDK'],
-  SOTC: ['SOTC', 'SOTINCHI', 'TINCHI', 'STC'],
+  SOTC: ['SOTC', 'SOTINCHI', 'TINCHI', 'STC', 'TOTC', 'TC', 'SOTINCHIHP', 'SOTCHP', 'SOTC_DKHP', 'SOTCLT'],
   THUCHANH: ['THUCHANH', 'SOTCTH', 'TCTH', 'TH'],
   HTGD: ['HTGD', 'HINHTHUCGIANGDAY', 'LOAILOP'],
   THU: ['THU', 'THUHOC', 'THU2'],
@@ -73,7 +73,10 @@ export function text(value: unknown): string {
 
 export function numberOrNull(value: unknown): number | null {
   if (value == null || text(value) === '') return null;
-  const n = Number(String(value).replace(',', '.'));
+  const str = String(value).trim();
+  const match = str.match(/\d+([.,]\d+)?/);
+  if (!match) return null;
+  const n = parseFloat(match[0].replace(',', '.'));
   return Number.isFinite(n) ? n : null;
 }
 
@@ -250,17 +253,25 @@ export function parseSheetRowsDynamic(sheetRows: any[][]): ClassModelOriginal[] 
     });
   }
 
+function isPracticeClassCode(code?: string, htgd?: string): boolean {
+  if (htgd && /^HT\d*/i.test(htgd.trim())) return true;
+  if (!code) return false;
+  return /\.(ANTT\.)?\d+$/i.test(code.trim());
+}
+
   // Post-process SoTc fallback
   const soTcMap = new Map<string, number>();
   out.forEach((item) => {
-    if (item.SoTc && item.SoTc > 0) {
+    if (!isPracticeClassCode(item.MaLop, item.HTGD) && item.SoTc && item.SoTc > 0) {
       if (item.MaMH) soTcMap.set(item.MaMH.trim().toUpperCase(), item.SoTc);
       if (item.TenMH) soTcMap.set(item.TenMH.trim().toUpperCase(), item.SoTc);
     }
   });
 
   out.forEach((item) => {
-    if (!item.SoTc || item.SoTc === 0) {
+    if (isPracticeClassCode(item.MaLop, item.HTGD)) {
+      item.SoTc = item.ThucHanh || 0;
+    } else if (!item.SoTc || item.SoTc === 0) {
       const fallback =
         (item.MaMH && soTcMap.get(item.MaMH.trim().toUpperCase())) ||
         (item.TenMH && soTcMap.get(item.TenMH.trim().toUpperCase()));
@@ -304,19 +315,21 @@ export async function parseUitScheduleExcel(file: File): Promise<{
   }
 
   // Post-process SoTc fallback
-  const soTcMap = new Map<string, number>();
+  const importedSoTcMap = new Map<string, number>();
   imported.forEach((item) => {
-    if (item.SoTc && item.SoTc > 0) {
-      if (item.MaMH) soTcMap.set(item.MaMH.trim().toUpperCase(), item.SoTc);
-      if (item.TenMH) soTcMap.set(item.TenMH.trim().toUpperCase(), item.SoTc);
+    if (!isPracticeClassCode(item.MaLop, item.HTGD) && item.SoTc && item.SoTc > 0) {
+      if (item.MaMH) importedSoTcMap.set(item.MaMH.trim().toUpperCase(), item.SoTc);
+      if (item.TenMH) importedSoTcMap.set(item.TenMH.trim().toUpperCase(), item.SoTc);
     }
   });
 
   imported.forEach((item) => {
-    if (!item.SoTc || item.SoTc === 0) {
+    if (isPracticeClassCode(item.MaLop, item.HTGD)) {
+      item.SoTc = item.ThucHanh || 0;
+    } else if (!item.SoTc || item.SoTc === 0) {
       const fallback =
-        (item.MaMH && soTcMap.get(item.MaMH.trim().toUpperCase())) ||
-        (item.TenMH && soTcMap.get(item.TenMH.trim().toUpperCase()));
+        (item.MaMH && importedSoTcMap.get(item.MaMH.trim().toUpperCase())) ||
+        (item.TenMH && importedSoTcMap.get(item.TenMH.trim().toUpperCase()));
       if (fallback) item.SoTc = fallback;
     }
   });
