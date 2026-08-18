@@ -115,11 +115,11 @@ function Index() {
           type="button"
           className="bookmark-tab-closed"
           onClick={() => setIsSidePanelOpen(true)}
-          title="Mở Bảng Danh sách môn học (Dạng List)"
-          aria-label="Mở Bảng Danh sách môn học"
+          title="Mở Bảng List"
+          aria-label="Mở Bảng List"
         >
-          <SearchIcon style={{ fontSize: 18 }} />
-          <span>Danh sách môn</span>
+          <SearchIcon style={{ fontSize: 16 }} />
+          <span>List</span>
         </button>
       )}
 
