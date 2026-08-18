@@ -83,9 +83,21 @@ export function isPracticeOfTheory(thClass: ClassModel, ltClass: ClassModel): bo
 
   const ltCode = (ltClass.MaLop || '').trim();
   const thCode = (thClass.MaLop || '').trim();
+  const thLtCode = (thClass.MaLopLt || '').trim();
 
-  if (!ltCode || !thCode) return false;
-  return getParentTheoryCode(thCode) === ltCode;
+  if (!ltCode) return false;
+
+  // 1. Explicit match via MaLopLt column from Excel (e.g. "MA LOP LT" column = "CE118.R11")
+  if (thLtCode && thLtCode === ltCode) {
+    return true;
+  }
+
+  // 2. Pattern match via parent theory code
+  if (thCode && getParentTheoryCode(thCode) === ltCode) {
+    return true;
+  }
+
+  return false;
 }
 
 export function getMatchingPracticeClasses(ltClass: ClassModel, allCandidates: ClassModel[]): ClassModel[] {

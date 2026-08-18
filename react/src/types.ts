@@ -23,6 +23,7 @@ export type ClassModelOriginal = {
   NKT: string;
   GhiChu: string;
   NgonNgu: string;
+  MaLopLt?: string;
 };
 
 export type ClassModel = ClassModelOriginal;

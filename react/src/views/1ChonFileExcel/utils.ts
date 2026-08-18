@@ -26,6 +26,7 @@ const HEADER_ALIAS_MAP: Record<keyof ClassModelOriginal, string[]> = {
   NKT: ['nkt', 'ngayketthuc', 'ngaykt', 'kt', 'denngay'],
   GhiChu: ['ghichu', 'note', 'ghichu2'],
   NgonNgu: ['ngonngu', 'lang', 'nn'],
+  MaLopLt: ['maloplt', 'maloplythuyet', 'loplythuyet'],
 };
 
 const normalizeTextKey = (text: unknown): string => {
@@ -112,8 +113,9 @@ export function arrayToTkbObjectDynamic(
     KhoaQL: stringOrEmpty(getVal('KhoaQL', 18)),
     NBD: typeof nbdRaw === 'number' ? convertExcelDateToStringDate(nbdRaw) : stringOrEmpty(nbdRaw),
     NKT: typeof nktRaw === 'number' ? convertExcelDateToStringDate(nktRaw) : stringOrEmpty(nktRaw),
-    GhiChu: stringOrEmpty(getVal('GhiChu', 21)),
-    NgonNgu: stringOrEmpty(getVal('NgonNgu', 22)),
+    GhiChu: stringOrEmpty(getVal('GhiChu', 23)),
+    NgonNgu: stringOrEmpty(getVal('NgonNgu', 21)),
+    MaLopLt: stringOrEmpty(getVal('MaLopLt', 22)),
   };
 }
 
