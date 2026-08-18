@@ -114,8 +114,6 @@ function Index() {
     enqueueSnackbar('Đã xóa tất cả các môn khỏi thời khóa biểu', { variant: 'info' });
   };
 
-  const [hoveredClass, setHoveredClass] = useState<ClassModel | null>(null);
-
   return (
     <section className={`page-wrap wide builder-page ${isSidePanelOpen ? 'has-open-side-drawer' : ''}`}>
       {/* BOOKMARK TAB TRIGGER (Sticking out on the left edge of screen when closed) */}
