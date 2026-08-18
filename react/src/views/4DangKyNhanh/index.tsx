@@ -90,16 +90,14 @@ export default function DangKyNhanh() {
 ${codesIndent}
   ${bt};
 
-  const norm = (s) =>
+  const norm = s =>
     String(s ?? "")
       .replace(/[\\s\\u00A0]+/g, " ")
       .trim()
       .toUpperCase();
 
   const targets = new Set(
-    RAW_CODES.split(/[\\s,;]+/)
-      .map(norm)
-      .filter(Boolean)
+    RAW_CODES.split(/[\\s,;]+/).map(norm).filter(Boolean)
   );
 
   if (!targets.size) {
@@ -107,15 +105,20 @@ ${codesIndent}
     return;
   }
 
-  let table;
+  let table = null;
   let colIdx = -1;
   let startRow = 0;
 
   outer:
   for (const t of document.querySelectorAll("table")) {
-    for (let r = 0; r < Math.min(t.rows.length, 5); r++) {
-      for (let c = 0; c < t.rows[r].cells.length; c++) {
-        const text = norm(t.rows[r].cells[c].textContent);
+    const rows = t.rows;
+    const limit = Math.min(rows.length, 5);
+
+    for (let r = 0; r < limit; r++) {
+      const cells = rows[r].cells;
+
+      for (let c = 0; c < cells.length; c++) {
+        const text = norm(cells[c].textContent);
 
         if (text === "MÃ LỚP" || text === "MA LOP") {
           table = t;
@@ -132,61 +135,60 @@ ${codesIndent}
     return;
   }
 
-  const found = new Set();
-  const unavailableCodes = [];
+  // Vừa dùng để lookup, vừa dùng để theo dõi mã chưa tìm thấy.
+  const remaining = new Set(targets);
+  const unavailable = [];
 
   let selected = 0;
 
-  for (let i = startRow; i < table.rows.length; i++) {
-    const row = table.rows[i];
+  const rows = table.rows;
 
-    if (row.cells.length <= colIdx) continue;
+  for (let i = startRow, n = rows.length; i < n && remaining.size; i++) {
+    const row = rows[i];
+    const cells = row.cells;
 
-    const code = norm(row.cells[colIdx].textContent);
+    if (cells.length <= colIdx) continue;
 
-    if (!targets.has(code)) continue;
+    const code = norm(cells[colIdx].textContent);
 
-    found.add(code);
+    if (!remaining.has(code)) continue;
+
+    // Đã tìm thấy mã này -> bỏ khỏi danh sách còn thiếu.
+    remaining.delete(code);
 
     const cb = row.querySelector('input[type="checkbox"]');
 
     if (!cb || cb.disabled) {
-      unavailableCodes.push(code);
-    } else if (!cb.checked) {
+      unavailable.push(code);
+      continue;
+    }
+
+    if (!cb.checked) {
       cb.click();
       selected++;
     }
-
-    if (found.size === targets.size) break;
   }
 
-  const missingCodes = [...targets].filter(
-    (code) => !found.has(code)
-  );
-
   const ms = (performance.now() - t0).toFixed(2);
-
-  const ok =
-    unavailableCodes.length === 0 &&
-    missingCodes.length === 0;
+  const ok = !unavailable.length && !remaining.size;
 
   console.log(
     \`%c\${ok ? "HOÀN TẤT" : "CÓ VẤN ĐỀ"} %c• \${ms}ms\`,
     \`color:\${ok ? "#16a34a" : "#d97706"};font-weight:700;font-size:13px\`,
-    "color:#64748b;font-weight:400"
+    "color:#64748b"
   );
 
   console.log(\`\\nĐã chọn          \${selected}\`);
 
-  if (unavailableCodes.length) {
+  if (unavailable.length) {
     console.log(
-      \`\\nKhông đăng ký được\\n\${unavailableCodes.join("\\n")}\`
+      \`\\nKhông đăng ký được\\n\${unavailable.join("\\n")}\`
     );
   }
 
-  if (missingCodes.length) {
+  if (remaining.size) {
     console.log(
-      \`\\nKhông tìm thấy\\n\${missingCodes.join("\\n")}\`
+      \`\\nKhông tìm thấy\\n\${[...remaining].join("\\n")}\`
     );
   }
 })();`;
