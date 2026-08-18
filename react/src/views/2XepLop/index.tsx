@@ -81,18 +81,21 @@ function Index() {
   };
 
   return (
-    <section className="page-wrap wide builder-page">
+    <section
+      className={`page-wrap wide builder-page ${isSidePanelOpen ? 'has-open-side-drawer' : ''}`}
+      style={isSidePanelOpen ? { paddingLeft: `${sidePanelWidth + 16}px`, transition: isResizing ? 'none' : 'padding-left 0.15s ease' } : {}}
+    >
       <PlanSelectorBar />
 
       <div
         className={`builder-split-layout ${isResizing ? 'is-resizing' : ''}`}
         ref={splitContainerRef}
       >
-        {/* LEFT PANEL: Inline Search & List View Panel (Appears when toggled) */}
+        {/* LEFT DRAWER PANEL: Flush Left Edge, Full Height, Sharp Square Corners */}
         {isSidePanelOpen && (
           <>
             <Paper
-              className="surface-card builder-side-panel"
+              className="surface-card builder-side-drawer"
               style={{ width: `${sidePanelWidth}px` }}
             >
               <CoursePickerSidePanel
@@ -112,7 +115,8 @@ function Index() {
 
             {/* DRAGGABLE RESIZER HANDLE */}
             <div
-              className="builder-panel-resizer"
+              className="builder-drawer-resizer"
+              style={{ left: `${sidePanelWidth}px` }}
               onMouseDown={(e) => {
                 e.preventDefault();
                 setIsResizing(true);

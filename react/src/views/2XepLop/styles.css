@@ -74,33 +74,41 @@
   cursor: col-resize !important;
 }
 
-.builder-side-panel {
-  flex: 0 0 auto;
-  border-radius: 8px !important;
-  border: 1.5px solid #0E2128 !important;
-  box-shadow: 0 4px 16px rgba(14, 33, 40, 0.08) !important;
-  background: #ffffff;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  padding: 14px;
+.builder-side-drawer {
+  position: fixed !important;
+  top: 56px !important;
+  left: 0 !important;
+  bottom: 0 !important;
+  z-index: 1150 !important;
+  border-radius: 0 !important;
+  border: 0 !important;
+  border-right: 1.5px solid #0E2128 !important;
+  box-shadow: 6px 0 24px rgba(14, 33, 40, 0.12) !important;
+  background: #ffffff !important;
+  display: flex !important;
+  flex-direction: column !important;
+  padding: 16px 14px 12px !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
 }
 
-.builder-panel-resizer {
-  width: 14px;
-  margin: 0 2px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: col-resize;
-  user-select: none;
-  z-index: 10;
+.builder-drawer-resizer {
+  position: fixed !important;
+  top: 56px !important;
+  bottom: 0 !important;
+  width: 12px !important;
+  z-index: 1151 !important;
+  cursor: col-resize !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  user-select: none !important;
 }
 
-.builder-panel-resizer:hover .resizer-handle-line,
-.builder-split-layout.is-resizing .resizer-handle-line {
-  background-color: #0E2128;
-  width: 4px;
+.builder-drawer-resizer:hover .resizer-handle-line,
+.builder-split-layout.is-resizing + .builder-drawer-resizer .resizer-handle-line {
+  background-color: #0E2128 !important;
+  width: 4px !important;
 }
 
 .resizer-handle-line {
@@ -109,6 +117,12 @@
   border-radius: 4px;
   background-color: #BACCD6;
   transition: all 0.15s ease;
+}
+
+.builder-page.has-open-side-drawer {
+  max-width: none !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
 }
 
 .course-picker-side-panel-container {
