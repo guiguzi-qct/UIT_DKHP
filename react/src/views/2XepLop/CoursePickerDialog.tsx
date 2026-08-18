@@ -1298,9 +1298,21 @@ export function CoursePickerSidePanel({
                       onChange={() => !conflict && toggleCandidate(candidate)}
                     />
                   </td>
-                  <td className="cell-name" style={isChild ? { paddingLeft: '24px' } : undefined}>
-                    <strong className="mh-title">{candidate.TenMH}</strong>
-                    <span className="mh-code">{candidate.MaMH}</span>
+                  <td className="cell-name">
+                    {isChild ? (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 7, paddingLeft: 12 }}>
+                        <span className="child-plus-badge">+</span>
+                        <div>
+                          <strong className="mh-title">{candidate.TenMH}</strong>
+                          <span className="mh-code">{candidate.MaMH}</span>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <strong className="mh-title">{candidate.TenMH}</strong>
+                        <span className="mh-code">{candidate.MaMH}</span>
+                      </>
+                    )}
                   </td>
                   <td className="cell-code">
                     <strong>{candidate.MaLop}</strong>
