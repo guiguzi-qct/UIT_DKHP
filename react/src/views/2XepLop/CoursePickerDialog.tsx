@@ -1076,7 +1076,7 @@ export function CoursePickerSidePanel({
             className={`hide-conflict-badge-btn ${hideConflicts ? 'active' : ''}`}
             onClick={() => setHideConflicts(!hideConflicts)}
           >
-            👁️ Ẩn lớp không hợp lệ <span className="conflict-badge-count">{conflictReasons.size}</span>
+            Ẩn lớp không hợp lệ <span className="conflict-badge-count">{conflictReasons.size}</span>
           </button>
         </div>
 
@@ -1088,11 +1088,11 @@ export function CoursePickerSidePanel({
               if (onOpenGroupModal) onOpenGroupModal();
             }}
           >
-            <ViewModuleIcon style={{ fontSize: 15 }} /> Nhóm môn (Popup)
+            Nhóm môn (Popup)
           </button>
 
           <button type="button" className="clear-filter-btn" onClick={handleClearAllFilters}>
-            ✕ Xóa lọc
+            Xóa lọc
           </button>
 
           {onClose && (

@@ -37,10 +37,11 @@ function Index() {
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      if (!isResizing || !splitContainerRef.current) return;
-      const rect = splitContainerRef.current.getBoundingClientRect();
-      const newWidth = e.clientX - rect.left;
-      if (newWidth >= 360 && newWidth <= rect.width - 400) {
+      if (!isResizing) return;
+      // Since drawer is fixed flush at left: 0, width is simply mouse position e.clientX
+      const newWidth = e.clientX;
+      const maxW = Math.min(950, window.innerWidth - 320);
+      if (newWidth >= 320 && newWidth <= maxW) {
         setSidePanelWidth(newWidth);
       }
     };
@@ -50,10 +51,18 @@ function Index() {
     };
 
     if (isResizing) {
+      document.body.style.userSelect = 'none';
+      document.body.style.cursor = 'col-resize';
       window.addEventListener('mousemove', handleMouseMove);
       window.addEventListener('mouseup', handleMouseUp);
+    } else {
+      document.body.style.userSelect = '';
+      document.body.style.cursor = '';
     }
+
     return () => {
+      document.body.style.userSelect = '';
+      document.body.style.cursor = '';
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
     };
@@ -129,9 +138,9 @@ function Index() {
         )}
 
         {/* RIGHT PANEL: Timetable Grid */}
-        <Paper className="surface-card timetable-card builder-timetable">
+        <div className="timetable-card builder-timetable">
           <ThoiKhoaBieuTable interactive onPickSlot={openPickerFromTimetable} />
-        </Paper>
+        </div>
       </div>
 
       <div className={`builder-action-dock ${isSidePanelOpen ? 'is-compact' : ''}`} role="region" aria-label="Hành động xếp lớp">

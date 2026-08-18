@@ -76,10 +76,10 @@
 
 .builder-side-drawer {
   position: fixed !important;
-  top: 56px !important;
+  top: 76px !important;
   left: 0 !important;
   bottom: 0 !important;
-  z-index: 1150 !important;
+  z-index: 1050 !important;
   border-radius: 0 !important;
   border: 0 !important;
   border-right: 1.5px solid #0E2128 !important;
@@ -87,17 +87,18 @@
   background: #ffffff !important;
   display: flex !important;
   flex-direction: column !important;
-  padding: 16px 14px 12px !important;
+  padding: 12px 14px 12px !important;
   overflow: hidden !important;
   box-sizing: border-box !important;
 }
 
 .builder-drawer-resizer {
   position: fixed !important;
-  top: 56px !important;
+  top: 76px !important;
   bottom: 0 !important;
-  width: 12px !important;
-  z-index: 1151 !important;
+  width: 18px !important;
+  margin-left: -9px !important;
+  z-index: 1250 !important;
   cursor: col-resize !important;
   display: flex !important;
   align-items: center !important;
@@ -108,15 +109,16 @@
 .builder-drawer-resizer:hover .resizer-handle-line,
 .builder-split-layout.is-resizing + .builder-drawer-resizer .resizer-handle-line {
   background-color: #0E2128 !important;
-  width: 4px !important;
+  width: 5px !important;
 }
 
 .resizer-handle-line {
-  width: 2px;
+  width: 3px;
   height: 64px;
   border-radius: 4px;
   background-color: #BACCD6;
   transition: all 0.15s ease;
+  pointer-events: none;
 }
 
 .builder-page.has-open-side-drawer {
@@ -352,9 +354,11 @@
 .builder-timetable {
   flex: 1;
   min-width: 0;
-  padding: 10px;
-  border-radius: 18px;
-  border: 1.5px solid #0E2128 !important;
+  padding: 12px 14px 105px 14px !important;
+  border-radius: 0 !important;
+  border: 0 !important;
+  background: #ffffff !important;
+  box-shadow: none !important;
   animation: builder-table-in 220ms ease-out both;
 }
 
