@@ -122,6 +122,8 @@
 #thoi-khoa-bieu td.ghost-cell-wrapper {
   padding: 0 !important;
   margin: 0 !important;
+  height: 100% !important;
+  vertical-align: top !important;
 }
 
 #thoi-khoa-bieu .class-cell-card.ghost-preview-card {
@@ -134,7 +136,8 @@
   pointer-events: none;
   width: 100% !important;
   height: 100% !important;
-  min-height: 48px;
+  min-height: 100% !important;
+  display: block !important;
   box-sizing: border-box !important;
   margin: 0 !important;
 }
