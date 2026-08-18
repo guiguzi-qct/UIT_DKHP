@@ -28,7 +28,7 @@ function Index() {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'x') {
         e.preventDefault();
-        setIsSidePanelOpen((prev) => !prev);
+        setPickerTarget({ kind: 'all' });
       }
     };
     const handleListMode = () => {
@@ -182,11 +182,11 @@ function Index() {
             className="builder-dock-search"
             role="button"
             tabIndex={0}
-            onClick={() => setIsSidePanelOpen(true)}
+            onClick={() => setPickerTarget({ kind: 'all' })}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
-                setIsSidePanelOpen(true);
+                setPickerTarget({ kind: 'all' });
               }
             }}
           >

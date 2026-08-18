@@ -92,18 +92,43 @@ const isValidTiet = (tiet: string): boolean => {
   return Number.isInteger(tietNumber) && tietNumber >= 1 && tietNumber <= 15;
 };
 
+export const extractThuList = (value: unknown): string[] => {
+  if (value == null) return [];
+  let str = String(value).toUpperCase().trim();
+  if (!str || str === '*' || str === 'NULL' || str === 'UNDEFINED') return [];
+
+  str = str.replace(/THỨ\s*/gi, '').replace(/THU\s*/gi, '').replace(/T(?=[2-7])/gi, '');
+
+  const result = new Set<string>();
+
+  const rangeMatches = Array.from(str.matchAll(/([2-7])\s*[-–—]\s*([2-7])/g));
+  rangeMatches.forEach(([_, startStr, endStr]) => {
+    const start = Number(startStr);
+    const end = Number(endStr);
+    if (start <= end) {
+      for (let d = start; d <= end; d++) {
+        result.add(String(d));
+      }
+    }
+  });
+
+  const digits = str.match(/[2-7]/g);
+  if (digits) {
+    digits.forEach((d) => result.add(d));
+  }
+
+  return Array.from(result);
+};
+
 /** Có đủ dữ liệu để đặt lớp vào một ô cụ thể trên lưới thời khóa biểu. */
 export const hasTimetableSlot = (classModel?: Pick<ClassModel, 'Thu' | 'Tiet'>): boolean => {
   if (!classModel) return false;
   const { Thu, Tiet } = classModel;
-  const normalizedThu = normalizeScheduleValue(Thu);
+  const thuList = extractThuList(Thu);
   const listTiet = getDanhSachTiet(Tiet);
-  if (!normalizedThu || listTiet.length === 0) return false;
+  if (thuList.length === 0 || listTiet.length === 0) return false;
 
-  const thuList = normalizedThu.split(',').map((s) => s.trim()).filter(Boolean);
-  const isThuValid = thuList.length > 0 && thuList.every((d) => /^[2-7]$/.test(d));
-
-  return isThuValid && listTiet.every(isValidTiet);
+  return listTiet.every(isValidTiet);
 };
 
 /**
@@ -119,7 +144,7 @@ const getTimeSlots = (classModel?: ClassModel): TimeSlots => {
   if (Thu === '*') return '*';
   if (!hasTimetableSlot(classModel)) return [];
 
-  const thuList = normalizeScheduleValue(Thu).split(',').map((s) => s.trim()).filter(Boolean);
+  const thuList = extractThuList(Thu);
   const rawTiet = normalizeScheduleValue(Tiet);
 
   if (thuList.length > 1 && rawTiet.includes(',')) {
