@@ -28,7 +28,7 @@ export function getParentTheoryCode(maLop: string): string {
   if (trimmed.includes('-----')) {
     trimmed = trimmed.split('-----')[0].trim();
   }
-  const codeMatch = trimmed.match(/^([A-Z0-9\.]+)/i);
+  const codeMatch = trimmed.match(/^([A-Z0-9.]+)/i);
   if (codeMatch) {
     trimmed = codeMatch[1];
   }
@@ -45,7 +45,7 @@ export function isThucHanhClass(candidate: ClassModel): boolean {
 
   // 1. MaLop pattern check FIRST: UIT practice classes always have a practice suffix (.1, .2, .ANTT.1)
   // e.g. IE104.R12.1 or NT230.R11.ANTT.1 or SE104.O21.2
-  if (/\.[A-Z0-9\.]+\.\d+/i.test(maLop) || /\.\d+(\s|-----|$)/.test(maLop)) {
+  if (/\.[A-Z0-9.]+\.\d+/i.test(maLop) || /\.\d+(\s|-----|$)/.test(maLop)) {
     return true;
   }
 

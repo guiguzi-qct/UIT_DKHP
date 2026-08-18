@@ -183,7 +183,7 @@ export function parseSheetRowsDynamic(sheetRows: any[][]): ClassModelOriginal[] 
       segments.forEach((segment) => {
         const segTrim = segment.trim();
         const codeToken = segTrim.split(/\s+/)[0];
-        const cleanCode = /^[A-Z0-9\.]+$/i.test(codeToken) ? codeToken : segTrim;
+        const cleanCode = /^[A-Z0-9.]+$/i.test(codeToken) ? codeToken : segTrim;
 
         const subRow: ClassModelOriginal = {
           ...parsedRow,
@@ -204,7 +204,7 @@ export function parseSheetRowsDynamic(sheetRows: any[][]): ClassModelOriginal[] 
     // Clean MaLop if it contains extra appended text (e.g. "IE104.R12.1 Internet...")
     if (parsedRow.MaLop && parsedRow.MaLop.includes(' ')) {
       const codeToken = parsedRow.MaLop.trim().split(/\s+/)[0];
-      if (/^[A-Z0-9\.]+$/i.test(codeToken)) {
+      if (/^[A-Z0-9.]+$/i.test(codeToken)) {
         parsedRow.MaLop = codeToken;
       }
     }
