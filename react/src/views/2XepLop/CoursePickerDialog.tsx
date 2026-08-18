@@ -1202,7 +1202,7 @@ export function CoursePickerSidePanel({
               <th style={{ width: '36px', textAlign: 'center' }}></th>
               <th style={{ minWidth: '240px' }}>MÔN HỌC</th>
               <th style={{ width: '95px' }}>MÃ LỚP</th>
-              <th style={{ width: '100px' }}>GIẢNG VIÊN</th>
+              <th style={{ minWidth: '175px' }}>GIẢNG VIÊN</th>
               <th style={{ width: '55px' }}>THỨ</th>
               <th style={{ width: '65px' }}>TIẾT</th>
               <th style={{ width: '60px' }}>PHÒNG</th>

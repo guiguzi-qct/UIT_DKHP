@@ -451,10 +451,9 @@ body:has(.has-open-side-drawer) {
 
 .side-panel-table .cell-gv {
   font-size: 13.5px !important;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 120px;
+  min-width: 175px;
+  white-space: normal;
+  word-break: break-word;
 }
 
 .side-panel-table .cell-code strong {
