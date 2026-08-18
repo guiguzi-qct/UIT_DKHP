@@ -120,6 +120,12 @@ export function cleanTenGV(rawTenGV?: string): string | undefined {
   return gv.trim() || undefined;
 }
 
+export function isPracticeClassCode(code?: string, htgd?: string): boolean {
+  if (htgd && /^HT\d*/i.test(htgd.trim())) return true;
+  if (!code) return false;
+  return /\.(ANTT\.)?\d+$/i.test(code.trim());
+}
+
 function parseSheetToClassModels(sheet: XLSX.WorkSheet, _sheetName: string): ClassModelOriginal[] {
   if (!sheet) return [];
 
@@ -252,12 +258,6 @@ export function parseSheetRowsDynamic(sheetRows: any[][]): ClassModelOriginal[] 
       MaLopLt: text(readCell(row, header.indexes, 'MALOPLT')),
     });
   }
-
-function isPracticeClassCode(code?: string, htgd?: string): boolean {
-  if (htgd && /^HT\d*/i.test(htgd.trim())) return true;
-  if (!code) return false;
-  return /\.(ANTT\.)?\d+$/i.test(code.trim());
-}
 
   // Post-process SoTc fallback
   const soTcMap = new Map<string, number>();
