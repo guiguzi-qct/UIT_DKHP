@@ -1083,12 +1083,12 @@ export function CoursePickerSidePanel({
         <div className="toolbar-right-group">
           <button
             type="button"
-            className={`view-toggle-mode-btn ${viewMode === 'group' ? 'active' : ''}`}
+            className="view-toggle-mode-btn"
             onClick={() => {
               if (onOpenGroupModal) onOpenGroupModal();
             }}
           >
-            <ViewModuleIcon style={{ fontSize: 15 }} /> Nhóm môn
+            <ViewModuleIcon style={{ fontSize: 15 }} /> Nhóm môn (Popup)
           </button>
 
           <button type="button" className="clear-filter-btn" onClick={handleClearAllFilters}>
