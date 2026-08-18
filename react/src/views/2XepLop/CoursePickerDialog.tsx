@@ -1043,10 +1043,6 @@ export function CoursePickerSidePanel({
       {/* Top Toolbar matching reference screenshot */}
       <div className="side-panel-toolbar-row">
         <div className="toolbar-left-group">
-          <span className="count-badge">
-            <strong>{displayCandidates.length}</strong> / {data.length} lớp
-          </span>
-
           <div className="type-pill-group">
             <button
               type="button"
@@ -1076,7 +1072,7 @@ export function CoursePickerSidePanel({
             className={`hide-conflict-badge-btn ${hideConflicts ? 'active' : ''}`}
             onClick={() => setHideConflicts(!hideConflicts)}
           >
-            Ẩn lớp không hợp lệ <span className="conflict-badge-count">{conflictReasons.size}</span>
+            Ẩn lớp không hợp lệ
           </button>
         </div>
 

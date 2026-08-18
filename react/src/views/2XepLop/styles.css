@@ -150,6 +150,7 @@ body:has(.has-open-side-drawer) {
   flex: 1 !important;
   height: 100% !important;
   min-height: 0 !important;
+  overflow-x: auto !important;
   overflow-y: auto !important;
   border: 1.5px solid #0E2128 !important;
   border-radius: 14px !important;
@@ -189,10 +190,15 @@ body:has(.has-open-side-drawer) {
 }
 
 .builder-page.has-open-side-drawer .builder-timetable-column,
-.builder-page.has-open-side-drawer .builder-timetable-column .timetable-card,
-.builder-page.has-open-side-drawer .builder-timetable-column .timetable-scroll {
+.builder-page.has-open-side-drawer .builder-timetable-column .timetable-card {
   height: 100% !important;
   overflow: hidden !important;
+}
+
+.builder-page.has-open-side-drawer .builder-timetable-column .timetable-scroll {
+  height: 100% !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
 }
 
 .course-picker-side-panel-container {
