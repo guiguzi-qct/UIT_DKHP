@@ -114,7 +114,7 @@ ${codesIndent}
       for (let c = 0; c < cells.length; c++) {
         const text = norm(cells[c].textContent);
 
-        if (text === "MÃ LỚP" || text === "MA LOP") {
+        if (text === "MÃ LỚP" || text === "MA LOP" || text.includes("MÃ LỚP") || text.includes("MA LOP") || text.includes("MÃ LHP")) {
           table = t;
           colIdx = c;
           startRow = r + 1;
@@ -137,16 +137,29 @@ ${codesIndent}
 
     if (cells.length <= colIdx) continue;
 
-    const code = norm(cells[colIdx].textContent);
+    const cellText = norm(cells[colIdx].textContent);
+    const code = cellText.split(/[\\s\\u00A0]+/)[0];
 
-    if (!remaining.has(code)) continue;
+    let matchedTarget = null;
+    if (remaining.has(code)) {
+      matchedTarget = code;
+    } else {
+      for (const target of remaining) {
+        if (cellText === target || cellText.startsWith(target) || code === target) {
+          matchedTarget = target;
+          break;
+        }
+      }
+    }
 
-    remaining.delete(code);
+    if (!matchedTarget) continue;
+
+    remaining.delete(matchedTarget);
 
     const cb = row.querySelector('input[type="checkbox"]');
 
     if (!cb || cb.disabled) {
-      failed.push(code);
+      failed.push(matchedTarget);
       continue;
     }
 
@@ -160,13 +173,16 @@ ${codesIndent}
 
   // Có ít nhất 1 mã tìm thấy -> bấm nút đăng ký
   if (remaining.size < targets.size) {
-    const registerBtn = [...document.querySelectorAll("button")]
-      .find(btn =>
-        !btn.disabled &&
-        /^Đăng ký\\s+\\d+\\s+lớp(?:\\s*,\\s*\\d+\\s*tc)?$/i.test(
-          btn.textContent.trim()
-        )
-      );
+    const registerBtn = [...document.querySelectorAll("button, input[type='button'], input[type='submit']")]
+      .find(btn => {
+        if (btn.disabled) return false;
+        const txt = norm(btn.textContent || btn.value || "");
+        return (
+          /^ĐĂNG KÝ\\s+\\d+\\s+LỚP/i.test(txt) ||
+          txt.includes("ĐĂNG KÝ") ||
+          txt.includes("DANG KY")
+        );
+      });
 
     registerBtn?.click();
   }
