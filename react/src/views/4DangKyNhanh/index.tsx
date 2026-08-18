@@ -84,8 +84,6 @@ export default function DangKyNhanh() {
     const bt = '`';
 
     return `(() => {
-  const t0 = performance.now();
-
   const RAW_CODES = ${bt}
 ${codesIndent}
   ${bt};
@@ -100,21 +98,17 @@ ${codesIndent}
     RAW_CODES.split(/[\\s,;]+/).map(norm).filter(Boolean)
   );
 
-  if (!targets.size) {
-    console.log("Không có mã lớp.");
-    return;
-  }
+  if (!targets.size) return;
 
-  let table = null;
+  let table;
   let colIdx = -1;
   let startRow = 0;
 
   outer:
   for (const t of document.querySelectorAll("table")) {
     const rows = t.rows;
-    const limit = Math.min(rows.length, 5);
 
-    for (let r = 0; r < limit; r++) {
+    for (let r = 0, n = Math.min(rows.length, 5); r < n; r++) {
       const cells = rows[r].cells;
 
       for (let c = 0; c < cells.length; c++) {
@@ -130,16 +124,10 @@ ${codesIndent}
     }
   }
 
-  if (!table) {
-    console.log('Không tìm thấy cột "Mã lớp".');
-    return;
-  }
+  if (!table) return;
 
-  // Vừa dùng để lookup, vừa dùng để theo dõi mã chưa tìm thấy.
   const remaining = new Set(targets);
-  const unavailable = [];
-
-  let selected = 0;
+  const failed = [];
 
   const rows = table.rows;
 
@@ -153,42 +141,40 @@ ${codesIndent}
 
     if (!remaining.has(code)) continue;
 
-    // Đã tìm thấy mã này -> bỏ khỏi danh sách còn thiếu.
     remaining.delete(code);
 
     const cb = row.querySelector('input[type="checkbox"]');
 
     if (!cb || cb.disabled) {
-      unavailable.push(code);
+      failed.push(code);
       continue;
     }
 
     if (!cb.checked) {
       cb.click();
-      selected++;
     }
   }
 
-  const ms = (performance.now() - t0).toFixed(2);
-  const ok = !unavailable.length && !remaining.size;
+  // Mã không có trong bảng
+  failed.push(...remaining);
 
-  console.log(
-    \`%c\${ok ? "HOÀN TẤT" : "CÓ VẤN ĐỀ"} %c• \${ms}ms\`,
-    \`color:\${ok ? "#16a34a" : "#d97706"};font-weight:700;font-size:13px\`,
-    "color:#64748b"
-  );
+  // Có ít nhất 1 mã tìm thấy -> bấm nút đăng ký
+  if (remaining.size < targets.size) {
+    const registerBtn = [...document.querySelectorAll("button")]
+      .find(btn =>
+        !btn.disabled &&
+        /^Đăng ký\\s+\\d+\\s+lớp(?:\\s*,\\s*\\d+\\s*tc)?$/i.test(
+          btn.textContent.trim()
+        )
+      );
 
-  console.log(\`\\nĐã chọn          \${selected}\`);
-
-  if (unavailable.length) {
-    console.log(
-      \`\\nKhông đăng ký được\\n\${unavailable.join("\\n")}\`
-    );
+    registerBtn?.click();
   }
 
-  if (remaining.size) {
+  // Chỉ log lớp không đăng ký được
+  if (failed.length) {
     console.log(
-      \`\\nKhông tìm thấy\\n\${[...remaining].join("\\n")}\`
+      \`Không đăng ký được\\n\${failed.join("\\n")}\`
     );
   }
 })();`;
