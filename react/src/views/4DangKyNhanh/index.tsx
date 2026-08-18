@@ -16,6 +16,8 @@ import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Switch from '@mui/material/Switch';
 import { useSnackbar } from 'notistack';
 import React, { useMemo, useState } from 'react';
 import { ClassModel } from '../../types';
@@ -45,6 +47,7 @@ export default function DangKyNhanh() {
   const [copiedScript, setCopiedScript] = useState(false);
   const [copiedAllCodes, setCopiedAllCodes] = useState(false);
   const [showScriptPreview, setShowScriptPreview] = useState(false);
+  const [autoSubmit, setAutoSubmit] = useState<boolean>(true);
   const [selectedFullClassCode, setSelectedFullClassCode] = useState<string>('');
   const [checkedClassCodes, setCheckedClassCodes] = useState<Record<string, boolean>>({});
 
@@ -82,6 +85,24 @@ export default function DangKyNhanh() {
       .filter(Boolean)
       .join('\n');
     const bt = '`';
+
+    const autoSubmitSnippet = autoSubmit
+      ? `  // Có ít nhất 1 mã tìm thấy -> bấm nút đăng ký
+  if (remaining.size < targets.size) {
+    const registerBtn = [...document.querySelectorAll("button, input[type='button'], input[type='submit']")]
+      .find(btn => {
+        if (btn.disabled) return false;
+        const txt = norm(btn.textContent || btn.value || "");
+        return (
+          /^ĐĂNG KÝ\\s+\\d+\\s+LỚP/i.test(txt) ||
+          txt.includes("ĐĂNG KÝ") ||
+          txt.includes("DANG KY")
+        );
+      });
+
+    registerBtn?.click();
+  }`
+      : `  // Tự động bấm Đăng ký đang TẮT`;
 
     return `(() => {
   const RAW_CODES = ${bt}
@@ -171,21 +192,7 @@ ${codesIndent}
   // Mã không có trong bảng
   failed.push(...remaining);
 
-  // Có ít nhất 1 mã tìm thấy -> bấm nút đăng ký
-  if (remaining.size < targets.size) {
-    const registerBtn = [...document.querySelectorAll("button, input[type='button'], input[type='submit']")]
-      .find(btn => {
-        if (btn.disabled) return false;
-        const txt = norm(btn.textContent || btn.value || "");
-        return (
-          /^ĐĂNG KÝ\\s+\\d+\\s+LỚP/i.test(txt) ||
-          txt.includes("ĐĂNG KÝ") ||
-          txt.includes("DANG KY")
-        );
-      });
-
-    registerBtn?.click();
-  }
+${autoSubmitSnippet}
 
   // Chỉ log lớp không đăng ký được
   if (failed.length) {
@@ -194,7 +201,7 @@ ${codesIndent}
     );
   }
 })();`;
-  }, [selectedClasses]);
+  }, [selectedClasses, autoSubmit]);
 
   const scriptLines = useMemo(() => scriptCode.split('\n'), [scriptCode]);
 
@@ -511,17 +518,46 @@ ${codesIndent}
               <CodeIcon className="dkn-section-icon" />
               <Typography className="dkn-section-title">Script hỗ trợ nhanh</Typography>
             </Box>
-            <Button
-              variant="contained"
-              color="primary"
-              size="medium"
-              className="dkn-copy-script-btn"
-              startIcon={copiedScript ? <CheckIcon /> : <FlashOnIcon />}
-              onClick={handleCopyScript}
-              disabled={classCount === 0}
-            >
-              {copiedScript ? 'Đã sao chép Script!' : 'Sao chép Script'}
-            </Button>
+
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={autoSubmit}
+                    onChange={(e) => setAutoSubmit(e.target.checked)}
+                    color="success"
+                    size="small"
+                  />
+                }
+                label={
+                  <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '0.85rem', color: autoSubmit ? '#1b5e20' : 'text.secondary' }}>
+                    Tự động bấm đăng ký: <strong>{autoSubmit ? 'BẬT' : 'TẮT'}</strong>
+                  </Typography>
+                }
+                sx={{
+                  margin: 0,
+                  userSelect: 'none',
+                  background: autoSubmit ? 'rgba(46, 125, 50, 0.08)' : 'rgba(0, 0, 0, 0.04)',
+                  px: 1.5,
+                  py: 0.5,
+                  borderRadius: '10px',
+                  border: autoSubmit ? '1px solid rgba(46, 125, 50, 0.3)' : '1px solid rgba(0, 0, 0, 0.12)',
+                  transition: 'all 0.2s ease-in-out',
+                }}
+              />
+
+              <Button
+                variant="contained"
+                color="primary"
+                size="medium"
+                className="dkn-copy-script-btn"
+                startIcon={copiedScript ? <CheckIcon /> : <FlashOnIcon />}
+                onClick={handleCopyScript}
+                disabled={classCount === 0}
+              >
+                {copiedScript ? 'Đã sao chép Script!' : 'Sao chép Script'}
+              </Button>
+            </Box>
           </Box>
 
           {/* User Guide Card */}

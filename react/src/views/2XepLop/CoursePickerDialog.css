@@ -563,3 +563,111 @@
     animation: none;
   }
 }
+
+/* Subbar View Toggle */
+.course-picker-subbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 12px 0 10px;
+  flex-wrap: wrap;
+}
+
+.course-view-toggle-group {
+  background: #ffffff;
+  border-radius: 8px;
+}
+
+.course-view-toggle-group .MuiToggleButton-root {
+  font-weight: 700 !important;
+  font-size: 13px !important;
+  text-transform: none !important;
+  padding: 4px 12px !important;
+}
+
+.course-view-toggle-group .MuiToggleButton-root.Mui-selected {
+  background-color: #0E2128 !important;
+  color: #ffffff !important;
+}
+
+/* Flat Table List View */
+.course-flat-list-wrapper {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  border: 1.5px solid #BACCD6;
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+.course-flat-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+
+.course-flat-table th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #EBF1F5;
+  color: #0E2128;
+  font-weight: 800;
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1.5px solid #BACCD6;
+  white-space: nowrap;
+}
+
+.course-flat-row {
+  border-bottom: 1px solid #E0E8EE;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.course-flat-row:hover:not(.is-conflict) {
+  background-color: #F0F6FA;
+}
+
+.course-flat-row.is-active {
+  background-color: #E2F0D9 !important;
+}
+
+.course-flat-row.is-conflict {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: #FAF4F4;
+}
+
+.course-flat-row td {
+  padding: 10px 12px;
+  vertical-align: middle;
+}
+
+.course-flat-table .cell-name {
+  display: flex;
+  flex-direction: column;
+}
+
+.course-flat-table .mh-title {
+  color: #0E2128;
+  font-size: 13.5px;
+}
+
+.course-flat-table .mh-code {
+  font-size: 11.5px;
+  color: #59899D;
+  font-weight: 600;
+}
+
+.course-flat-table .cell-code strong {
+  color: #0E2128;
+  font-weight: 800;
+}
+
+.course-flat-table input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
