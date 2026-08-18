@@ -94,8 +94,8 @@ function Index() {
         {/* LEFT DRAWER PANEL: Flush Left Edge, Full Height, Sharp Square Corners */}
         {isSidePanelOpen && (
           <>
-            <Paper
-              className="surface-card builder-side-drawer"
+            <div
+              className="builder-side-drawer"
               style={{ width: `${sidePanelWidth}px` }}
             >
               <CoursePickerSidePanel
@@ -111,7 +111,7 @@ function Index() {
                 slotFilter={selectedSlotFilter}
                 onClearSlotFilter={() => setSelectedSlotFilter(null)}
               />
-            </Paper>
+            </div>
 
             {/* DRAGGABLE RESIZER HANDLE */}
             <div

@@ -906,7 +906,12 @@ export function CoursePickerSidePanel({
   slotFilter?: TimetablePickTarget | null;
   onClearSlotFilter?: () => void;
 }) {
-  const [search, setSearch] = useState('');
+  const [searchSubject, setSearchSubject] = useState('');
+  const [searchMaLop, setSearchMaLop] = useState('');
+  const [searchGv, setSearchGv] = useState('');
+  const [searchThu, setSearchThu] = useState<string>('ALL');
+  const [searchTiet, setSearchTiet] = useState('');
+  const [searchPhong, setSearchPhong] = useState('');
   const [typeFilter, setTypeFilter] = useState<'ALL' | 'LT' | 'TH'>('ALL');
   const [hideConflicts, setHideConflicts] = useState(false);
   const [viewMode, setViewMode] = useState<'group' | 'list'>('list');
@@ -915,14 +920,30 @@ export function CoursePickerSidePanel({
   const selectedClasses = useTkbStore(selectSelectedClassesBuoc3);
   const setSelectedClasses = useTkbStore((state) => state.setSelectedClasses);
 
+  const handleClearAllFilters = () => {
+    setSearchSubject('');
+    setSearchMaLop('');
+    setSearchGv('');
+    setSearchThu('ALL');
+    setSearchTiet('');
+    setSearchPhong('');
+    setTypeFilter('ALL');
+    setHideConflicts(false);
+    if (onClearSlotFilter) onClearSlotFilter();
+  };
+
   const allCandidates = useMemo(() => {
-    const normalizedSearch = search.trim().toLocaleLowerCase('vi');
+    const normSubj = searchSubject.trim().toLocaleLowerCase('vi');
+    const normLop = searchMaLop.trim().toLocaleLowerCase('vi');
+    const normGv = searchGv.trim().toLocaleLowerCase('vi');
+    const normTiet = searchTiet.trim();
+    const normPhong = searchPhong.trim().toLocaleLowerCase('vi');
 
     return data
       .filter((candidate) => {
         if (!hasTimetableSlot(candidate)) return false;
 
-        // Apply Slot Filter from Timetable click if present
+        // Slot Filter from Timetable click
         if (slotFilter) {
           if (slotFilter.existing) {
             if (!isSameCoursePart(candidate, slotFilter.existing)) return false;
@@ -941,23 +962,44 @@ export function CoursePickerSidePanel({
         if (typeFilter === 'LT' && isTH) return false;
         if (typeFilter === 'TH' && !isTH) return false;
 
-        if (!normalizedSearch) return true;
-        return [candidate.TenMH, candidate.MaMH, candidate.MaLop, candidate.TenGV, candidate.PhongHoc]
-          .filter(Boolean)
-          .some((value) => String(value).toLocaleLowerCase('vi').includes(normalizedSearch));
+        if (normSubj) {
+          const matchSubj = [candidate.TenMH, candidate.MaMH]
+            .filter(Boolean)
+            .some((val) => String(val).toLocaleLowerCase('vi').includes(normSubj));
+          if (!matchSubj) return false;
+        }
+
+        if (normLop) {
+          if (!candidate.MaLop || !candidate.MaLop.toLocaleLowerCase('vi').includes(normLop)) return false;
+        }
+
+        if (normGv) {
+          if (!candidate.TenGV || !candidate.TenGV.toLocaleLowerCase('vi').includes(normGv)) return false;
+        }
+
+        if (searchThu !== 'ALL') {
+          if (String(candidate.Thu) !== searchThu) return false;
+        }
+
+        if (normTiet) {
+          if (!candidate.Tiet || !String(candidate.Tiet).includes(normTiet)) return false;
+        }
+
+        if (normPhong) {
+          if (!candidate.PhongHoc || !candidate.PhongHoc.toLocaleLowerCase('vi').includes(normPhong)) return false;
+        }
+
+        return true;
       })
       .sort((a, b) =>
         `${a.TenMH}-${a.MaLop}`.localeCompare(`${b.TenMH}-${b.MaLop}`, 'vi', { sensitivity: 'base' }),
       );
-  }, [data, search, typeFilter, slotFilter]);
+  }, [data, searchSubject, searchMaLop, searchGv, searchThu, searchTiet, searchPhong, typeFilter, slotFilter]);
 
   const conflictReasons = useMemo(() => {
     const reasons = new Map<string, string>();
     allCandidates.forEach((candidate) => {
-      // Do not mark classes already selected as conflict
-      if (selectedClasses.some((s) => isSameAgGridRowId(s, candidate))) {
-        return;
-      }
+      if (selectedClasses.some((s) => isSameAgGridRowId(s, candidate))) return;
       const reason = getDraftConflictReason(candidate, selectedClasses, []);
       if (reason) reasons.set(getCandidateKey(candidate), reason);
     });
@@ -972,13 +1014,11 @@ export function CoursePickerSidePanel({
   const toggleCandidate = (candidate: ClassModel) => {
     const isSelected = selectedClasses.some((s) => isSameAgGridRowId(s, candidate));
     if (isSelected) {
-      // Toggle OFF -> Remove from timetable
       setSelectedClasses(selectedClasses.filter((s) => !isSameAgGridRowId(s, candidate)));
       enqueueSnackbar(`Đã bỏ chọn ${candidate.MaLop}`, { variant: 'info' });
       return;
     }
 
-    // Toggle ON -> Add to timetable
     const isTH = isThucHanhClass(candidate);
     if (isTH) {
       const hasParentLT = selectedClasses.some((lt) => isTheoryClass(lt) && isPracticeOfTheory(candidate, lt));
@@ -1001,14 +1041,61 @@ export function CoursePickerSidePanel({
 
   return (
     <div className="course-picker-side-panel-container">
-      <div className="side-panel-header">
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-          <div>
-            <Typography className="side-panel-title">Tìm & Chọn môn học</Typography>
-            <Typography variant="body2" color="text.secondary" className="side-panel-desc">
-              Tích chọn lớp để cập nhật trực tiếp vào thời khóa biểu
-            </Typography>
+      {/* Top Toolbar matching reference screenshot */}
+      <div className="side-panel-toolbar-row">
+        <div className="toolbar-left-group">
+          <span className="count-badge">
+            <strong>{displayCandidates.length}</strong> / {data.length} lớp
+          </span>
+
+          <div className="type-pill-group">
+            <button
+              type="button"
+              className={`pill-btn ${typeFilter === 'ALL' ? 'active' : ''}`}
+              onClick={() => setTypeFilter('ALL')}
+            >
+              Tất cả
+            </button>
+            <button
+              type="button"
+              className={`pill-btn ${typeFilter === 'LT' ? 'active' : ''}`}
+              onClick={() => setTypeFilter('LT')}
+            >
+              LT
+            </button>
+            <button
+              type="button"
+              className={`pill-btn ${typeFilter === 'TH' ? 'active' : ''}`}
+              onClick={() => setTypeFilter('TH')}
+            >
+              TH
+            </button>
           </div>
+
+          <button
+            type="button"
+            className={`hide-conflict-badge-btn ${hideConflicts ? 'active' : ''}`}
+            onClick={() => setHideConflicts(!hideConflicts)}
+          >
+            👁️ Ẩn lớp không hợp lệ <span className="conflict-badge-count">{conflictReasons.size}</span>
+          </button>
+        </div>
+
+        <div className="toolbar-right-group">
+          <button
+            type="button"
+            className={`view-toggle-mode-btn ${viewMode === 'group' ? 'active' : ''}`}
+            onClick={() => {
+              if (onOpenGroupModal) onOpenGroupModal();
+            }}
+          >
+            <ViewModuleIcon style={{ fontSize: 15 }} /> Nhóm môn
+          </button>
+
+          <button type="button" className="clear-filter-btn" onClick={handleClearAllFilters}>
+            ✕ Xóa lọc
+          </button>
+
           {onClose && (
             <button
               type="button"
@@ -1016,20 +1103,11 @@ export function CoursePickerSidePanel({
               onClick={onClose}
               aria-label="Đóng bảng tìm kiếm"
             >
-              <CloseIcon style={{ fontSize: 18 }} />
+              <CloseIcon style={{ fontSize: 16 }} />
             </button>
           )}
         </div>
       </div>
-
-      <TextField
-        fullWidth
-        size="small"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        placeholder="Tìm tên môn, mã môn, mã lớp, giảng viên..."
-        className="side-panel-search-input"
-      />
 
       {slotFilter && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, margin: '2px 0' }}>
@@ -1046,77 +1124,83 @@ export function CoursePickerSidePanel({
         </div>
       )}
 
-      <div className="side-panel-toolbar">
-        <div className="side-panel-filter-chips">
-          <Button
-            size="small"
-            variant={typeFilter === 'ALL' ? 'contained' : 'outlined'}
-            onClick={() => setTypeFilter('ALL')}
-            className={`chip-btn ${typeFilter === 'ALL' ? 'active' : ''}`}
-          >
-            Tất cả ({displayCandidates.length})
-          </Button>
-          <Button
-            size="small"
-            variant={typeFilter === 'LT' ? 'contained' : 'outlined'}
-            onClick={() => setTypeFilter('LT')}
-            className={`chip-btn ${typeFilter === 'LT' ? 'active' : ''}`}
-          >
-            LT
-          </Button>
-          <Button
-            size="small"
-            variant={typeFilter === 'TH' ? 'contained' : 'outlined'}
-            onClick={() => setTypeFilter('TH')}
-            className={`chip-btn ${typeFilter === 'TH' ? 'active' : ''}`}
-          >
-            TH
-          </Button>
-          <Button
-            size="small"
-            variant={hideConflicts ? 'contained' : 'outlined'}
-            onClick={() => setHideConflicts(!hideConflicts)}
-            className={`chip-btn ${hideConflicts ? 'active-warning' : ''}`}
-          >
-            {hideConflicts ? 'Hiện lớp trùng' : 'Ẩn lớp trùng'}
-          </Button>
-        </div>
-
-        <ToggleButtonGroup
-          value={viewMode}
-          exclusive
-          onChange={(_, val) => {
-            if (!val) return;
-            setViewMode(val);
-            if (val === 'group' && onOpenGroupModal) {
-              onOpenGroupModal();
-            }
-          }}
-          size="small"
-          className="course-view-toggle-group"
-        >
-          <ToggleButton value="list" aria-label="Chế độ danh sách">
-            <ViewListIcon style={{ fontSize: 16, marginRight: 4 }} />
-            Danh sách
-          </ToggleButton>
-          <ToggleButton value="group" aria-label="Chế độ nhóm môn">
-            <ViewModuleIcon style={{ fontSize: 16, marginRight: 4 }} />
-            Nhóm môn (Popup)
-          </ToggleButton>
-        </ToggleButtonGroup>
-      </div>
-
       <div className="course-flat-list-wrapper side-panel-list">
         <table className="course-flat-table side-panel-table">
           <thead>
             <tr>
               <th style={{ width: '38px', textAlign: 'center' }}>Chọn</th>
-              <th>Môn học</th>
-              <th style={{ width: '105px' }}>Mã lớp</th>
-              <th style={{ width: '95px' }}>Giảng viên</th>
-              <th style={{ width: '85px' }}>Lịch học</th>
-              <th style={{ width: '55px' }}>Phòng</th>
-              <th style={{ width: '85px', textAlign: 'center' }}>Loại · TC</th>
+              <th>MÔN HỌC</th>
+              <th style={{ width: '105px' }}>MÃ LỚP</th>
+              <th style={{ width: '110px' }}>GIẢNG VIÊN</th>
+              <th style={{ width: '70px' }}>THỨ</th>
+              <th style={{ width: '85px' }}>TIẾT</th>
+              <th style={{ width: '70px' }}>PHÒNG</th>
+              <th style={{ width: '85px', textAlign: 'center' }}>LOẠI · TC</th>
+            </tr>
+            {/* Column-level search header row matching reference screenshot */}
+            <tr className="filter-header-row">
+              <th></th>
+              <th>
+                <input
+                  type="text"
+                  className="column-filter-input"
+                  placeholder="Tên / mã môn..."
+                  value={searchSubject}
+                  onChange={(e) => setSearchSubject(e.target.value)}
+                />
+              </th>
+              <th>
+                <input
+                  type="text"
+                  className="column-filter-input"
+                  placeholder="Mã lớp..."
+                  value={searchMaLop}
+                  onChange={(e) => setSearchMaLop(e.target.value)}
+                />
+              </th>
+              <th>
+                <input
+                  type="text"
+                  className="column-filter-input"
+                  placeholder="GV / mã GV..."
+                  value={searchGv}
+                  onChange={(e) => setSearchGv(e.target.value)}
+                />
+              </th>
+              <th>
+                <select
+                  className="column-filter-select"
+                  value={searchThu}
+                  onChange={(e) => setSearchThu(e.target.value)}
+                >
+                  <option value="ALL">Tất cả</option>
+                  <option value="2">T2</option>
+                  <option value="3">T3</option>
+                  <option value="4">T4</option>
+                  <option value="5">T5</option>
+                  <option value="6">T6</option>
+                  <option value="7">T7</option>
+                </select>
+              </th>
+              <th>
+                <input
+                  type="text"
+                  className="column-filter-input"
+                  placeholder="vd 1-5 hoặc 678..."
+                  value={searchTiet}
+                  onChange={(e) => setSearchTiet(e.target.value)}
+                />
+              </th>
+              <th>
+                <input
+                  type="text"
+                  className="column-filter-input"
+                  placeholder="Phòng..."
+                  value={searchPhong}
+                  onChange={(e) => setSearchPhong(e.target.value)}
+                />
+              </th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -1152,7 +1236,10 @@ export function CoursePickerSidePanel({
                     {candidate.TenGV || '—'}
                   </td>
                   <td className="cell-lich">
-                    {candidate.Thu ? `T${candidate.Thu}: ${candidate.Tiet || '—'}` : '—'}
+                    {candidate.Thu ? `T${candidate.Thu}` : '—'}
+                  </td>
+                  <td className="cell-lich">
+                    {candidate.Tiet || '—'}
                   </td>
                   <td className="cell-phong">{candidate.PhongHoc || '—'}</td>
                   <td className="cell-type" style={{ textAlign: 'center' }}>
@@ -1167,7 +1254,7 @@ export function CoursePickerSidePanel({
             })}
             {!displayCandidates.length && (
               <tr>
-                <td colSpan={7} style={{ textAlign: 'center', padding: '32px 16px' }}>
+                <td colSpan={8} style={{ textAlign: 'center', padding: '32px 16px' }}>
                   <Typography fontWeight={800}>Không tìm thấy lớp phù hợp</Typography>
                 </td>
               </tr>
