@@ -74,9 +74,25 @@
   transition: padding 0.15s ease, gap 0.15s ease;
 }
 
+.builder-page.has-open-side-drawer {
+  max-width: none !important;
+  width: 100vw !important;
+  margin-left: calc(-50vw + 50%) !important;
+  margin-right: calc(-50vw + 50%) !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 92px !important;
+}
+
 .builder-page.has-open-side-drawer .builder-workspace-card {
   padding: 0 !important;
   gap: 0 !important;
+  border-radius: 0 !important;
+  border-left: 0 !important;
+  border-right: 0 !important;
+  width: 100vw !important;
+  box-shadow: none !important;
 }
 
 .builder-split-layout {
