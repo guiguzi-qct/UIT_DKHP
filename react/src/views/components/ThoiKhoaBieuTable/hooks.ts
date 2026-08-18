@@ -3,7 +3,7 @@ import html2canvas from 'html2canvas';
 import React from 'react';
 import { enqueueSnackbar } from 'notistack';
 import { ClassModel } from '../../../types';
-import { findOverlapedClasses, getDanhSachTiet, getTimeSlots, hasTimetableSlot } from '../../../utils';
+import { findOverlapedClasses, getTimeSlots, hasTimetableSlot } from '../../../utils';
 import { selectPhanLoaiHocTrenTruong, useTkbStore } from '../../../zus';
 import { downloadFromCanvas, getTietIndex } from './utils';
 
