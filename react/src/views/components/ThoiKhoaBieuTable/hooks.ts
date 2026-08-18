@@ -68,17 +68,36 @@ const usePhanLoaiHocTrenTruong = () => {
     const tableData = initTableData();
     for (const lop of kept) {
       if (!hasTimetableSlot(lop)) continue;
-      const listTiet = getDanhSachTiet(lop.Tiet);
-      const tietBatDauIndex = getTietIndex(listTiet[0]);
-      if (!tableData[tietBatDauIndex]) continue;
 
-      tableData[tietBatDauIndex]['Thu' + lop.Thu] = lop;
-      for (let i = 1; i < listTiet.length; i++) {
-        const tietIndex = getTietIndex(listTiet[i]);
-        if (tableData[tietIndex]) {
-          tableData[tietIndex]['Thu' + lop.Thu] = CELL.OCCUPIED;
+      const slots = getTimeSlots(lop);
+      if (slots === '*') continue;
+
+      const daySlotsMap = new Map<number, string[]>();
+      slots.forEach((slot) => {
+        const [thuStr, tietStr] = slot.split('-');
+        const thuNum = Number(thuStr);
+        if (!daySlotsMap.has(thuNum)) {
+          daySlotsMap.set(thuNum, []);
         }
-      }
+        daySlotsMap.get(thuNum)!.push(tietStr);
+      });
+
+      daySlotsMap.forEach((tiets, thuNum) => {
+        const dayKey = `Thu${thuNum}` as keyof RowData;
+        if (!tiets.length) return;
+
+        const startTietIdx = getTietIndex(tiets[0]);
+        if (tableData[startTietIdx]) {
+          tableData[startTietIdx][dayKey] = lop;
+        }
+
+        for (let i = 1; i < tiets.length; i++) {
+          const tietIdx = getTietIndex(tiets[i]);
+          if (tableData[tietIdx]) {
+            tableData[tietIdx][dayKey] = CELL.OCCUPIED;
+          }
+        }
+      });
     }
 
     return tableData;

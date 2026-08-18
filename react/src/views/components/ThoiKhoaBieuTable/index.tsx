@@ -160,7 +160,19 @@ function MainPeriodRow({
             hoveredClass.Tiet &&
             extractThuList(hoveredClass.Thu).includes(String(thu));
 
-          const hoveredTiets = isHoveredOnThisDay ? getDanhSachTiet(hoveredClass.Tiet) : [];
+          let hoveredTiets: string[] = [];
+          if (isHoveredOnThisDay && hoveredClass) {
+            const slots = getTimeSlots(hoveredClass);
+            if (Array.isArray(slots)) {
+              const prefix = `${thu}-`;
+              hoveredTiets = slots
+                .filter((s) => s.startsWith(prefix))
+                .map((s) => s.substring(prefix.length));
+            } else {
+              hoveredTiets = getDanhSachTiet(hoveredClass.Tiet);
+            }
+          }
+
           const hoveredIndices = hoveredTiets
             .map((t) => (t === '0' ? 9 : Number(t) - 1))
             .filter((idx) => idx >= run.start && idx <= run.end);
