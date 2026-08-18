@@ -71,7 +71,6 @@
   flex-direction: column;
   gap: 12px;
   overflow: hidden;
-  transition: padding 0.15s ease, gap 0.15s ease;
 }
 
 .builder-page.has-open-side-drawer {
@@ -79,19 +78,20 @@
   width: 100vw !important;
   margin-left: calc(-50vw + 50%) !important;
   margin-right: calc(-50vw + 50%) !important;
-  padding-left: 0 !important;
-  padding-right: 0 !important;
+  padding-left: 16px !important;
+  padding-right: 16px !important;
   padding-top: 0 !important;
   padding-bottom: 92px !important;
+  box-sizing: border-box !important;
 }
 
 .builder-page.has-open-side-drawer .builder-workspace-card {
   padding: 0 !important;
-  gap: 0 !important;
+  gap: 12px !important;
   border-radius: 0 !important;
-  border-left: 0 !important;
-  border-right: 0 !important;
-  width: 100vw !important;
+  border: 0 !important;
+  background: transparent !important;
+  width: 100% !important;
   box-shadow: none !important;
 }
 
@@ -100,9 +100,9 @@
   width: 100%;
   align-items: stretch;
   min-height: 640px;
-  gap: 0;
+  gap: 12px;
   position: relative;
-  margin-top: 6px;
+  margin-top: 4px;
 }
 
 .builder-split-layout.is-resizing {
@@ -114,18 +114,17 @@
   flex: 0 0 auto;
   display: flex;
   flex-direction: column;
-  border-right: 1.5px solid #BACCD6;
-  padding-right: 12px;
+  border-radius: 16px !important;
+  border: 1.5px solid #0E2128 !important;
+  background: #ffffff !important;
+  padding: 12px !important;
+  box-shadow: 0 8px 24px rgba(14, 33, 40, 0.08) !important;
   overflow: hidden;
 }
 
-.builder-page.has-open-side-drawer .builder-inline-side-panel {
-  padding: 12px 0 12px 12px !important;
-}
-
 .builder-inline-resizer {
-  width: 14px;
-  margin: 0 2px;
+  width: 10px;
+  margin: 0 -5px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -153,14 +152,11 @@
 .builder-timetable-column {
   flex: 1;
   min-width: 0;
-  padding-left: 12px;
-  padding-bottom: 95px;
-}
-
-.builder-page.has-open-side-drawer .builder-timetable-column {
-  padding-left: 0 !important;
-  padding-right: 0 !important;
-  padding-bottom: 95px !important;
+  border-radius: 16px !important;
+  border: 1.5px solid #0E2128 !important;
+  background: #ffffff !important;
+  padding: 14px 14px 95px 14px !important;
+  box-shadow: 0 8px 24px rgba(14, 33, 40, 0.08) !important;
 }
 
 .course-picker-side-panel-container {

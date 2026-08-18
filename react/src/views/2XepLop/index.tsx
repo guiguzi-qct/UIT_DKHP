@@ -92,9 +92,6 @@ function Index() {
     <section className={`page-wrap wide builder-page ${isSidePanelOpen ? 'has-open-side-drawer' : ''}`}>
       {/* UNIFIED WORKSPACE CONTAINER CARD MATCHING DIAGRAM */}
       <div className="surface-card builder-workspace-card">
-        {/* TOP ROW: Plan Selector Bar */}
-        <PlanSelectorBar />
-
         {/* MIDDLE ROW: Integrated Split Layout */}
         <div
           className={`builder-split-layout ${isResizing ? 'is-resizing' : ''}`}
@@ -194,6 +191,7 @@ function Index() {
         </div>
       </div>
 
+      <PlanSelectorBar />
       <CoursePickerDialog target={pickerTarget} onClose={() => setPickerTarget(null)} />
     </section>
   );
