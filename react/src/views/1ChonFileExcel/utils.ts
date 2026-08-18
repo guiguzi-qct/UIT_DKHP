@@ -89,7 +89,7 @@ export function cleanTenMH(rawTenMH?: string): string {
     name = name.split(/\s*-----\s*/)[0].trim();
   }
   // Only strip class code prefix if it contains a dot (e.g. "IE103.R12.1 Quản lý..." -> "Quản lý...")
-  name = name.replace(/^[A-Z0-9_\-]+\.[A-Z0-9._\-]+\s+/, '');
+  name = name.replace(/^[A-Z0-9_-]+\.[A-Z0-9._-]+\s+/, '');
   name = name.replace(/\s+\d{4,6}(\s+.*)?$/, '');
   return name.trim();
 }
