@@ -89,7 +89,7 @@ function Index() {
   };
 
   return (
-    <section className="page-wrap wide builder-page">
+    <section className={`page-wrap wide builder-page ${isSidePanelOpen ? 'has-open-side-drawer' : ''}`}>
       {/* UNIFIED WORKSPACE CONTAINER CARD MATCHING DIAGRAM */}
       <div className="surface-card builder-workspace-card">
         {/* TOP ROW: Plan Selector Bar */}

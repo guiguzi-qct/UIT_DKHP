@@ -71,6 +71,12 @@
   flex-direction: column;
   gap: 12px;
   overflow: hidden;
+  transition: padding 0.15s ease, gap 0.15s ease;
+}
+
+.builder-page.has-open-side-drawer .builder-workspace-card {
+  padding: 0 !important;
+  gap: 0 !important;
 }
 
 .builder-split-layout {
@@ -95,6 +101,10 @@
   border-right: 1.5px solid #BACCD6;
   padding-right: 12px;
   overflow: hidden;
+}
+
+.builder-page.has-open-side-drawer .builder-inline-side-panel {
+  padding: 12px 0 12px 12px !important;
 }
 
 .builder-inline-resizer {
@@ -129,6 +139,12 @@
   min-width: 0;
   padding-left: 12px;
   padding-bottom: 95px;
+}
+
+.builder-page.has-open-side-drawer .builder-timetable-column {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  padding-bottom: 95px !important;
 }
 
 .course-picker-side-panel-container {

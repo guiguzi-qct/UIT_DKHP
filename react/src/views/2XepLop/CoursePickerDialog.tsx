@@ -598,7 +598,7 @@ export default function CoursePickerDialog({ target, onClose }: Props) {
             <table className="course-flat-table">
               <thead>
                 <tr>
-                  <th style={{ width: '46px', textAlign: 'center' }}>Chọn</th>
+                  <th style={{ width: '46px', textAlign: 'center' }}></th>
                   <th>Môn học</th>
                   <th>Mã lớp</th>
                   <th>Giảng viên</th>
@@ -1127,14 +1127,14 @@ export function CoursePickerSidePanel({
         <table className="course-flat-table side-panel-table">
           <thead>
             <tr>
-              <th style={{ width: '38px', textAlign: 'center' }}>Chọn</th>
-              <th>MÔN HỌC</th>
-              <th style={{ width: '105px' }}>MÃ LỚP</th>
-              <th style={{ width: '110px' }}>GIẢNG VIÊN</th>
-              <th style={{ width: '70px' }}>THỨ</th>
-              <th style={{ width: '85px' }}>TIẾT</th>
-              <th style={{ width: '70px' }}>PHÒNG</th>
-              <th style={{ width: '85px', textAlign: 'center' }}>LOẠI · TC</th>
+              <th style={{ width: '36px', textAlign: 'center' }}></th>
+              <th style={{ minWidth: '240px' }}>MÔN HỌC</th>
+              <th style={{ width: '95px' }}>MÃ LỚP</th>
+              <th style={{ width: '100px' }}>GIẢNG VIÊN</th>
+              <th style={{ width: '55px' }}>THỨ</th>
+              <th style={{ width: '65px' }}>TIẾT</th>
+              <th style={{ width: '60px' }}>PHÒNG</th>
+              <th style={{ width: '80px', textAlign: 'center' }}>LOẠI · TC</th>
             </tr>
             {/* Column-level search header row matching reference screenshot */}
             <tr className="filter-header-row">
