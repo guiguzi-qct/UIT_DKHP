@@ -391,27 +391,28 @@
 .builder-action-dock {
   position: fixed;
   z-index: 1250;
-  right: 176px;
-  bottom: 24px;
-  height: 50px;
-  padding: 0 16px;
-  display: flex;
+  right: 50%;
+  bottom: 14px;
+  width: min(980px, calc(100% - 24px));
+  padding: 7px;
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) auto minmax(250px, auto);
   align-items: center;
-  gap: 12px;
-  border: 2px solid #0E2128;
-  border-radius: 25px;
-  background: #ffffff;
-  box-shadow: 0 10px 30px rgba(14, 33, 40, 0.22);
-  transform: none !important;
+  gap: 10px;
+  border: 1px solid #d4d4d8;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(14px);
+  transform: translateX(50%);
   animation: builder-dock-in 220ms ease-out both;
   transition: all 0.2s ease-in-out;
 }
 .builder-action-dock.is-compact {
   width: auto;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 0 16px;
+  grid-template-columns: auto auto;
+  justify-content: center;
+  padding: 8px 18px;
 }
 .builder-dock-search {
   display: flex;
