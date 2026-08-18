@@ -354,12 +354,23 @@
 .builder-timetable {
   flex: 1;
   min-width: 0;
+  padding: 16px;
+  border-radius: 18px !important;
+  border: 1.5px solid #0E2128 !important;
+  background: rgba(255, 255, 255, 0.88) !important;
+  box-shadow: 0 8px 32px rgba(14, 33, 40, 0.08) !important;
+  backdrop-filter: blur(20px) saturate(180%) !important;
+  animation: builder-table-in 220ms ease-out both;
+  transition: all 0.2s ease-in-out;
+}
+
+.builder-page.has-open-side-drawer .builder-timetable {
   padding: 12px 14px 105px 14px !important;
   border-radius: 0 !important;
   border: 0 !important;
   background: #ffffff !important;
   box-shadow: none !important;
-  animation: builder-table-in 220ms ease-out both;
+  backdrop-filter: none !important;
 }
 
 @media (max-width: 1024px) {
