@@ -2,7 +2,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import Button from '@mui/material/Button';
 import Paper from '@mui/material/Paper';
 import { enqueueSnackbar } from 'notistack';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { ROUTES } from '../../constants';
 import { selectSelectedClassesBuoc3, selectTongSoTcBuoc3, useTkbStore } from '../../zus';
@@ -15,6 +15,11 @@ function Index() {
   const history = useHistory();
   const [pickerTarget, setPickerTarget] = useState<PickerTarget | null>(null);
   const [isSidePanelOpen, setIsSidePanelOpen] = useState<boolean>(false);
+  const [selectedSlotFilter, setSelectedSlotFilter] = useState<TimetablePickTarget | null>(null);
+  const [sidePanelWidth, setSidePanelWidth] = useState<number>(560);
+  const [isResizing, setIsResizing] = useState<boolean>(false);
+  const splitContainerRef = useRef<HTMLDivElement>(null);
+
   const selectedClasses = useTkbStore(selectSelectedClassesBuoc3);
   const credits = useTkbStore(selectTongSoTcBuoc3);
   const setSelectedClasses = useTkbStore((s) => s.setSelectedClasses);
@@ -30,13 +35,43 @@ function Index() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isResizing || !splitContainerRef.current) return;
+      const rect = splitContainerRef.current.getBoundingClientRect();
+      const newWidth = e.clientX - rect.left;
+      if (newWidth >= 360 && newWidth <= rect.width - 400) {
+        setSidePanelWidth(newWidth);
+      }
+    };
+
+    const handleMouseUp = () => {
+      setIsResizing(false);
+    };
+
+    if (isResizing) {
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+    }
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isResizing]);
+
   const openPickerFromTimetable = (target: TimetablePickTarget) => {
-    if (target.existing) {
-      setPickerTarget({ kind: 'replace', existing: target.existing });
-    } else if (target.label === 'Ngoài giờ') {
-      setIsSidePanelOpen(true);
+    if (isSidePanelOpen) {
+      // If Side Search Panel (List Mode) is OPEN, filter panel directly without popup!
+      setSelectedSlotFilter(target);
     } else {
-      setPickerTarget({ kind: 'slot', thu: target.thu, tiets: target.tiets, label: target.label });
+      // If Side Search Panel is CLOSED, open centered Group Mode Popup Dialog!
+      if (target.existing) {
+        setPickerTarget({ kind: 'replace', existing: target.existing });
+      } else if (target.label === 'Ngoài giờ') {
+        setIsSidePanelOpen(true);
+      } else {
+        setPickerTarget({ kind: 'slot', thu: target.thu, tiets: target.tiets, label: target.label });
+      }
     }
   };
 
@@ -49,15 +84,44 @@ function Index() {
     <section className="page-wrap wide builder-page">
       <PlanSelectorBar />
 
-      <div className="builder-split-layout">
+      <div
+        className={`builder-split-layout ${isResizing ? 'is-resizing' : ''}`}
+        ref={splitContainerRef}
+      >
         {/* LEFT PANEL: Inline Search & List View Panel (Appears when toggled) */}
         {isSidePanelOpen && (
-          <Paper className="surface-card builder-side-panel">
-            <CoursePickerSidePanel
-              onClose={() => setIsSidePanelOpen(false)}
-              onOpenGroupModal={() => setPickerTarget({ kind: 'all' })}
-            />
-          </Paper>
+          <>
+            <Paper
+              className="surface-card builder-side-panel"
+              style={{ width: `${sidePanelWidth}px` }}
+            >
+              <CoursePickerSidePanel
+                onClose={() => {
+                  setIsSidePanelOpen(false);
+                  setSelectedSlotFilter(null);
+                }}
+                onOpenGroupModal={() => {
+                  setIsSidePanelOpen(false);
+                  setSelectedSlotFilter(null);
+                  setPickerTarget({ kind: 'all' });
+                }}
+                slotFilter={selectedSlotFilter}
+                onClearSlotFilter={() => setSelectedSlotFilter(null)}
+              />
+            </Paper>
+
+            {/* DRAGGABLE RESIZER HANDLE */}
+            <div
+              className="builder-panel-resizer"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                setIsResizing(true);
+              }}
+              title="Kéo rê để thay đổi chiều rộng bảng tìm kiếm"
+            >
+              <div className="resizer-handle-line" />
+            </div>
+          </>
         )}
 
         {/* RIGHT PANEL: Timetable Grid */}
@@ -66,25 +130,27 @@ function Index() {
         </Paper>
       </div>
 
-      <div className="builder-action-dock" role="region" aria-label="Hành động xếp lớp">
-        <div
-          className="builder-dock-search"
-          role="button"
-          tabIndex={0}
-          onClick={() => setIsSidePanelOpen((prev) => !prev)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault();
-              setIsSidePanelOpen((prev) => !prev);
-            }
-          }}
-        >
-          <SearchIcon className="builder-dock-search-icon" />
-          <span className="builder-dock-search-placeholder">
-            {isSidePanelOpen ? 'Thu gọn bảng tìm kiếm' : 'Tìm tên môn, mã môn, giảng viên...'}
-          </span>
-          <span className="builder-dock-shortcut">Ctrl + X</span>
-        </div>
+      <div className={`builder-action-dock ${isSidePanelOpen ? 'is-compact' : ''}`} role="region" aria-label="Hành động xếp lớp">
+        {!isSidePanelOpen && (
+          <div
+            className="builder-dock-search"
+            role="button"
+            tabIndex={0}
+            onClick={() => setIsSidePanelOpen(true)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                setIsSidePanelOpen(true);
+              }
+            }}
+          >
+            <SearchIcon className="builder-dock-search-icon" />
+            <span className="builder-dock-search-placeholder">
+              Tìm tên môn, mã môn, giảng viên...
+            </span>
+            <span className="builder-dock-shortcut">Ctrl + X</span>
+          </div>
+        )}
         <div className="stat-pill-group">
           <div className="stat-pill stat-pill-solid">
             <strong className="stat-pill-num">{selectedClasses.length}</strong>
