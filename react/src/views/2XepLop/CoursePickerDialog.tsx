@@ -1036,6 +1036,11 @@ export function CoursePickerSidePanel({
     return reasons;
   }, [allCandidates, selectedClasses]);
 
+  const displayCandidates = useMemo(() => {
+    if (!hideConflicts) return allCandidates;
+    return allCandidates.filter((c) => !conflictReasons.has(getCandidateKey(c)));
+  }, [allCandidates, hideConflicts, conflictReasons]);
+
   const candidateTree = useMemo(() => {
     const parentTheoryMap = new Map<string, ClassModel[]>();
     const childPracticeSet = new Set<string>();
