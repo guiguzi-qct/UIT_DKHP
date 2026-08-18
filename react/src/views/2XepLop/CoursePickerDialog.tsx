@@ -893,7 +893,13 @@ export default function CoursePickerDialog({ target, onClose }: Props) {
   );
 }
 
-export function CoursePickerSidePanel({ onClose }: { onClose?: () => void }) {
+export function CoursePickerSidePanel({
+  onClose,
+  onOpenGroupModal,
+}: {
+  onClose?: () => void;
+  onOpenGroupModal?: () => void;
+}) {
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState<'ALL' | 'LT' | 'TH'>('ALL');
   const [hideConflicts, setHideConflicts] = useState(false);
@@ -905,24 +911,33 @@ export function CoursePickerSidePanel({ onClose }: { onClose?: () => void }) {
   const setSelectedClasses = useTkbStore((state) => state.setSelectedClasses);
 
   const allCandidates = useMemo(() => {
-    const list = getCompatibleCandidates(data, selectedClasses, { kind: 'all' });
     const normalizedSearch = search.trim().toLocaleLowerCase('vi');
 
-    return list.filter((candidate) => {
-      const isTH = isThucHanhClass(candidate);
-      if (typeFilter === 'LT' && isTH) return false;
-      if (typeFilter === 'TH' && !isTH) return false;
+    return data
+      .filter((candidate) => {
+        if (!hasTimetableSlot(candidate)) return false;
 
-      if (!normalizedSearch) return true;
-      return [candidate.TenMH, candidate.MaMH, candidate.MaLop, candidate.TenGV, candidate.PhongHoc]
-        .filter(Boolean)
-        .some((value) => String(value).toLocaleLowerCase('vi').includes(normalizedSearch));
-    });
-  }, [data, search, selectedClasses, typeFilter]);
+        const isTH = isThucHanhClass(candidate);
+        if (typeFilter === 'LT' && isTH) return false;
+        if (typeFilter === 'TH' && !isTH) return false;
+
+        if (!normalizedSearch) return true;
+        return [candidate.TenMH, candidate.MaMH, candidate.MaLop, candidate.TenGV, candidate.PhongHoc]
+          .filter(Boolean)
+          .some((value) => String(value).toLocaleLowerCase('vi').includes(normalizedSearch));
+      })
+      .sort((a, b) =>
+        `${a.TenMH}-${a.MaLop}`.localeCompare(`${b.TenMH}-${b.MaLop}`, 'vi', { sensitivity: 'base' }),
+      );
+  }, [data, search, typeFilter]);
 
   const conflictReasons = useMemo(() => {
     const reasons = new Map<string, string>();
     allCandidates.forEach((candidate) => {
+      // Do not mark classes already selected as conflict
+      if (selectedClasses.some((s) => isSameAgGridRowId(s, candidate))) {
+        return;
+      }
       const reason = getDraftConflictReason(candidate, selectedClasses, []);
       if (reason) reasons.set(getCandidateKey(candidate), reason);
     });
@@ -939,11 +954,13 @@ export function CoursePickerSidePanel({ onClose }: { onClose?: () => void }) {
   const toggleCandidate = (candidate: ClassModel) => {
     const isSelected = selectedClasses.some((s) => isSameAgGridRowId(s, candidate));
     if (isSelected) {
+      // Toggle OFF -> Remove from timetable
       setSelectedClasses(selectedClasses.filter((s) => !isSameAgGridRowId(s, candidate)));
-      enqueueSnackbar(`Đã bỏ ${candidate.MaLop}`, { variant: 'info' });
+      enqueueSnackbar(`Đã bỏ chọn ${candidate.MaLop}`, { variant: 'info' });
       return;
     }
 
+    // Toggle ON -> Add to timetable
     const isTH = isThucHanhClass(candidate);
     if (isTH) {
       const hasParentLT = selectedClasses.some((lt) => isTheoryClass(lt) && isPracticeOfTheory(candidate, lt));
@@ -1035,7 +1052,13 @@ export function CoursePickerSidePanel({ onClose }: { onClose?: () => void }) {
         <ToggleButtonGroup
           value={viewMode}
           exclusive
-          onChange={(_, val) => val && setViewMode(val)}
+          onChange={(_, val) => {
+            if (!val) return;
+            setViewMode(val);
+            if (val === 'group' && onOpenGroupModal) {
+              onOpenGroupModal();
+            }
+          }}
           size="small"
           className="course-view-toggle-group"
         >
@@ -1045,7 +1068,7 @@ export function CoursePickerSidePanel({ onClose }: { onClose?: () => void }) {
           </ToggleButton>
           <ToggleButton value="group" aria-label="Chế độ nhóm môn">
             <ViewModuleIcon style={{ fontSize: 18, marginRight: 4 }} />
-            Nhóm môn
+            Nhóm môn (Popup)
           </ToggleButton>
         </ToggleButtonGroup>
       </div>

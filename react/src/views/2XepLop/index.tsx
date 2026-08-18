@@ -53,7 +53,10 @@ function Index() {
         {/* LEFT PANEL: Inline Search & List View Panel (Appears when toggled) */}
         {isSidePanelOpen && (
           <Paper className="surface-card builder-side-panel">
-            <CoursePickerSidePanel onClose={() => setIsSidePanelOpen(false)} />
+            <CoursePickerSidePanel
+              onClose={() => setIsSidePanelOpen(false)}
+              onOpenGroupModal={() => setPickerTarget({ kind: 'all' })}
+            />
           </Paper>
         )}
 
