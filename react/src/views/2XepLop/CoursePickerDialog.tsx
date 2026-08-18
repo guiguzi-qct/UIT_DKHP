@@ -1011,7 +1011,19 @@ export function CoursePickerSidePanel({
       .sort((a, b) =>
         `${a.TenMH}-${a.MaLop}`.localeCompare(`${b.TenMH}-${b.MaLop}`, 'vi', { sensitivity: 'base' }),
       );
-  }, [data, searchSubject, searchMaLop, searchGv, searchThu, searchTiet, searchPhong, typeFilter, slotFilter]);
+  }, [
+    data,
+    searchSubject,
+    searchMaLop,
+    searchGv,
+    searchThu,
+    searchTiet,
+    searchPhong,
+    typeFilter,
+    sessionFilter,
+    avoidThuFilter,
+    slotFilter,
+  ]);
 
   const conflictReasons = useMemo(() => {
     const reasons = new Map<string, string>();
