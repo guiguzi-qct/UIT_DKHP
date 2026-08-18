@@ -4,6 +4,7 @@ import { enqueueSnackbar } from 'notistack';
 import { useEffect, useRef, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { ROUTES } from '../../constants';
+import { ClassModel } from '../../types';
 import { selectSelectedClassesBuoc3, selectTongSoTcBuoc3, useTkbStore } from '../../zus';
 import PlanSelectorBar from '../components/PlanSelectorBar';
 import ThoiKhoaBieuTable, { TimetablePickTarget } from '../components/ThoiKhoaBieuTable';
