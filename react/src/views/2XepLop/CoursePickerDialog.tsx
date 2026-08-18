@@ -3,7 +3,6 @@ import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import ViewListIcon from '@mui/icons-material/ViewList';
 import ViewModuleIcon from '@mui/icons-material/ViewModule';
 import Button from '@mui/material/Button';
 import ButtonBase from '@mui/material/ButtonBase';
@@ -12,9 +11,6 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import TextField from '@mui/material/TextField';
-import ToggleButton from '@mui/material/ToggleButton';
-import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import Typography from '@mui/material/Typography';
 import { enqueueSnackbar } from 'notistack';
 import { useEffect, useMemo, useState } from 'react';
@@ -914,7 +910,6 @@ export function CoursePickerSidePanel({
   const [searchPhong, setSearchPhong] = useState('');
   const [typeFilter, setTypeFilter] = useState<'ALL' | 'LT' | 'TH'>('ALL');
   const [hideConflicts, setHideConflicts] = useState(false);
-  const [viewMode, setViewMode] = useState<'group' | 'list'>('list');
 
   const data = useTkbStore(selectFinalDataTkb);
   const selectedClasses = useTkbStore(selectSelectedClassesBuoc3);
