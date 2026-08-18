@@ -16,6 +16,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { ClassModel } from '../../types';
 import { getDanhSachTiet, hasOverlapSchedule, hasTimetableSlot, isSameAgGridRowId } from '../../utils';
 import { selectFinalDataTkb, selectSelectedClassesBuoc3, useTkbStore } from '../../zus';
+import { cleanTenMH } from '../1ChonFileExcel/utils';
 import './CoursePickerDialog.css';
 
 export type PickerTarget =
@@ -236,7 +237,8 @@ export function groupCandidatesByCourseName(candidates: ClassModel[]): Candidate
   const groups = new Map<string, CandidateCourseGroup>();
 
   candidates.forEach((candidate) => {
-    const name = candidate.TenMH?.trim() || candidate.MaMH || 'Môn chưa có tên';
+    const rawName = candidate.TenMH?.trim() || candidate.MaMH || 'Môn chưa có tên';
+    const name = cleanTenMH(rawName) || rawName;
     const key = name.toLocaleLowerCase('vi');
     const existing = groups.get(key);
 

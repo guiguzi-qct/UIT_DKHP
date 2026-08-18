@@ -119,6 +119,40 @@ export function arrayToTkbObjectDynamic(
   };
 }
 
+export function cleanTenMH(rawTenMH?: string): string {
+  if (!rawTenMH) return '';
+  let name = String(rawTenMH).trim();
+  if (name.includes('-----')) {
+    name = name.split(/\s*-----\s*/)[0].trim();
+  }
+  name = name.replace(/^[A-Z0-9._-]+\s+/, '');
+  name = name.replace(/\s+\d{4,6}(\s+.*)?$/, '');
+  return name.trim();
+}
+
+export function cleanMaLop(rawMaLop?: string): string {
+  if (!rawMaLop) return '';
+  let code = String(rawMaLop).trim();
+  if (code.includes('-----')) {
+    code = code.split(/\s*-----\s*/)[0].trim();
+  }
+  const token = code.split(/\s+/)[0];
+  if (/^[A-Z0-9._-]+$/i.test(token)) {
+    return token;
+  }
+  return code;
+}
+
+export function cleanTenGV(rawTenGV?: string): string | undefined {
+  if (!rawTenGV) return undefined;
+  let gv = String(rawTenGV).trim();
+  if (gv.includes('-----')) {
+    gv = gv.split(/\s*-----\s*/)[0].trim();
+  }
+  gv = gv.replace(/^\d{4,6}\s+/, '');
+  return gv.trim() || undefined;
+}
+
 export function parseSheetRowsDynamic(sheetRows: any[][]): ClassModelOriginal[] {
   if (!Array.isArray(sheetRows) || sheetRows.length === 0) return [];
 
@@ -190,6 +224,8 @@ export function parseSheetRowsDynamic(sheetRows: any[][]): ClassModelOriginal[] 
         const subRow: ClassModelOriginal = {
           ...parsedRow,
           MaLop: cleanCode,
+          TenMH: cleanTenMH(parsedRow.TenMH),
+          TenGV: cleanTenGV(parsedRow.TenGV),
         };
 
         if (cleanCode.includes('.')) {
@@ -203,13 +239,9 @@ export function parseSheetRowsDynamic(sheetRows: any[][]): ClassModelOriginal[] 
       continue;
     }
 
-    // Clean MaLop if it contains extra appended text (e.g. "IE104.R12.1 Internet...")
-    if (parsedRow.MaLop && parsedRow.MaLop.includes(' ')) {
-      const codeToken = parsedRow.MaLop.trim().split(/\s+/)[0];
-      if (/^[A-Z0-9.]+$/i.test(codeToken)) {
-        parsedRow.MaLop = codeToken;
-      }
-    }
+    parsedRow.MaLop = cleanMaLop(parsedRow.MaLop || maLopStr);
+    parsedRow.TenMH = cleanTenMH(parsedRow.TenMH || tenMhStr);
+    parsedRow.TenGV = cleanTenGV(parsedRow.TenGV);
 
     results.push(parsedRow);
     prevClass = parsedRow;
