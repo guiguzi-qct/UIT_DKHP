@@ -910,7 +910,6 @@ export function CoursePickerSidePanel({
   const [typeFilter, setTypeFilter] = useState<'ALL' | 'LT' | 'TH'>('ALL');
   const [hideConflicts, setHideConflicts] = useState(false);
   const [viewMode, setViewMode] = useState<'group' | 'list'>('list');
-  const [expandedCourseKey, setExpandedCourseKey] = useState<string | null>(null);
 
   const data = useTkbStore(selectFinalDataTkb);
   const selectedClasses = useTkbStore(selectSelectedClassesBuoc3);
@@ -969,8 +968,6 @@ export function CoursePickerSidePanel({
     if (!hideConflicts) return allCandidates;
     return allCandidates.filter((c) => !conflictReasons.has(getCandidateKey(c)));
   }, [allCandidates, hideConflicts, conflictReasons]);
-
-  const candidateGroups = useMemo(() => groupCandidatesByCourseName(displayCandidates), [displayCandidates]);
 
   const toggleCandidate = (candidate: ClassModel) => {
     const isSelected = selectedClasses.some((s) => isSameAgGridRowId(s, candidate));
