@@ -1,6 +1,5 @@
 import ContentCopyOutlinedIcon from '@mui/icons-material/ContentCopyOutlined';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
-import FlashOnIcon from '@mui/icons-material/FlashOn';
 import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
@@ -92,22 +91,6 @@ export default function DanhSachLopInput({ header }: { header?: React.ReactNode 
       enqueueSnackbar(`Đã áp dụng; không tìm thấy ${invalidCodes.length} mã lớp.`, { variant: 'warning' });
     } else {
       enqueueSnackbar(`Đã áp dụng ${draftCodes.length} mã lớp.`, { variant: 'success' });
-    }
-  };
-
-  const copyCodes = async () => {
-    const codes = parseListMaLop(isEditing ? draft : storedValue);
-    if (!codes.length) {
-      enqueueSnackbar('Chưa có mã lớp để sao chép.', { variant: 'warning' });
-      return;
-    }
-
-    try {
-      await copyText(codes.join(','));
-      enqueueSnackbar(`Đã sao chép ${codes.length} mã lớp.`, { variant: 'success' });
-    } catch (error) {
-      console.error(error);
-      enqueueSnackbar('Không thể sao chép tự động. Hãy chọn và sao chép nội dung trong ô.', { variant: 'error' });
     }
   };
 
