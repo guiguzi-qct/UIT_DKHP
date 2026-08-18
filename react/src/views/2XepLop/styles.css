@@ -687,8 +687,18 @@ body:has(.has-open-side-drawer) {
 }
 
 .course-flat-row.is-child-practice-row {
-  background-color: rgba(241, 245, 249, 0.65) !important;
+  background-color: rgba(248, 250, 252, 0.85) !important;
   border-left: none !important;
+}
+
+.notion-branch-arrow {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: #94a3b8;
+  user-select: none;
+  line-height: 1;
+  flex-shrink: 0;
 }
 
 .course-flat-row.is-child-practice-row:hover {
