@@ -1290,7 +1290,7 @@ export function CoursePickerSidePanel({
                   onMouseEnter={() => !conflict && onHoverClass?.(candidate)}
                   onMouseLeave={() => onHoverClass?.(null)}
                 >
-                  <td style={{ textAlign: 'center' }} onClick={(e) => e.stopPropagation()}>
+                  <td style={isChild ? { textAlign: 'center', paddingLeft: '16px' } : { textAlign: 'center' }} onClick={(e) => e.stopPropagation()}>
                     <input
                       type="checkbox"
                       checked={isActive}
