@@ -1241,7 +1241,7 @@ export function CoursePickerSidePanel({
                   key={key}
                   className={`course-flat-row ${conflict ? 'is-conflict' : ''} ${isActive ? 'is-active' : ''}`}
                   onClick={() => !conflict && toggleCandidate(candidate)}
-                  onMouseEnter={() => onHoverClass?.(candidate)}
+                  onMouseEnter={() => !conflict && onHoverClass?.(candidate)}
                   onMouseLeave={() => onHoverClass?.(null)}
                 >
                   <td style={{ textAlign: 'center' }} onClick={(e) => e.stopPropagation()}>

@@ -1,11 +1,12 @@
 import SearchIcon from '@mui/icons-material/Search';
 import Button from '@mui/material/Button';
 import { enqueueSnackbar } from 'notistack';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { ROUTES } from '../../constants';
 import { ClassModel } from '../../types';
 import { selectSelectedClassesBuoc3, selectTongSoTcBuoc3, useTkbStore } from '../../zus';
+import { hasOverlapSchedule, isSameAgGridRowId } from '../../utils';
 import PlanSelectorBar from '../components/PlanSelectorBar';
 import ThoiKhoaBieuTable, { TimetablePickTarget } from '../components/ThoiKhoaBieuTable';
 import CoursePickerDialog, { CoursePickerSidePanel, PickerTarget } from './CoursePickerDialog';
@@ -23,6 +24,14 @@ function Index() {
   const selectedClasses = useTkbStore(selectSelectedClassesBuoc3);
   const credits = useTkbStore(selectTongSoTcBuoc3);
   const setSelectedClasses = useTkbStore((s) => s.setSelectedClasses);
+  const [hoveredClass, setHoveredClass] = useState<ClassModel | null>(null);
+
+  const validHoveredClass = useMemo(() => {
+    if (!hoveredClass) return null;
+    if (selectedClasses.some((s) => isSameAgGridRowId(s, hoveredClass))) return null;
+    if (hasOverlapSchedule(selectedClasses, hoveredClass)) return null;
+    return hoveredClass;
+  }, [hoveredClass, selectedClasses]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -171,7 +180,7 @@ function Index() {
 
           {/* RIGHT COLUMN: Timetable Grid */}
           <div className="builder-timetable-column">
-            <ThoiKhoaBieuTable interactive onPickSlot={openPickerFromTimetable} hoveredClass={hoveredClass} />
+            <ThoiKhoaBieuTable interactive onPickSlot={openPickerFromTimetable} hoveredClass={validHoveredClass} />
           </div>
         </div>
       </div>
