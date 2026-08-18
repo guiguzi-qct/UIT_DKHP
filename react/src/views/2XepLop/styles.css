@@ -91,7 +91,7 @@ body:has(.has-open-side-drawer) {
 .builder-page.has-open-side-drawer .builder-workspace-card {
   height: 100% !important;
   max-height: 100% !important;
-  padding: 12px 16px 80px 16px !important;
+  padding: 12px 16px 14px 16px !important;
   gap: 0 !important;
   border-radius: 0 !important;
   border: 0 !important;
@@ -102,7 +102,8 @@ body:has(.has-open-side-drawer) {
 }
 
 .builder-page.has-open-side-drawer .builder-split-layout {
-  height: 100% !important;
+  height: calc(100% - 10px) !important;
+  flex: 1 !important;
   min-height: 0 !important;
   overflow: hidden !important;
 }
@@ -134,7 +135,7 @@ body:has(.has-open-side-drawer) {
   height: 100% !important;
   display: flex !important;
   flex-direction: column !important;
-  padding: 12px 14px !important;
+  padding: 8px 14px 4px 14px !important;
   overflow: hidden !important;
 }
 
@@ -147,6 +148,7 @@ body:has(.has-open-side-drawer) {
 
 .builder-page.has-open-side-drawer .side-panel-list {
   flex: 1 !important;
+  height: 100% !important;
   min-height: 0 !important;
   overflow-y: auto !important;
   border: 1.5px solid #0E2128 !important;
@@ -183,7 +185,7 @@ body:has(.has-open-side-drawer) {
 .builder-timetable-column {
   flex: 1;
   min-width: 0;
-  padding: 12px 14px 95px 14px !important;
+  padding: 8px 14px 14px 14px !important;
 }
 
 .builder-page.has-open-side-drawer .builder-timetable-column,
