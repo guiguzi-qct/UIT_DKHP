@@ -270,7 +270,7 @@ export function parseSheetRowsDynamic(sheetRows: any[][]): ClassModelOriginal[] 
 
   out.forEach((item) => {
     if (isPracticeClassCode(item.MaLop, item.HTGD)) {
-      item.SoTc = item.ThucHanh || 0;
+      item.SoTc = item.ThucHanh || (item.SoTc && item.SoTc > 0 ? item.SoTc : 1);
     } else if (!item.SoTc || item.SoTc === 0) {
       const fallback =
         (item.MaMH && soTcMap.get(item.MaMH.trim().toUpperCase())) ||
@@ -325,7 +325,7 @@ export async function parseUitScheduleExcel(file: File): Promise<{
 
   imported.forEach((item) => {
     if (isPracticeClassCode(item.MaLop, item.HTGD)) {
-      item.SoTc = item.ThucHanh || 0;
+      item.SoTc = item.ThucHanh || (item.SoTc && item.SoTc > 0 ? item.SoTc : 1);
     } else if (!item.SoTc || item.SoTc === 0) {
       const fallback =
         (item.MaMH && importedSoTcMap.get(item.MaMH.trim().toUpperCase())) ||

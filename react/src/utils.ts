@@ -10,23 +10,7 @@ export function uniqMaLop(classes: ClassModel[]): ClassModel[] {
 export function calcTongSoTC(classes: ClassModel[]) {
   const { kept } = findOverlapedClasses(classes);
   const unique = uniqMaLop(kept);
-
-  // Group selected classes by unique course (MaMH or TenMH) to prevent double counting theory + practice
-  const courseCreditsMap = new Map<string, number>();
-  unique.forEach((item) => {
-    const key = (item.MaMH || item.TenMH || item.MaLop).trim().toUpperCase();
-    const currentMax = courseCreditsMap.get(key) || 0;
-    const itemTc = item.SoTc || 0;
-    if (itemTc > currentMax) {
-      courseCreditsMap.set(key, itemTc);
-    }
-  });
-
-  let total = 0;
-  courseCreditsMap.forEach((tc) => {
-    total += tc;
-  });
-  return total;
+  return unique.reduce((acc, cur) => acc + (cur.SoTc || 0), 0);
 }
 
 export function getTongSoTcJudgement(tongSoTC: number) {
