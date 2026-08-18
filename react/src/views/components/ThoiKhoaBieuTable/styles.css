@@ -120,23 +120,35 @@
   transition: all 140ms ease;
 }
 #thoi-khoa-bieu .class-cell-card.ghost-preview-card {
-  background: #E0F2FE !important;
+  background: rgba(14, 165, 233, 0.12) !important;
   border: 2px dashed #0284C7 !important;
-  color: #0369A1 !important;
-  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25) !important;
-  animation: ghostPulse 1.4s infinite ease-in-out;
+  border-radius: 10px !important;
+  box-shadow: inset 0 0 12px rgba(2, 132, 199, 0.15), 0 4px 14px rgba(2, 132, 199, 0.2) !important;
+  backdrop-filter: blur(4px) !important;
+  animation: sketchPulse 1.4s infinite ease-in-out;
   pointer-events: none;
+  width: 100%;
+  height: 100%;
+  min-height: 48px;
+  box-sizing: border-box;
 }
 
-#thoi-khoa-bieu .class-cell-card.ghost-preview-card .class-cell-code {
-  color: #0284C7 !important;
-  font-weight: 800;
-}
-
-@keyframes ghostPulse {
-  0% { opacity: 0.85; transform: scale(0.99); }
-  50% { opacity: 1; transform: scale(1.01); }
-  100% { opacity: 0.85; transform: scale(0.99); }
+@keyframes sketchPulse {
+  0% {
+    opacity: 0.75;
+    border-color: #0284C7;
+    box-shadow: inset 0 0 10px rgba(2, 132, 199, 0.12), 0 2px 8px rgba(2, 132, 199, 0.15);
+  }
+  50% {
+    opacity: 1;
+    border-color: #0369A1;
+    box-shadow: inset 0 0 18px rgba(2, 132, 199, 0.25), 0 4px 16px rgba(2, 132, 199, 0.35);
+  }
+  100% {
+    opacity: 0.75;
+    border-color: #0284C7;
+    box-shadow: inset 0 0 10px rgba(2, 132, 199, 0.12), 0 2px 8px rgba(2, 132, 199, 0.15);
+  }
 }
 
 #thoi-khoa-bieu .cell-class-wrapper:hover .class-cell-card {

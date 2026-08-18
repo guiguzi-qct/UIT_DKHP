@@ -172,13 +172,10 @@ function MainPeriodRow({
             const hoveredSpan = getDanhSachTiet(hoveredClass.Tiet).length;
             return (
               <td key={thu} rowSpan={hoveredSpan} className="cell-class-wrapper ghost-cell-wrapper">
-                <div className="class-cell-card ghost-preview-card">
-                  <div className="class-cell-content">
-                    <strong className="class-cell-code">✨ [Xem trước] {hoveredClass.MaLop}</strong>
-                    <span className="class-cell-name">{hoveredClass.TenMH}</span>
-                    {hoveredClass.TenGV && <span className="class-cell-secondary">{hoveredClass.TenGV}</span>}
-                  </div>
-                </div>
+                <div
+                  className="class-cell-card ghost-preview-card"
+                  title={`Xem trước: ${hoveredClass.MaLop} - ${hoveredClass.TenMH}`}
+                />
               </td>
             );
           }

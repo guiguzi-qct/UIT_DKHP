@@ -31,8 +31,24 @@ function Index() {
         setIsSidePanelOpen((prev) => !prev);
       }
     };
+    const handleListMode = () => {
+      setIsSidePanelOpen(true);
+    };
+    const handlePopupMode = () => {
+      setIsSidePanelOpen(false);
+      setSelectedSlotFilter(null);
+      setPickerTarget({ kind: 'all' });
+    };
+
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener('toggle-view-mode-list', handleListMode);
+    window.addEventListener('toggle-view-mode-popup', handlePopupMode);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('toggle-view-mode-list', handleListMode);
+      window.removeEventListener('toggle-view-mode-popup', handlePopupMode);
+    };
   }, []);
 
   useEffect(() => {
@@ -93,6 +109,20 @@ function Index() {
 
   return (
     <section className={`page-wrap wide builder-page ${isSidePanelOpen ? 'has-open-side-drawer' : ''}`}>
+      {/* BOOKMARK TAB TRIGGER (Sticking out on the left edge of screen when closed) */}
+      {!isSidePanelOpen && (
+        <button
+          type="button"
+          className="bookmark-tab-closed"
+          onClick={() => setIsSidePanelOpen(true)}
+          title="Mở Bảng Danh sách môn học (Dạng List)"
+          aria-label="Mở Bảng Danh sách môn học"
+        >
+          <SearchIcon style={{ fontSize: 18 }} />
+          <span>Danh sách môn</span>
+        </button>
+      )}
+
       {/* UNIFIED WORKSPACE CONTAINER CARD MATCHING DIAGRAM */}
       <div className="surface-card builder-workspace-card">
         {/* MIDDLE ROW: Integrated Split Layout */}
