@@ -900,11 +900,13 @@ export function CoursePickerSidePanel({
   onOpenGroupModal,
   slotFilter,
   onClearSlotFilter,
+  onHoverClass,
 }: {
   onClose?: () => void;
   onOpenGroupModal?: () => void;
   slotFilter?: TimetablePickTarget | null;
   onClearSlotFilter?: () => void;
+  onHoverClass?: (cls: ClassModel | null) => void;
 }) {
   const [searchSubject, setSearchSubject] = useState('');
   const [searchMaLop, setSearchMaLop] = useState('');
@@ -913,6 +915,8 @@ export function CoursePickerSidePanel({
   const [searchTiet, setSearchTiet] = useState('');
   const [searchPhong, setSearchPhong] = useState('');
   const [typeFilter, setTypeFilter] = useState<'ALL' | 'LT' | 'TH'>('ALL');
+  const [sessionFilter, setSessionFilter] = useState<'ALL' | 'SANG' | 'CHIEU'>('ALL');
+  const [avoidThuFilter, setAvoidThuFilter] = useState<string>('NONE');
   const [hideConflicts, setHideConflicts] = useState(false);
 
   const data = useTkbStore(selectFinalDataTkb);
@@ -927,6 +931,8 @@ export function CoursePickerSidePanel({
     setSearchTiet('');
     setSearchPhong('');
     setTypeFilter('ALL');
+    setSessionFilter('ALL');
+    setAvoidThuFilter('NONE');
     setHideConflicts(false);
     if (onClearSlotFilter) onClearSlotFilter();
   };
@@ -960,6 +966,18 @@ export function CoursePickerSidePanel({
         const isTH = isThucHanhClass(candidate);
         if (typeFilter === 'LT' && isTH) return false;
         if (typeFilter === 'TH' && !isTH) return false;
+
+        // Session Filter (Buổi Sáng / Buổi Chiều)
+        if (sessionFilter === 'SANG') {
+          const tietStr = String(candidate.Tiet || '');
+          if (!/[1-5]/.test(tietStr)) return false;
+        } else if (sessionFilter === 'CHIEU') {
+          const tietStr = String(candidate.Tiet || '');
+          if (!/[6-90]/.test(tietStr)) return false;
+        }
+
+        // Avoid Day Filter (Tránh Thứ)
+        if (avoidThuFilter !== 'NONE' && String(candidate.Thu) === avoidThuFilter) return false;
 
         if (normSubj) {
           const matchSubj = [candidate.TenMH, candidate.MaMH]
@@ -1211,6 +1229,8 @@ export function CoursePickerSidePanel({
                   key={key}
                   className={`course-flat-row ${conflict ? 'is-conflict' : ''} ${isActive ? 'is-active' : ''}`}
                   onClick={() => !conflict && toggleCandidate(candidate)}
+                  onMouseEnter={() => onHoverClass?.(candidate)}
+                  onMouseLeave={() => onHoverClass?.(null)}
                 >
                   <td style={{ textAlign: 'center' }} onClick={(e) => e.stopPropagation()}>
                     <input

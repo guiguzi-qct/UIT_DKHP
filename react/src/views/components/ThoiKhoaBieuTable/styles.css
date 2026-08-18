@@ -119,6 +119,26 @@
   overflow: hidden;
   transition: all 140ms ease;
 }
+#thoi-khoa-bieu .class-cell-card.ghost-preview-card {
+  background: #E0F2FE !important;
+  border: 2px dashed #0284C7 !important;
+  color: #0369A1 !important;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25) !important;
+  animation: ghostPulse 1.4s infinite ease-in-out;
+  pointer-events: none;
+}
+
+#thoi-khoa-bieu .class-cell-card.ghost-preview-card .class-cell-code {
+  color: #0284C7 !important;
+  font-weight: 800;
+}
+
+@keyframes ghostPulse {
+  0% { opacity: 0.85; transform: scale(0.99); }
+  50% { opacity: 1; transform: scale(1.01); }
+  100% { opacity: 0.85; transform: scale(0.99); }
+}
+
 #thoi-khoa-bieu .cell-class-wrapper:hover .class-cell-card {
   background: #D5E2EC !important;
   transform: translateY(-1px);

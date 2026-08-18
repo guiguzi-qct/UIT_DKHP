@@ -31,6 +31,7 @@ export type TimetablePickTarget = {
 type InteractiveProps = {
   interactive?: boolean;
   onPickSlot?: (target: TimetablePickTarget) => void;
+  hoveredClass?: ClassModel | null;
 };
 
 type TietGroup = {
@@ -133,6 +134,7 @@ function MainPeriodRow({
   group,
   interactive,
   onPickSlot,
+  hoveredClass,
 }: {
   rows: RowData[];
   index: number;
@@ -157,6 +159,29 @@ function MainPeriodRow({
             getTietValue(run.start + offset),
           );
           const label = getRangeLabel(run.start, run.end, group);
+
+          // Check if hoveredClass falls on this slot
+          const isHovered =
+            hoveredClass &&
+            hoveredClass.Thu &&
+            hoveredClass.Tiet &&
+            Number(hoveredClass.Thu) === thu &&
+            getDanhSachTiet(hoveredClass.Tiet).some((t) => tiets.includes(t));
+
+          if (isHovered) {
+            const hoveredSpan = getDanhSachTiet(hoveredClass.Tiet).length;
+            return (
+              <td key={thu} rowSpan={hoveredSpan} className="cell-class-wrapper ghost-cell-wrapper">
+                <div className="class-cell-card ghost-preview-card">
+                  <div className="class-cell-content">
+                    <strong className="class-cell-code">✨ [Xem trước] {hoveredClass.MaLop}</strong>
+                    <span className="class-cell-name">{hoveredClass.TenMH}</span>
+                    {hoveredClass.TenGV && <span className="class-cell-secondary">{hoveredClass.TenGV}</span>}
+                  </div>
+                </div>
+              </td>
+            );
+          }
 
           return (
             <GetCell
@@ -250,7 +275,7 @@ function OnlineRow({
   );
 }
 
-function Render({ interactive = false, onPickSlot }: InteractiveProps) {
+function Render({ interactive = false, onPickSlot, hoveredClass }: InteractiveProps) {
   const { rowDataHocTrenTruong, khongHocTrenTruong, redundant } = usePhanLoaiHocTrenTruongContext();
   const location = useLocation();
   const { tkbTableRef, saveTkbImageToComputer, copyTkbImageToClipboard } = useProcessImageTkb();
@@ -297,6 +322,7 @@ function Render({ interactive = false, onPickSlot }: InteractiveProps) {
                       group={group}
                       interactive={interactive}
                       onPickSlot={onPickSlot}
+                      hoveredClass={hoveredClass}
                     />
                   );
                 }),

@@ -88,6 +88,8 @@ function Index() {
     enqueueSnackbar('Đã xóa tất cả các môn khỏi thời khóa biểu', { variant: 'info' });
   };
 
+  const [hoveredClass, setHoveredClass] = useState<ClassModel | null>(null);
+
   return (
     <section className={`page-wrap wide builder-page ${isSidePanelOpen ? 'has-open-side-drawer' : ''}`}>
       {/* UNIFIED WORKSPACE CONTAINER CARD MATCHING DIAGRAM */}
@@ -108,14 +110,17 @@ function Index() {
                   onClose={() => {
                     setIsSidePanelOpen(false);
                     setSelectedSlotFilter(null);
+                    setHoveredClass(null);
                   }}
                   onOpenGroupModal={() => {
                     setIsSidePanelOpen(false);
                     setSelectedSlotFilter(null);
+                    setHoveredClass(null);
                     setPickerTarget({ kind: 'all' });
                   }}
                   slotFilter={selectedSlotFilter}
                   onClearSlotFilter={() => setSelectedSlotFilter(null)}
+                  onHoverClass={setHoveredClass}
                 />
               </div>
 
@@ -135,7 +140,7 @@ function Index() {
 
           {/* RIGHT COLUMN: Timetable Grid */}
           <div className="builder-timetable-column">
-            <ThoiKhoaBieuTable interactive onPickSlot={openPickerFromTimetable} />
+            <ThoiKhoaBieuTable interactive onPickSlot={openPickerFromTimetable} hoveredClass={hoveredClass} />
           </div>
         </div>
       </div>
