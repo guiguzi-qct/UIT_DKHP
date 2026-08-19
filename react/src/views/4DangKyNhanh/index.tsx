@@ -17,6 +17,11 @@ import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
+import TuneIcon from '@mui/icons-material/Tune';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
 import { useSnackbar } from 'notistack';
@@ -220,6 +225,7 @@ ${autoSubmitSnippet}
 
   const [copiedUnregisterScript, setCopiedUnregisterScript] = useState(false);
   const [showUnregisterPreview, setShowUnregisterPreview] = useState(false);
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [deleteKeptCodes, setDeleteKeptCodes] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
@@ -853,7 +859,7 @@ ${autoSubmitSnippet}
           <Box className="dkn-section-header">
             <Box className="dkn-section-title-wrap">
               <DeleteOutlineIcon className="dkn-section-icon" style={{ color: '#ef4444' }} />
-              <Typography className="dkn-section-title">Script hỗ trợ HỦY / XÓA LỚP nhanh</Typography>
+              <Typography className="dkn-section-title">Script hỗ trợ XÓA nhanh</Typography>
 
               <Box className="dkn-stat-pills" style={{ marginLeft: 16 }}>
                 <span className="dkn-stat-pill" style={{ borderColor: '#22c55e', color: '#15803d' }}>
@@ -868,19 +874,13 @@ ${autoSubmitSnippet}
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
               <Button
                 variant="outlined"
-                size="small"
-                onClick={handleSelectAllKept}
-                style={{ borderColor: '#cbd5e1', color: '#334155' }}
-              >
-                Giữ tất cả
-              </Button>
-              <Button
-                variant="outlined"
                 color="error"
                 size="small"
-                onClick={handleUnselectAllKept}
+                startIcon={<TuneIcon />}
+                onClick={() => setOpenDeleteModal(true)}
+                style={{ fontWeight: 700, borderRadius: 10 }}
               >
-                Xóa tất cả (All)
+                Tùy chọn danh sách xóa
               </Button>
 
               <Button
@@ -892,84 +892,55 @@ ${autoSubmitSnippet}
                 onClick={handleCopyUnregisterScript}
                 disabled={classCount === 0}
               >
-                {copiedUnregisterScript ? 'Đã sao chép Script Hủy Lớp!' : 'Sao chép Script Hủy Lớp'}
+                {copiedUnregisterScript ? 'Đã sao chép Script Xóa Lớp!' : 'Sao chép Script Xóa Lớp'}
               </Button>
             </Box>
           </Box>
 
-          {/* Checklist of classes to KEEP vs DELETE */}
-          <Box className="dkn-full-slot-picker-wrap" style={{ marginTop: 12 }}>
-            <Typography className="dkn-full-slot-label" style={{ fontSize: '0.9rem', marginBottom: 8 }}>
-              Chọn các lớp bạn muốn <strong>GIỮ LẠI</strong> (Các lớp <strong>BỎ TICK</strong> sẽ tự động bị HỦY/XÓA trên web trường):
-            </Typography>
-
-            {classCount === 0 ? (
-              <Box className="dkn-empty-state">
-                <Typography color="text.secondary">
-                  Chưa có lớp nào trong <strong>{currentPlan?.name}</strong>.
+          {/* Trigger Card for Popup Modal */}
+          <Box
+            onClick={() => setOpenDeleteModal(true)}
+            style={{
+              marginTop: 12,
+              padding: '12px 16px',
+              borderRadius: '12px',
+              border: '1.5px dashed #fca5a5',
+              background: '#fff5f5',
+              display: 'flex',
+              alignItems: 'center',
+              justify-content: 'space-between',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+            }}
+          >
+            <Box style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <TuneIcon style={{ color: '#ef4444' }} />
+              <Box>
+                <Typography variant="subtitle2" style={{ fontWeight: 800, color: '#0E2128' }}>
+                  Tùy chọn danh sách môn GIỮ LẠI / XÓA TRÊN WEB ({keptCount}/{classCount} lớp giữ lại)
+                </Typography>
+                <Typography variant="caption" style={{ color: '#64748b' }}>
+                  Mặc định giữ lại các lớp trong Plan. Nhấp vào đây nếu muốn chọn môn cụ thể cần xóa.
                 </Typography>
               </Box>
-            ) : (
-              <Box className="dkn-codes-grid">
-                {selectedClasses.map((item) => {
-                  const code = item.MaLop?.trim() || '';
-                  const isKept = Boolean(deleteKeptCodes[code]);
+            </Box>
 
-                  return (
-                    <Box
-                      className={`dkn-code-card ${isKept ? 'is-checked' : 'is-conflict'}`}
-                      key={`unreg-card-${code}-${item.Thu}-${item.Tiet}`}
-                      onClick={() => handleToggleKeptCode(code)}
-                      style={{
-                        cursor: 'pointer',
-                        borderColor: isKept ? '#22c55e' : '#fca5a5',
-                        background: isKept ? '#f0fdf4' : '#fff5f5',
-                      }}
-                    >
-                      <Box className="dkn-card-checkbox">
-                        <input
-                          type="checkbox"
-                          checked={isKept}
-                          onChange={() => handleToggleKeptCode(code)}
-                          onClick={(e) => e.stopPropagation()}
-                        />
-                      </Box>
-                      <Box className="dkn-card-content">
-                        <strong className="dkn-card-code" style={{ color: isKept ? '#15803d' : '#991b1b' }}>
-                          {code}
-                        </strong>
-                        <span className="dkn-card-name" style={{ color: isKept ? '#166534' : '#7f1d1d' }}>
-                          {item.TenMH}
-                        </span>
-                      </Box>
-                      <Chip
-                        size="small"
-                        label={isKept ? 'GIỮ LẠI' : 'XÓA TRÊN WEB'}
-                        style={{
-                          fontSize: '11px',
-                          fontWeight: 800,
-                          backgroundColor: isKept ? '#dcfce7' : '#fee2e2',
-                          color: isKept ? '#15803d' : '#b91c1c',
-                        }}
-                      />
-                    </Box>
-                  );
-                })}
-              </Box>
-            )}
+            <Button variant="outlined" color="error" size="small" style={{ borderRadius: '8px', fontWeight: 700, whiteSpace: 'nowrap' }}>
+              Mở Popup Chọn Môn
+            </Button>
           </Box>
 
           {/* User Guide Card */}
           <Box className="dkn-guide-box" style={{ background: '#fef2f2', borderColor: '#fca5a5', marginTop: 16 }}>
             <Typography className="dkn-guide-header" style={{ color: '#991b1b' }}>
-              <HelpOutlineIcon className="dkn-guide-icon" style={{ color: '#dc2626' }} /> Hướng dẫn hủy / xóa lớp siêu tốc:
+              <HelpOutlineIcon className="dkn-guide-icon" style={{ color: '#dc2626' }} /> Hướng dẫn xóa lớp siêu tốc:
             </Typography>
             <Box className="dkn-guide-steps-grid">
               <Box className="dkn-guide-step-card">
                 <span className="dkn-step-badge" style={{ background: '#ef4444', color: '#fff' }}>1</span>
                 <Box className="dkn-step-body">
-                  <strong>Sao chép Script Hủy Lớp</strong>
-                  <span>Bấm nút <code>Sao chép Script Hủy Lớp</code> ở góc trên.</span>
+                  <strong>Sao chép Script Xóa Lớp</strong>
+                  <span>Bấm nút <code>Sao chép Script Xóa Lớp</code> ở góc trên.</span>
                 </Box>
               </Box>
 
@@ -1000,7 +971,7 @@ ${autoSubmitSnippet}
               endIcon={showUnregisterPreview ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
               className="dkn-toggle-code-btn"
             >
-              {showUnregisterPreview ? 'Thu gọn mã Script Hủy Lớp' : 'Xem chi tiết mã Script Hủy Lớp'}
+              {showUnregisterPreview ? 'Thu gọn mã Script Xóa Lớp' : 'Xem chi tiết mã Script Xóa Lớp'}
             </Button>
           </Box>
 
@@ -1019,6 +990,97 @@ ${autoSubmitSnippet}
             </Box>
           )}
         </Card>
+
+        {/* POPUP MODAL DIALOG: Select Classes to Keep vs Delete */}
+        <Dialog
+          open={openDeleteModal}
+          onClose={() => setOpenDeleteModal(false)}
+          maxWidth="md"
+          fullWidth
+          PaperProps={{ style: { borderRadius: 16, padding: '4px 8px' } }}
+        >
+          <DialogTitle style={{ fontWeight: 800, color: '#0E2128', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Box style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <DeleteOutlineIcon style={{ color: '#ef4444' }} />
+              <span>Tùy chọn danh sách lớp GIỮ LẠI / XÓA</span>
+            </Box>
+            <Box style={{ display: 'flex', gap: 8 }}>
+              <Button size="small" variant="outlined" onClick={handleSelectAllKept} style={{ borderColor: '#cbd5e1', color: '#334155' }}>
+                Giữ tất cả
+              </Button>
+              <Button size="small" variant="outlined" color="error" onClick={handleUnselectAllKept}>
+                Xóa tất cả (All)
+              </Button>
+            </Box>
+          </DialogTitle>
+
+          <DialogContent dividers style={{ padding: '16px 24px' }}>
+            <Typography variant="body2" style={{ color: '#475569', marginBottom: 14, fontWeight: 500 }}>
+              Tick chọn các lớp bạn muốn <strong>GIỮ LẠI</strong>. Các lớp <strong>BỎ TICK</strong> sẽ tự động bị xóa trên web trường khi chạy Script.
+            </Typography>
+
+            {classCount === 0 ? (
+              <Box className="dkn-empty-state">
+                <Typography color="text.secondary">
+                  Chưa có lớp nào trong <strong>{currentPlan?.name}</strong>.
+                </Typography>
+              </Box>
+            ) : (
+              <Box className="dkn-codes-grid">
+                {selectedClasses.map((item) => {
+                  const code = item.MaLop?.trim() || '';
+                  const isKept = Boolean(deleteKeptCodes[code]);
+
+                  return (
+                    <Box
+                      className={`dkn-code-card ${isKept ? 'is-checked' : 'is-conflict'}`}
+                      key={`unreg-popup-card-${code}-${item.Thu}-${item.Tiet}`}
+                      onClick={() => handleToggleKeptCode(code)}
+                      style={{
+                        cursor: 'pointer',
+                        borderColor: isKept ? '#22c55e' : '#fca5a5',
+                        background: isKept ? '#f0fdf4' : '#fff5f5',
+                      }}
+                    >
+                      <Box className="dkn-card-checkbox">
+                        <input
+                          type="checkbox"
+                          checked={isKept}
+                          onChange={() => handleToggleKeptCode(code)}
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                      </Box>
+                      <Box className="dkn-card-content" style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                        <strong className="dkn-card-code" style={{ color: isKept ? '#15803d' : '#991b1b' }}>
+                          {code}
+                        </strong>
+                        <span className="dkn-card-name" style={{ color: isKept ? '#166534' : '#7f1d1d' }}>
+                          {item.TenMH}
+                        </span>
+                      </Box>
+                      <Chip
+                        size="small"
+                        label={isKept ? 'GIỮ LẠI' : 'XÓA TRÊN WEB'}
+                        style={{
+                          fontSize: '11px',
+                          fontWeight: 800,
+                          backgroundColor: isKept ? '#dcfce7' : '#fee2e2',
+                          color: isKept ? '#15803d' : '#b91c1c',
+                        }}
+                      />
+                    </Box>
+                  );
+                })}
+              </Box>
+            )}
+          </DialogContent>
+
+          <DialogActions style={{ padding: '12px 24px' }}>
+            <Button variant="contained" color="error" onClick={() => setOpenDeleteModal(false)} style={{ borderRadius: 10, fontWeight: 700, paddingLeft: 24, paddingRight: 24 }}>
+              Hoàn tất
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Box>
     </Box>
   );
