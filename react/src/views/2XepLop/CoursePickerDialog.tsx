@@ -1042,36 +1042,46 @@ export function CoursePickerSidePanel({
   }, [allCandidates, hideConflicts, conflictReasons]);
 
   const candidateTree = useMemo(() => {
-    const parentTheoryMap = new Map<string, ClassModel[]>();
-    const childPracticeSet = new Set<string>();
-
-    const theoryCandidates = displayCandidates.filter((c) => isTheoryClass(c));
-
-    theoryCandidates.forEach((lt) => {
-      const children = displayCandidates.filter(
-        (th) => isThucHanhClass(th) && isPracticeOfTheory(th, lt),
-      );
-      parentTheoryMap.set(getCandidateKey(lt), children);
-      children.forEach((th) => childPracticeSet.add(getCandidateKey(th)));
-    });
-
     const rows: { candidate: ClassModel; isChild: boolean; parentLtCode?: string }[] = [];
+    const renderedKeys = new Set<string>();
+
+    const theoryCandidatesInDisplay = displayCandidates.filter((c) => isTheoryClass(c));
+
+    theoryCandidatesInDisplay.forEach((lt) => {
+      const ltKey = getCandidateKey(lt);
+      if (!renderedKeys.has(ltKey)) {
+        rows.push({ candidate: lt, isChild: false });
+        renderedKeys.add(ltKey);
+      }
+
+      if (typeFilter !== 'LT') {
+        const children = data.filter(
+          (th) => isThucHanhClass(th) && isPracticeOfTheory(th, lt),
+        );
+
+        children.forEach((child) => {
+          const childKey = getCandidateKey(child);
+          if (!renderedKeys.has(childKey)) {
+            const childConflict = conflictReasons.get(childKey);
+            if (!hideConflicts || !childConflict) {
+              rows.push({ candidate: child, isChild: true, parentLtCode: lt.MaLop });
+              renderedKeys.add(childKey);
+            }
+          }
+        });
+      }
+    });
 
     displayCandidates.forEach((c) => {
       const key = getCandidateKey(c);
-      if (isTheoryClass(c)) {
+      if (!renderedKeys.has(key)) {
         rows.push({ candidate: c, isChild: false });
-        const children = parentTheoryMap.get(key) || [];
-        children.forEach((child) => {
-          rows.push({ candidate: child, isChild: true, parentLtCode: c.MaLop });
-        });
-      } else if (!childPracticeSet.has(key)) {
-        rows.push({ candidate: c, isChild: false });
+        renderedKeys.add(key);
       }
     });
 
     return rows;
-  }, [displayCandidates]);
+  }, [displayCandidates, data, typeFilter, hideConflicts, conflictReasons]);
 
   const toggleCandidate = (candidate: ClassModel) => {
     const candidateMaLop = (candidate.MaLop || '').trim();
