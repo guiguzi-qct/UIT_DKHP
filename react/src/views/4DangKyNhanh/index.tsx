@@ -2,6 +2,7 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CheckIcon from '@mui/icons-material/Check';
 import FlashOnIcon from '@mui/icons-material/FlashOn';
 import CodeIcon from '@mui/icons-material/Code';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
@@ -47,7 +48,7 @@ export default function DangKyNhanh() {
   const [copiedScript, setCopiedScript] = useState(false);
   const [copiedAllCodes, setCopiedAllCodes] = useState(false);
   const [showScriptPreview, setShowScriptPreview] = useState(false);
-  const [autoSubmit, setAutoSubmit] = useState<boolean>(true);
+  const [autoSubmit, setAutoSubmit] = useState<boolean>(false);
   const [selectedFullClassCode, setSelectedFullClassCode] = useState<string>('');
   const [checkedClassCodes, setCheckedClassCodes] = useState<Record<string, boolean>>({});
 
@@ -217,6 +218,170 @@ ${autoSubmitSnippet}
 
   const scriptLines = useMemo(() => scriptCode.split('\n'), [scriptCode]);
 
+  const [copiedUnregisterScript, setCopiedUnregisterScript] = useState(false);
+  const [showUnregisterPreview, setShowUnregisterPreview] = useState(false);
+  const [keepPlanClasses, setKeepPlanClasses] = useState<boolean>(true);
+
+  const unregisterScriptCode = useMemo(() => {
+    const keepCodesIndent = keepPlanClasses
+      ? selectedClasses
+          .map((c) => c.MaLop?.trim())
+          .filter(Boolean)
+          .join('\n  ')
+      : '';
+
+    const bt = '`';
+
+    return `(async () => {
+  // ĐỂ TRỐNG = XÓA TOÀN BỘ
+  // Nếu nhập mã = GIỮ LẠI các lớp này
+  const KEEP_CODES = ${bt}
+  ${keepCodesIndent}
+  ${bt};
+
+  /*
+  Ví dụ giữ lại:
+
+  const KEEP_CODES = ${bt}
+  IE104.R11.CNVN
+  IE104.R11.CNVN.2
+  SE113.R12
+  ${bt};
+  */
+
+  const norm = s =>
+    String(s ?? "")
+      .replace(/[\\s\\u00A0]+/g, " ")
+      .trim()
+      .toUpperCase();
+
+  const keep = new Set(
+    KEEP_CODES
+      .split(/[\\s,;]+/)
+      .map(norm)
+      .filter(Boolean)
+  );
+
+  const nextFrame = () =>
+    new Promise(resolve => requestAnimationFrame(resolve));
+
+  // Nhận diện nút dấu "-"
+  const isMinusButton = btn => {
+    if (btn.disabled) return false;
+
+    const rect = btn.querySelector("svg rect");
+    if (!rect) return false;
+
+    return (
+      rect.getAttribute("width") === "20" &&
+      rect.getAttribute("height") === "4"
+    );
+  };
+
+  const getMinusButtons = () =>
+    [...document.querySelectorAll('button[type="button"]')]
+      .filter(isMinusButton);
+
+  // Tìm mã lớp gần button nhất
+  const getCode = btn => {
+    let el = btn.parentElement;
+
+    // Đi ngược lên tối đa vài cấp để tìm container của 1 dòng
+    for (let depth = 0; el && depth < 8; depth++, el = el.parentElement) {
+      const text = norm(el.innerText);
+
+      // Mã lớp dạng IE104.R11.CNVN / IE104.R11.CNVN.2 / SE113.R12...
+      const matches = text.match(/\\b[A-Z]{2,}\\d{3}(?:\\.[A-Z0-9]+)+\\b/g);
+
+      if (matches?.length === 1) {
+        return matches[0];
+      }
+    }
+
+    return null;
+  };
+
+  // Chụp danh sách lớp hiện tại
+  const items = getMinusButtons().map((btn, index) => ({
+    index,
+    code: getCode(btn)
+  }));
+
+  if (!items.length) {
+    console.log("Không có lớp để xóa.");
+    return;
+  }
+
+  /*
+   * KEEP_CODES rỗng:
+   *   -> xóa tất cả
+   *
+   * KEEP_CODES có dữ liệu:
+   *   -> xóa những lớp KHÔNG nằm trong KEEP_CODES
+   */
+  const deleteItems = keep.size
+    ? items.filter(item => item.code && !keep.has(item.code))
+    : items;
+
+  if (!deleteItems.length) {
+    console.log("Không có lớp cần xóa.");
+    return;
+  }
+
+  let selected = 0;
+  const failed = [];
+
+  for (const item of deleteItems) {
+    // Query lại DOM sau mỗi click để không giữ reference cũ
+    const buttons = getMinusButtons();
+
+    let btn;
+
+    if (item.code) {
+      btn = buttons.find(b => getCode(b) === item.code);
+    } else if (!keep.size) {
+      // Chế độ xóa ALL: không cần biết mã lớp
+      btn = buttons[item.index];
+    }
+
+    if (!btn) {
+      failed.push(item.code ?? \`Lớp #\${item.index + 1}\`);
+      continue;
+    }
+
+    btn.click();
+    selected++;
+
+    // Cho React cập nhật state
+    await nextFrame();
+  }
+
+  // Chờ UI cập nhật nút XÓA
+  await nextFrame();
+  await nextFrame();
+
+  const deleteBtn = [...document.querySelectorAll("button")]
+    .find(btn =>
+      !btn.disabled &&
+      /^X[ÓO]A\\s+\\d+\\s+LỚP/i.test(norm(btn.textContent))
+    );
+
+  if (deleteBtn) {
+    deleteBtn.click();
+  } else {
+    console.log(\`Đã chọn \${selected} lớp nhưng không tìm thấy nút XÓA.\`);
+  }
+
+  if (failed.length) {
+    console.log(
+      \`Không chọn xóa được\\n\${failed.join("\\n")}\`
+    );
+  }
+})();`;
+  }, [selectedClasses, keepPlanClasses]);
+
+  const unregisterScriptLines = useMemo(() => unregisterScriptCode.split('\n'), [unregisterScriptCode]);
+
   // Target full class selected by student
   const targetFullClass = useMemo(() => {
     if (!selectedFullClassCode) return null;
@@ -302,6 +467,15 @@ ${autoSubmitSnippet}
       setCopiedScript(true);
       enqueueSnackbar('Đã sao chép Script Auto-Tick vào bộ nhớ tạm!', { variant: 'success' });
       setTimeout(() => setCopiedScript(false), 2000);
+    });
+  };
+
+  const handleCopyUnregisterScript = () => {
+    if (!unregisterScriptCode) return;
+    copyToClipboard(unregisterScriptCode, () => {
+      setCopiedUnregisterScript(true);
+      enqueueSnackbar('Đã sao chép Script HỦY / XÓA LỚP vào bộ nhớ tạm!', { variant: 'success' });
+      setTimeout(() => setCopiedUnregisterScript(false), 2000);
     });
   };
 
@@ -632,6 +806,124 @@ ${autoSubmitSnippet}
                 <code>
                   {scriptLines.map((line, idx) => (
                     <div key={`line-${idx}`} className="dkn-code-line">
+                      <span className="dkn-line-number">{idx + 1}</span>
+                      <span className="dkn-line-content">{line}</span>
+                    </div>
+                  ))}
+                </code>
+              </pre>
+            </Box>
+          )}
+        </Card>
+
+        {/* SECTION 4 (BOTTOM-MOST): Bulk Unregister / Delete Classes Console Script */}
+        <Card className="dkn-section-card" elevation={0}>
+          <Box className="dkn-section-header">
+            <Box className="dkn-section-title-wrap">
+              <DeleteOutlineIcon className="dkn-section-icon" style={{ color: '#ef4444' }} />
+              <Typography className="dkn-section-title">Script hỗ trợ HỦY / XÓA LỚP nhanh</Typography>
+            </Box>
+
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={keepPlanClasses}
+                    onChange={(e) => setKeepPlanClasses(e.target.checked)}
+                    size="small"
+                    sx={{
+                      '& .MuiSwitch-switchBase.Mui-checked': {
+                        color: '#ef4444',
+                      },
+                      '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                        backgroundColor: '#ef4444',
+                        opacity: 0.8,
+                      },
+                    }}
+                  />
+                }
+                label={
+                  <Typography variant="body2" sx={{ fontWeight: 700, fontSize: '0.85rem', color: '#0E2128' }}>
+                    Giữ lớp Plan: <strong>{keepPlanClasses ? 'BẬT' : 'TẮT (Xóa All)'}</strong>
+                  </Typography>
+                }
+                sx={{
+                  margin: 0,
+                  userSelect: 'none',
+                  background: '#ffffff',
+                  px: 1.75,
+                  py: 0.5,
+                  borderRadius: '12px',
+                  border: '1.5px solid #ef4444',
+                  boxShadow: '0 2px 6px rgba(239, 68, 68, 0.06)',
+                  transition: 'all 0.2s ease-in-out',
+                }}
+              />
+
+              <Button
+                variant="contained"
+                color="error"
+                size="medium"
+                className="dkn-copy-script-btn"
+                startIcon={copiedUnregisterScript ? <CheckIcon /> : <FlashOnIcon />}
+                onClick={handleCopyUnregisterScript}
+              >
+                {copiedUnregisterScript ? 'Đã sao chép Script Hủy Lớp!' : 'Sao chép Script Hủy Lớp'}
+              </Button>
+            </Box>
+          </Box>
+
+          {/* User Guide Card */}
+          <Box className="dkn-guide-box" style={{ background: '#fef2f2', borderColor: '#fca5a5' }}>
+            <Typography className="dkn-guide-header" style={{ color: '#991b1b' }}>
+              <HelpOutlineIcon className="dkn-guide-icon" style={{ color: '#dc2626' }} /> Hướng dẫn hủy / xóa lớp siêu tốc:
+            </Typography>
+            <Box className="dkn-guide-steps-grid">
+              <Box className="dkn-guide-step-card">
+                <span className="dkn-step-badge" style={{ background: '#ef4444', color: '#fff' }}>1</span>
+                <Box className="dkn-step-body">
+                  <strong>Sao chép Script Hủy Lớp</strong>
+                  <span>Bấm nút <code>Sao chép Script Hủy Lớp</code> ở góc trên.</span>
+                </Box>
+              </Box>
+
+              <Box className="dkn-guide-step-card">
+                <span className="dkn-step-badge" style={{ background: '#ef4444', color: '#fff' }}>2</span>
+                <Box className="dkn-step-body">
+                  <strong>Mở F12 Console</strong>
+                  <span>Mở trang ĐKMH UIT ➔ Nhấn <code>F12</code> ➔ Chọn tab <strong>Console</strong>.</span>
+                </Box>
+              </Box>
+
+              <Box className="dkn-guide-step-card">
+                <span className="dkn-step-badge" style={{ background: '#ef4444', color: '#fff' }}>3</span>
+                <Box className="dkn-step-body">
+                  <strong>Dán &amp; Chạy</strong>
+                  <span>Nhấn <code>Ctrl + V</code> ➔ Bấm <code>Enter</code>. Tự động bấm dấu <code>-</code> và xác nhận nút <strong>XÓA LỚP</strong>!</span>
+                </Box>
+              </Box>
+            </Box>
+          </Box>
+
+          {/* Expandable Script Code Preview */}
+          <Box className="dkn-script-toggle-wrap">
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={() => setShowUnregisterPreview(!showUnregisterPreview)}
+              endIcon={showUnregisterPreview ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+              className="dkn-toggle-code-btn"
+            >
+              {showUnregisterPreview ? 'Thu gọn mã Script Hủy Lớp' : 'Xem chi tiết mã Script Hủy Lớp'}
+            </Button>
+          </Box>
+
+          {showUnregisterPreview && (
+            <Box className="dkn-script-preview-container">
+              <pre className="dkn-script-preview-code">
+                <code>
+                  {unregisterScriptLines.map((line, idx) => (
+                    <div key={`unreg-line-${idx}`} className="dkn-code-line">
                       <span className="dkn-line-number">{idx + 1}</span>
                       <span className="dkn-line-content">{line}</span>
                     </div>
