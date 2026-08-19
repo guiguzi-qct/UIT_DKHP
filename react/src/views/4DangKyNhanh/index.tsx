@@ -913,17 +913,6 @@ ${autoSubmitSnippet}
               />
 
               <Button
-                variant="outlined"
-                color="error"
-                size="small"
-                startIcon={<TuneIcon />}
-                onClick={() => setOpenDeleteModal(true)}
-                style={{ fontWeight: 700, borderRadius: 10 }}
-              >
-                Tùy chọn danh sách xóa
-              </Button>
-
-              <Button
                 variant="contained"
                 color="error"
                 size="medium"
