@@ -135,11 +135,6 @@ const normalizeScheduleValue = (value: unknown): string => {
   return INVALID_SCHEDULE_VALUES.has(normalized.toLowerCase()) ? '' : normalized;
 };
 
-const isValidTiet = (tiet: string): boolean => {
-  if (tiet === '*') return true;
-  const tietNumber = Number(tiet === '0' ? 10 : tiet);
-  return Number.isInteger(tietNumber) && tietNumber >= 1 && tietNumber <= 15;
-};
 
 export const extractThuList = (value: unknown): string[] => {
   if (value == null) return [];
