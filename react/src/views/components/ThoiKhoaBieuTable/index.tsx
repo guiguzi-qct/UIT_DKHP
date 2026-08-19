@@ -6,7 +6,8 @@ import clsx from 'clsx';
 import { useLocation } from 'react-router-dom';
 import { ROUTES } from '../../../constants';
 import { ClassModel } from '../../../types';
-import { extractThuList, getDanhSachTiet, getTimeSlots } from '../../../utils';
+import { extractThuList, getDanhSachTiet, getTimeSlots, hasOverlapSchedule } from '../../../utils';
+import { selectSelectedClassesBuoc3, useTkbStore } from '../../../zus';
 
 import ErrorBoundary from '../ErrorBoundary';
 import ClassCell, { ClassCellContext } from './ClassCell';
@@ -141,6 +142,7 @@ function MainPeriodRow({
   group: TietGroup;
 } & InteractiveProps) {
   const row = rows[index];
+  const selectedClasses = useTkbStore(selectSelectedClassesBuoc3);
 
   return (
     <tr className="main-period-row">
@@ -183,11 +185,19 @@ function MainPeriodRow({
 
             if (index === hStart) {
               const hSpan = hEnd - hStart + 1;
+              const isConflictHover =
+                hoveredClass &&
+                hasOverlapSchedule(selectedClasses, hoveredClass);
+
               return (
                 <td key={thu} rowSpan={hSpan} className="cell-class-wrapper ghost-cell-wrapper">
                   <div
-                    className="class-cell-card ghost-preview-card"
-                    title={hoveredClass ? `Xem trước: ${hoveredClass.MaLop} - ${hoveredClass.TenMH}` : 'Xem trước'}
+                    className={`class-cell-card ghost-preview-card ${isConflictHover ? 'is-conflict-hover' : ''}`}
+                    title={
+                      hoveredClass
+                        ? `Xem trước (${isConflictHover ? 'Trùng lịch' : 'Khả thi'}): ${hoveredClass.MaLop} - ${hoveredClass.TenMH}`
+                        : 'Xem trước'
+                    }
                   />
                 </td>
               );

@@ -419,3 +419,9 @@
     transform: none;
   }
 }
+
+#thoi-khoa-bieu .ghost-preview-card.is-conflict-hover {
+  background: rgba(239, 68, 68, 0.28) !important;
+  border: 2px dashed #ef4444 !important;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25) !important;
+}

@@ -1063,7 +1063,9 @@ export function CoursePickerSidePanel({
           const childKey = getCandidateKey(child);
           if (!renderedKeys.has(childKey)) {
             const childConflict = conflictReasons.get(childKey);
-            if (!hideConflicts || !childConflict) {
+            const parentConflict = conflictReasons.get(ltKey);
+            const effectiveConflict = childConflict || parentConflict;
+            if (!hideConflicts || !effectiveConflict) {
               rows.push({ candidate: child, isChild: true, parentLtCode: lt.MaLop });
               renderedKeys.add(childKey);
             }
@@ -1287,7 +1289,20 @@ export function CoursePickerSidePanel({
           <tbody>
             {candidateTree.map(({ candidate, isChild, parentLtCode }) => {
               const key = getCandidateKey(candidate);
-              const conflict = conflictReasons.get(key);
+              let conflict = conflictReasons.get(key);
+
+              if (isChild && parentLtCode) {
+                const parentLt = data.find(
+                  (c) => c.MaMH === candidate.MaMH && (c.MaLop || '').trim() === parentLtCode.trim(),
+                );
+                if (parentLt) {
+                  const parentConflict = conflictReasons.get(getCandidateKey(parentLt));
+                  if (parentConflict) {
+                    conflict = conflict || parentConflict;
+                  }
+                }
+              }
+
               const isActive = selectedClasses.some((s) => isSameAgGridRowId(s, candidate));
               const isTH = isThucHanhClass(candidate);
               const sotc = candidate.SoTc || getEffectiveSoTc(candidate, data);
@@ -1297,7 +1312,7 @@ export function CoursePickerSidePanel({
                   key={key + (isChild ? '-child' : '')}
                   className={`course-flat-row ${conflict ? 'is-conflict' : ''} ${isActive ? 'is-active' : ''} ${isChild ? 'is-child-practice-row' : ''}`}
                   onClick={() => !conflict && toggleCandidate(candidate)}
-                  onMouseEnter={() => !conflict && hasTimetableSlot(candidate) && onHoverClass?.(candidate)}
+                  onMouseEnter={() => hasTimetableSlot(candidate) && onHoverClass?.(candidate)}
                   onMouseLeave={() => onHoverClass?.(null)}
                 >
                   <td style={{ textAlign: 'center' }} onClick={(e) => e.stopPropagation()}>
