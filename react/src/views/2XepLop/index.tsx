@@ -6,7 +6,7 @@ import { useHistory } from 'react-router-dom';
 import { ROUTES } from '../../constants';
 import { ClassModel } from '../../types';
 import { selectSelectedClassesBuoc3, selectTongSoTcBuoc3, useTkbStore } from '../../zus';
-import { hasOverlapSchedule, isSameAgGridRowId } from '../../utils';
+import { hasOverlapSchedule, hasTimetableSlot, isSameAgGridRowId } from '../../utils';
 import PlanSelectorBar from '../components/PlanSelectorBar';
 import ThoiKhoaBieuTable, { TimetablePickTarget } from '../components/ThoiKhoaBieuTable';
 import CoursePickerDialog, { CoursePickerSidePanel, PickerTarget } from './CoursePickerDialog';
