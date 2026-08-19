@@ -111,6 +111,22 @@ export const getDanhSachTiet = (tiet: ClassModel['Tiet']): string[] => {
   return Array.from(new Set(result));
 };
 
+export const formatDisplayTiet = (tiet: unknown): string => {
+  if (tiet == null) return '—';
+  const str = String(tiet).trim();
+  if (!str) return '—';
+  if (str === '*') return '*';
+
+  const parts = str.split(/[,;\s]+/).map((it) => it.trim()).filter(Boolean);
+  const formattedParts = parts.map((p) => {
+    const tiets = parseTietPart(p);
+    if (tiets.length === 0) return p;
+    return tiets.join('');
+  });
+
+  return formattedParts.join(', ');
+};
+
 const INVALID_SCHEDULE_VALUES = new Set(['undefined', 'null', 'nan']);
 
 const normalizeScheduleValue = (value: unknown): string => {
@@ -157,11 +173,16 @@ export const extractThuList = (value: unknown): string[] => {
 export const hasTimetableSlot = (classModel?: Pick<ClassModel, 'Thu' | 'Tiet'>): boolean => {
   if (!classModel) return false;
   const { Thu, Tiet } = classModel;
+  if (!Thu || !Tiet || Thu === '*' || Tiet === '*') return false;
   const thuList = extractThuList(Thu);
   const listTiet = getDanhSachTiet(Tiet);
   if (thuList.length === 0 || listTiet.length === 0) return false;
+  if (listTiet.includes('*')) return false;
 
-  return listTiet.every(isValidTiet);
+  return listTiet.every((t) => {
+    const num = Number(t === '0' ? 10 : t);
+    return Number.isInteger(num) && num >= 1 && num <= 15;
+  });
 };
 
 /**

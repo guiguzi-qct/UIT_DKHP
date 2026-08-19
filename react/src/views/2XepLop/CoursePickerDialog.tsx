@@ -19,7 +19,7 @@ import Typography from '@mui/material/Typography';
 import { enqueueSnackbar } from 'notistack';
 import { useEffect, useMemo, useState } from 'react';
 import { ClassModel } from '../../types';
-import { getDanhSachTiet, hasOverlapSchedule, hasTimetableSlot, isSameAgGridRowId } from '../../utils';
+import { formatDisplayTiet, getDanhSachTiet, hasOverlapSchedule, hasTimetableSlot, isSameAgGridRowId } from '../../utils';
 import { selectFinalDataTkb, selectSelectedClassesBuoc3, useTkbStore } from '../../zus';
 import { TimetablePickTarget } from '../components/ThoiKhoaBieuTable';
 import { cleanTenMH } from '../1ChonFileExcel/utils';
@@ -1297,7 +1297,7 @@ export function CoursePickerSidePanel({
                   key={key + (isChild ? '-child' : '')}
                   className={`course-flat-row ${conflict ? 'is-conflict' : ''} ${isActive ? 'is-active' : ''} ${isChild ? 'is-child-practice-row' : ''}`}
                   onClick={() => !conflict && toggleCandidate(candidate)}
-                  onMouseEnter={() => !conflict && onHoverClass?.(candidate)}
+                  onMouseEnter={() => !conflict && hasTimetableSlot(candidate) && onHoverClass?.(candidate)}
                   onMouseLeave={() => onHoverClass?.(null)}
                 >
                   <td style={{ textAlign: 'center' }} onClick={(e) => e.stopPropagation()}>
@@ -1334,7 +1334,7 @@ export function CoursePickerSidePanel({
                     {candidate.Thu ? `T${candidate.Thu}` : '—'}
                   </td>
                   <td className="cell-lich">
-                    {candidate.Tiet || '—'}
+                    {formatDisplayTiet(candidate.Tiet)}
                   </td>
                   <td className="cell-phong">{candidate.PhongHoc || '—'}</td>
                   <td className="cell-type" style={{ textAlign: 'center' }}>

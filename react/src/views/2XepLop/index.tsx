@@ -28,6 +28,7 @@ function Index() {
 
   const validHoveredClass = useMemo(() => {
     if (!hoveredClass) return null;
+    if (!hasTimetableSlot(hoveredClass)) return null;
     if (selectedClasses.some((s) => isSameAgGridRowId(s, hoveredClass))) return null;
     if (hasOverlapSchedule(selectedClasses, hoveredClass)) return null;
     return hoveredClass;
