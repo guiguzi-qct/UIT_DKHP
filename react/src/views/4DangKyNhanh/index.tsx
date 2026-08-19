@@ -517,7 +517,7 @@ ${autoSubmitSnippet}
     if (!unregisterScriptCode) return;
     copyToClipboard(unregisterScriptCode, () => {
       setCopiedUnregisterScript(true);
-      enqueueSnackbar('Đã sao chép Script HỦY / XÓA LỚP vào bộ nhớ tạm!', { variant: 'success' });
+      enqueueSnackbar('Đã sao chép Script vào bộ nhớ tạm!', { variant: 'success' });
       setTimeout(() => setCopiedUnregisterScript(false), 2000);
     });
   };
@@ -921,7 +921,7 @@ ${autoSubmitSnippet}
                 onClick={handleCopyUnregisterScript}
                 disabled={classCount === 0}
               >
-                {copiedUnregisterScript ? 'Đã sao chép Script Xóa Lớp!' : 'Sao chép Script Xóa Lớp'}
+                {copiedUnregisterScript ? 'Đã sao chép Script!' : 'Sao chép Script'}
               </Button>
             </Box>
           </Box>
@@ -968,8 +968,8 @@ ${autoSubmitSnippet}
               <Box className="dkn-guide-step-card">
                 <span className="dkn-step-badge" style={{ background: '#ef4444', color: '#fff' }}>1</span>
                 <Box className="dkn-step-body">
-                  <strong>Sao chép Script Xóa Lớp</strong>
-                  <span>Bấm nút <code>Sao chép Script Xóa Lớp</code> ở góc trên.</span>
+                  <strong>Sao chép Script</strong>
+                  <span>Bấm nút <code>Sao chép Script</code> ở góc trên.</span>
                 </Box>
               </Box>
 
@@ -985,7 +985,7 @@ ${autoSubmitSnippet}
                 <span className="dkn-step-badge" style={{ background: '#ef4444', color: '#fff' }}>3</span>
                 <Box className="dkn-step-body">
                   <strong>Dán &amp; Chạy</strong>
-                  <span>Nhấn <code>Ctrl + V</code> ➔ Bấm <code>Enter</code>. Tự động bấm dấu <code>-</code> và xác nhận nút <strong>XÓA LỚP</strong>!</span>
+                  <span>Nhấn <code>Ctrl + V</code> ➔ Bấm <code>Enter</code>. Tự động bấm dấu <code>-</code> và xóa lớp!</span>
                 </Box>
               </Box>
             </Box>
@@ -1000,7 +1000,7 @@ ${autoSubmitSnippet}
               endIcon={showUnregisterPreview ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
               className="dkn-toggle-code-btn"
             >
-              {showUnregisterPreview ? 'Thu gọn mã Script Xóa Lớp' : 'Xem chi tiết mã Script Xóa Lớp'}
+              {showUnregisterPreview ? 'Thu gọn mã Script' : 'Xem chi tiết mã Script'}
             </Button>
           </Box>
 
