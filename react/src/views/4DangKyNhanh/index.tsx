@@ -226,6 +226,7 @@ ${autoSubmitSnippet}
   const [copiedUnregisterScript, setCopiedUnregisterScript] = useState(false);
   const [showUnregisterPreview, setShowUnregisterPreview] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  const [autoDelete, setAutoDelete] = useState<boolean>(false);
   const [deleteKeptCodes, setDeleteKeptCodes] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
@@ -405,7 +406,11 @@ ${autoSubmitSnippet}
     );
 
   if (deleteBtn) {
-    deleteBtn.click();
+    ${
+      autoDelete
+        ? 'deleteBtn.click();'
+        : 'console.log("%c+ Đã chọn xong các lớp cần xóa. (Auto Xóa: TẮT - Vui lòng tự bấm nút XÓA LỚP trên web)", "color:#ef4444;font-weight:700");'
+    }
   } else {
     console.log(\`Đã chọn \${selected} lớp nhưng không tìm thấy nút XÓA.\`);
   }
@@ -416,7 +421,7 @@ ${autoSubmitSnippet}
     );
   }
 })();`;
-  }, [selectedClasses, deleteKeptCodes]);
+  }, [selectedClasses, deleteKeptCodes, autoDelete]);
 
   const unregisterScriptLines = useMemo(() => unregisterScriptCode.split('\n'), [unregisterScriptCode]);
 
@@ -872,6 +877,41 @@ ${autoSubmitSnippet}
             </Box>
 
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={autoDelete}
+                    onChange={(e) => setAutoDelete(e.target.checked)}
+                    size="small"
+                    sx={{
+                      '& .MuiSwitch-switchBase.Mui-checked': {
+                        color: '#ef4444',
+                      },
+                      '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                        backgroundColor: '#ef4444',
+                        opacity: 0.8,
+                      },
+                    }}
+                  />
+                }
+                label={
+                  <Typography variant="body2" sx={{ fontWeight: 700, fontSize: '0.85rem', color: '#0E2128' }}>
+                    Auto Xóa: <strong>{autoDelete ? 'BẬT' : 'TẮT'}</strong>
+                  </Typography>
+                }
+                sx={{
+                  margin: 0,
+                  userSelect: 'none',
+                  background: '#ffffff',
+                  px: 1.75,
+                  py: 0.5,
+                  borderRadius: '12px',
+                  border: '1.5px solid #ef4444',
+                  boxShadow: '0 2px 6px rgba(239, 68, 68, 0.06)',
+                  transition: 'all 0.2s ease-in-out',
+                }}
+              />
+
               <Button
                 variant="outlined"
                 color="error"
