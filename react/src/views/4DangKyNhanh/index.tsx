@@ -908,7 +908,7 @@ ${autoSubmitSnippet}
               background: '#fff5f5',
               display: 'flex',
               alignItems: 'center',
-              justify-content: 'space-between',
+              justifyContent: 'space-between',
               cursor: 'pointer',
               transition: 'all 0.2s ease',
             }}
