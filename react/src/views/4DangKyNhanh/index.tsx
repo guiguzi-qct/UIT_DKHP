@@ -148,6 +148,7 @@ ${codesIndent}
   if (!table) return;
 
   const remaining = new Set(targets);
+  const success = [];
   const failed = [];
 
   const rows = table.rows;
@@ -162,6 +163,7 @@ ${codesIndent}
     const code = cellText.split(/[\\s\\u00A0]+/)[0];
 
     let matchedTarget = null;
+
     if (remaining.has(code)) {
       matchedTarget = code;
     } else {
@@ -187,6 +189,8 @@ ${codesIndent}
     if (!cb.checked) {
       cb.click();
     }
+
+    success.push(matchedTarget);
   }
 
   // Mã không có trong bảng
@@ -194,10 +198,18 @@ ${codesIndent}
 
 ${autoSubmitSnippet}
 
-  // Chỉ log lớp không đăng ký được
-  if (failed.length) {
+  // Log từng lớp
+  for (const code of success) {
     console.log(
-      \`Không đăng ký được\\n\${failed.join("\\n")}\`
+      "%c+ Đã đăng ký: " + code,
+      "color:#22c55e;font-weight:700"
+    );
+  }
+
+  for (const code of failed) {
+    console.log(
+      "%c!!! Ko đăng ký: " + code,
+      "color:#ef4444;font-weight:700"
     );
   }
 })();`;
@@ -539,7 +551,7 @@ ${autoSubmitSnippet}
                 }
                 label={
                   <Typography variant="body2" sx={{ fontWeight: 700, fontSize: '0.85rem', color: '#0E2128' }}>
-                    Tự động bấm đăng ký: <strong>{autoSubmit ? 'BẬT' : 'TẮT'}</strong>
+                    Auto ĐKy: <strong>{autoSubmit ? 'BẬT' : 'TẮT'}</strong>
                   </Typography>
                 }
                 sx={{
